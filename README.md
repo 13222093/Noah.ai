@@ -1,13 +1,13 @@
-# DeepBlue — Flood Monitoring Platform
+# noah.ai — Flood Monitoring Platform
 
-Unified flood monitoring platform combining **Floodzy** (Next.js, Supabase, Gemini AI) and **Jakarta-Floodnet** (LSTM prediction, YOLO visual verification). Built with Next.js 16, shadcn/ui, Tailwind CSS, and a Python FastAPI ML microservice.
+Unified flood monitoring platform combining **noah.ai** (Next.js, Supabase, Gemini AI) and **Jakarta-Floodnet** (LSTM prediction, YOLO visual verification). Built with Next.js 16, shadcn/ui, Tailwind CSS, and a Python FastAPI ML microservice.
 
 ## Repository Structure
 
 | Directory | Description |
 |-----------|-------------|
 | **ProjectX** | Main unified app — Next.js frontend + Python ML service |
-| **Floodzy** | Original Floodzy source (reference) |
+| **noah.ai** | Original noah.ai source (reference) |
 | **Jakarta-Floodnet** | Original Floodnet source (reference) |
 
 **Use ProjectX** for development and deployment.

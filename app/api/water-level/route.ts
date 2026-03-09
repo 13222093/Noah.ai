@@ -1,107 +1,108 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getIp } from '@/src/lib/getIp';
-import { rateLimit } from '@/src/lib/rateLimiter';
-import { getCache, setCache } from '@/src/lib/cache';
-import * as Sentry from "@sentry/nextjs";
-import { logApi, now } from '@/src/lib/logger';
-import { getRequestId } from '@/src/lib/requestId';
+import fs from 'fs';
+import path from 'path';
 
-export const runtime = "edge";
+/**
+ * Historical replay water level endpoint.
+ * Uses real 2020 TMA Manggarai data from DATASET_FINAL_TRAINING.csv,
+ * replayed based on current hour-of-day for realistic demo patterns.
+ */
 
-export async function GET(request: NextRequest) {
-  const start = now();
-  const ip = getIp(request);
-  const requestId = getRequestId(request.headers);
-  const cacheKey = `cache:water-level:${request.url}`;
+interface HistoricalRow {
+  timestamp: string;
+  hujan_bogor: number;
+  hujan_jakarta: number;
+  tma_manggarai: number;
+}
 
-  let status = 200;
-  let cacheStatus: "HIT" | "MISS" | "BYPASS" = "BYPASS";
-  let rlRemaining: number | undefined;
-  let errorMsg: string | undefined;
+let cachedData: HistoricalRow[] | null = null;
+
+function loadHistoricalData(): HistoricalRow[] {
+  if (cachedData) return cachedData;
+
+  const csvPath = path.join(process.cwd(), 'ml-service', 'data', 'DATASET_FINAL_TRAINING.csv');
 
   try {
-    // Check cache first
-    const cachedResponse = await getCache(cacheKey);
-    if (cachedResponse) {
-      cacheStatus = "HIT";
-      const response = NextResponse.json(cachedResponse);
-      response.headers.set('X-Cache', cacheStatus);
-      response.headers.set('X-Request-Id', requestId);
-      return response;
-    }
-
-    // Apply rate limiting
-    if (ip) {
-      const { allowed, limit, remaining, reset } = await rateLimit(`water-level_rate_limit:${ip}`);
-      rlRemaining = remaining;
-      const headers = {
-        'X-RateLimit-Limit': String(limit),
-        'X-RateLimit-Remaining': String(remaining),
-        'X-RateLimit-Reset': String(reset),
+    const raw = fs.readFileSync(csvPath, 'utf-8');
+    const lines = raw.trim().split('\n');
+    // Skip header: "Unnamed: 0,hujan_bogor,hujan_jakarta,tma_manggarai"
+    const rows = lines.slice(1).map((line) => {
+      const parts = line.split(',');
+      return {
+        timestamp: parts[0].trim(),
+        hujan_bogor: parseFloat(parts[1]) || 0,
+        hujan_jakarta: parseFloat(parts[2]) || 0,
+        tma_manggarai: parseFloat(parts[3]) || 0,
       };
-
-      if (!allowed) {
-        status = 429;
-        errorMsg = "Too Many Requests";
-        const response = new NextResponse('Too Many Requests', { status: 429, headers });
-        response.headers.set('X-Request-Id', requestId);
-        return response;
-      }
-      // Add rate limit headers to the response if allowed
-      Object.assign(request.headers, headers);
-    }
-
-    // Simulate fetching data
-    const data = {
-      message: "Data from Water Level API",
-      timestamp: new Date().toISOString(),
-      query: request.url,
-    };
-
-    // Cache the response
-    await setCache(cacheKey, data, { ttl: 60 });
-    cacheStatus = "MISS";
-
-    const response = NextResponse.json(data);
-    response.headers.set('X-Cache', cacheStatus);
-    response.headers.set('X-Request-Id', requestId);
-    // Add rate limit headers if they were set in the request headers
-    if (ip) {
-      const { limit, remaining, reset } = await rateLimit(`water-level_rate_limit:${ip}`);
-      response.headers.set('X-RateLimit-Limit', String(limit));
-      response.headers.set('X-RateLimit-Remaining', String(remaining));
-      response.headers.set('X-RateLimit-Reset', String(reset));
-    }
-    return response;
-
-  } catch (e: any) {
-    Sentry.captureException(e);
-    status = e?.status || 500;
-    errorMsg = e?.message || "Internal Server Error";
-    console.error('API Error:', e);
-    const r = NextResponse.json(
-      { error: errorMsg },
-      { status: status }
-    );
-    r.headers.set('X-Request-Id', requestId);
-    // If it's a rate limit error, add the headers
-    if (e.name === "RateLimitError") {
-      r.headers.set("X-RateLimit-Limit", String(e.limit));
-      r.headers.set("X-RateLimit-Remaining", String(e.remaining));
-      r.headers.set("X-RateLimit-Reset", String(e.reset));
-    }
-    return r;
-  } finally {
-    logApi({
-      route: "/api/water-level",
-      method: "GET",
-      status: status,
-      ip: ip,
-      cache: cacheStatus,
-      rlRemaining: rlRemaining,
-      durationMs: now() - start,
-      error: errorMsg,
-      requestId: requestId,
     });
+    cachedData = rows;
+    return rows;
+  } catch (e) {
+    console.error('Failed to load historical data:', e);
+    return [];
   }
+}
+
+function getReplayIndex(data: HistoricalRow[]): number {
+  // Map current time into the dataset using hour-of-day + day-of-month
+  const now = new Date();
+  const hour = now.getHours();
+  const dayOfMonth = now.getDate() - 1; // 0-indexed
+  const index = (dayOfMonth * 24 + hour) % data.length;
+  return index;
+}
+
+export async function GET(request: NextRequest) {
+  const data = loadHistoricalData();
+
+  if (data.length === 0) {
+    return NextResponse.json(
+      { error: 'Historical data not available' },
+      { status: 503 }
+    );
+  }
+
+  const { searchParams } = new URL(request.url);
+  const windowStr = searchParams.get('window');
+  const window = windowStr ? parseInt(windowStr, 10) : 1; // default: 1 reading
+
+  const currentIndex = getReplayIndex(data);
+
+  // Return a window of readings (for charts / history)
+  const startIndex = Math.max(0, currentIndex - window + 1);
+  const readings = data.slice(startIndex, currentIndex + 1).map((row, i) => ({
+    timestamp: new Date().toISOString(), // Current replay timestamp
+    water_level_cm: row.tma_manggarai,
+    rainfall_bogor_mm: row.hujan_bogor,
+    rainfall_jakarta_mm: row.hujan_jakarta,
+    location_id: 'MANGGARAI_01',
+    source: 'historical_replay',
+    original_timestamp: row.timestamp,
+  }));
+
+  // Current reading (latest)
+  const current = data[currentIndex];
+  const riskLevel =
+    current.tma_manggarai >= 850 ? 'CRITICAL' :
+    current.tma_manggarai >= 700 ? 'BAHAYA' :
+    current.tma_manggarai >= 400 ? 'WASPADA' : 'AMAN';
+
+  return NextResponse.json({
+    current: {
+      timestamp: new Date().toISOString(),
+      water_level_cm: current.tma_manggarai,
+      rainfall_bogor_mm: current.hujan_bogor,
+      rainfall_jakarta_mm: current.hujan_jakarta,
+      location_id: 'MANGGARAI_01',
+      risk_level: riskLevel,
+      source: 'historical_replay',
+      original_timestamp: current.timestamp,
+    },
+    history: window > 1 ? readings : undefined,
+    meta: {
+      dataset_size: data.length,
+      replay_index: currentIndex,
+      note: 'Data replayed from real 2020 TMA Manggarai historical records',
+    },
+  });
 }

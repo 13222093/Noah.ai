@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Halaman Tidak Ditemukan | Floodzy',
+    title: 'Halaman Tidak Ditemukan | noah.ai',
     description: 'Maaf, halaman yang Anda cari tidak dapat ditemukan.',
 };
 

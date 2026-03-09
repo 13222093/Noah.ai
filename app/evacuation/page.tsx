@@ -203,7 +203,7 @@ export default function InfoEvakuasiPage() {
             <Shield className="w-6 h-6 text-cyan-600 dark:text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Floodzie</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">noah.ai</h1>
             <p className="text-cyan-600 dark:text-cyan-400 text-sm">{t('evacuationInfo.title')}</p>
           </div>
         </div>

@@ -149,7 +149,7 @@ export default function GeminiChatSection({
         onClick={() => setIsOpen(true)}
         className="fixed bottom-4 right-4 z-40 bg-slate-800 dark:bg-slate-900 hover:bg-slate-700 dark:hover:bg-slate-800 text-white p-3 rounded-full shadow-2xl transition-all duration-300"
       >
-        <Image src="/robofloodzy.png" alt="Asisten AI Floodzie" width={40} height={40} className="rounded-full" />
+        <Image src="/robonoah.ai.png" alt="Asisten AI noah.ai" width={40} height={40} className="rounded-full" />
         <motion.div
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
@@ -200,7 +200,7 @@ export default function GeminiChatSection({
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-slate-800 dark:text-white font-bold text-base">Floodzie Assistant</h3>
+                      <h3 className="text-slate-800 dark:text-white font-bold text-base">noah.ai Assistant</h3>
                       <div className="flex items-center space-x-2">
                         <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                         <p className="text-cyan-400 text-xs font-medium">Sistem Analisis Real-time</p>

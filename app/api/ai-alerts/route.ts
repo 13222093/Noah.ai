@@ -1,4 +1,4 @@
-// mattyudha/floodzy/Floodzy-04cbe0509e23f883f290033cafa7f880e929fe65/app/api/gemini-alerts/route.ts
+// mattyudha/noah.ai/noah.ai-04cbe0509e23f883f290033cafa7f880e929fe65/app/api/gemini-alerts/route.ts
 import { NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 

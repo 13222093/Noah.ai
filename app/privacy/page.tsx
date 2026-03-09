@@ -1,6 +1,6 @@
 export const metadata = {
-    title: 'Kebijakan Privasi | Floodzy',
-    description: 'Kebijakan privasi Floodzy mengenai penggunaan data lokasi dan cookie.',
+    title: 'Kebijakan Privasi | noah.ai',
+    description: 'Kebijakan privasi noah.ai mengenai penggunaan data lokasi dan cookie.',
 };
 
 export default function PrivacyPage() {
@@ -12,7 +12,7 @@ export default function PrivacyPage() {
 
                 <h2>1. Pengumpulan Data Lokasi</h2>
                 <p>
-                    Floodzy menggunakan data lokasi Anda (GPS) semata-mata untuk menampilkan peringatan banjir di sekitar Anda.
+                    noah.ai menggunakan data lokasi Anda (GPS) semata-mata untuk menampilkan peringatan banjir di sekitar Anda.
                     Data ini bersifat anonim dan tidak disimpan secara permanen di server kami.
                 </p>
 
@@ -24,7 +24,7 @@ export default function PrivacyPage() {
 
                 <h2>3. Kontak</h2>
                 <p>
-                    Untuk pertanyaan mengenai privasi, silakan hubungi <a href="mailto:privacy@floodzy.id">privacy@floodzy.id</a>.
+                    Untuk pertanyaan mengenai privasi, silakan hubungi <a href="mailto:privacy@noah.ai.id">privacy@noah.ai.id</a>.
                 </p>
             </div>
         </div>

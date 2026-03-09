@@ -8,7 +8,7 @@ const id = {
         login: 'Masuk',
         logout: 'Keluar',
         language: 'Bahasa',
-        floodzy: 'Floodzie',
+        floodzy: 'noah.ai',
         floodDetectionSystem: 'Sistem Deteksi Banjir',
         searchPlaceholder: 'Cari wilayah atau lokasi...',
         searchPlaceholderShort: 'Cari wilayah',

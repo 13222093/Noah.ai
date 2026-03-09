@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Teknologi & Cara Baca Data Banjir: IoT, Sensor, & BPBD | Floodzy',
-    description: 'Memahami cara kerja sensor IoT ketinggian air, perbedaan data Floodzy vs BPBD, dan cara membaca grafik level siaga banjir.',
+    title: 'Teknologi & Cara Baca Data Banjir: IoT, Sensor, & BPBD | noah.ai',
+    description: 'Memahami cara kerja sensor IoT ketinggian air, perbedaan data noah.ai vs BPBD, dan cara membaca grafik level siaga banjir.',
 };
 
 export default function TechnologyPage() {
@@ -23,12 +23,12 @@ export default function TechnologyPage() {
                     </div>
 
                     <p className="lead text-xl text-slate-600 dark:text-slate-300 mb-8">
-                        Data bukan sekadar angka. Di Floodzy, data diterjemahkan menjadi sinyal keselamatan. Mari membedah teknologi di balik peringatan dini banjir modern.
+                        Data bukan sekadar angka. Di noah.ai, data diterjemahkan menjadi sinyal keselamatan. Mari membedah teknologi di balik peringatan dini banjir modern.
                     </p>
 
                     <h2 className="text-2xl font-bold mt-8 mb-4">1. Bagaimana Sensor IoT Bekerja?</h2>
                     <p>
-                        Floodzy menggunakan sensor ultrasonik yang dipasang di bawah jembatan atau pintu air. Sensor ini menembakkan gelombang suara ke permukaan air dan mengukur waktu pantulannya.
+                        noah.ai menggunakan sensor ultrasonik yang dipasang di bawah jembatan atau pintu air. Sensor ini menembakkan gelombang suara ke permukaan air dan mengukur waktu pantulannya.
                         <br />
                         <strong>Keunggulan:</strong> Tidak tersentuh air (non-contact), jadi aman dari sampah hanyut. Data dikirim setiap 60 detik (Realtime) via jaringan LoRaWAN atau GSM.
                     </p>
@@ -54,16 +54,16 @@ export default function TechnologyPage() {
                         </li>
                     </ul>
 
-                    <h2 className="text-2xl font-bold mt-8 mb-4">3. BPBD vs Floodzy: Apa Bedanya?</h2>
+                    <h2 className="text-2xl font-bold mt-8 mb-4">3. BPBD vs noah.ai: Apa Bedanya?</h2>
                     <p>
                         <strong>BPBD (Pemerintah):</strong> Data resmi, akurat, namun pelaporan seringkali manual/periodik (setiap jam).
                         <br />
-                        <strong>Floodzy (Crowd & IoT):</strong> Data realtime (per menit), mencakup sensor mandiri warga, dan prediksi AI. Kami melengkapi data pemerintah dengan kecepatan.
+                        <strong>noah.ai (Crowd & IoT):</strong> Data realtime (per menit), mencakup sensor mandiri warga, dan prediksi AI. Kami melengkapi data pemerintah dengan kecepatan.
                     </p>
 
                     <h2 className="text-2xl font-bold mt-8 mb-4">4. Kenapa Latency Mematikan?</h2>
                     <p>
-                        Dalam banjir bandang, air bisa naik 1 meter dalam 10 menit. Jika sistem pelaporan delay 30 menit, peringatan datang terlambat. Arsitektur Floodzy didesain untuk "Zero Latency" dari deteksi sensor hingga notifikasi di HP Anda.
+                        Dalam banjir bandang, air bisa naik 1 meter dalam 10 menit. Jika sistem pelaporan delay 30 menit, peringatan datang terlambat. Arsitektur noah.ai didesain untuk "Zero Latency" dari deteksi sensor hingga notifikasi di HP Anda.
                     </p>
 
                     <div className="bg-slate-900 text-white p-6 rounded-lg my-8 font-mono text-sm border border-slate-700">

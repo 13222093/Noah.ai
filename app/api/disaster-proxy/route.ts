@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       cache: 'no-store', // Pastikan data selalu terbaru
       headers: {
         'Accept': 'application/json',
-        'User-Agent': 'Floodzy/1.0', // Updated User-Agent
+        'User-Agent': 'noah.ai/1.0', // Updated User-Agent
         // ...(PETABENCANA_API_KEY ? { Authorization: `Bearer ${PETABENCANA_API_KEY}` } : {}), // Dikomentari untuk debugging 403
       },
     });

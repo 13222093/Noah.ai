@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Panduan Siaga & Mitigasi Banjir: Evakuasi, Checklist, & Tips | Floodzy',
+    title: 'Panduan Siaga & Mitigasi Banjir: Evakuasi, Checklist, & Tips | noah.ai',
     description: 'Panduan lengkap siaga banjir. Checklist evakuasi keluarga, cara menyelamatkan dokumen, perbedaan banjir vs rob, dan langkah mitigasi bencana.',
 };
 
@@ -23,14 +23,14 @@ export default function MitigationPage() {
                     </div>
 
                     <p className="lead text-xl text-slate-600 dark:text-slate-300 mb-8">
-                        Banjir sering datang mendadak. Kesiapan Anda dalam 10 menit pertama bisa menyelamatkan nyawa dan harta benda. Ini adalah panduan bertahan hidup versi Floodzy.
+                        Banjir sering datang mendadak. Kesiapan Anda dalam 10 menit pertama bisa menyelamatkan nyawa dan harta benda. Ini adalah panduan bertahan hidup versi noah.ai.
                     </p>
 
                     <h2 className="text-2xl font-bold mt-8 mb-4">1. Apa yang Harus Dilakukan SEBELUM Banjir?</h2>
                     <ul className="list-disc pl-6 space-y-2">
                         <li><strong>Siapkan "Tas Siaga Bencana" (Go-Bag):</strong> Berisi dokumen penting (bungkus plastik), senter, baterai cadangan, P3K, makanan kering, dan air minum.</li>
                         <li><strong>Kenali Rute Evakuasi:</strong> Tentukan titik kumpul keluarga jika terpisah.</li>
-                        <li><strong>Pantau Aplikasi Floodzy:</strong> Aktifkan notifikasi untuk mendapatkan peringatan dini 1-3 jam sebelum air sampai.</li>
+                        <li><strong>Pantau Aplikasi noah.ai:</strong> Aktifkan notifikasi untuk mendapatkan peringatan dini 1-3 jam sebelum air sampai.</li>
                     </ul>
 
                     <h2 className="text-2xl font-bold mt-8 mb-4">2. Checklist "Evakuasi 3 Menit"</h2>

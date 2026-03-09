@@ -27,13 +27,13 @@ const Footer = () => {
             >
               <Image
                 src="/apple-icon.png"
-                alt="Floodzy Logo"
+                alt="noah.ai Logo"
                 width={32}
                 height={32}
                 className="rounded-md"
               />
               <span className="text-2xl font-bold text-foreground">
-                Floodzy
+                noah.ai
               </span>
             </Link>
             <p className="mt-2 text-sm">
@@ -94,7 +94,7 @@ const Footer = () => {
         <Separator className="my-8 bg-border" />
 
         <div className="text-center text-sm">
-          <p>&copy; {currentYear} Floodzy. All rights reserved.</p>
+          <p>&copy; {currentYear} noah.ai. All rights reserved.</p>
         </div>
       </div>
     </footer>

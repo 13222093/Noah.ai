@@ -8,7 +8,7 @@ const en = {
         login: 'Login',
         logout: 'Logout',
         language: 'Language',
-        floodzy: 'Floodzie',
+        floodzy: 'noah.ai',
         floodDetectionSystem: 'Flood Detection System',
         searchPlaceholder: 'Search region or location...',
         searchPlaceholderShort: 'Search region',

@@ -132,7 +132,7 @@ const navigationItems: NavItem[] = [
   },
   {
     id: 'about',
-    label: 'aboutFloodzy',
+    label: 'aboutnoah.ai',
     href: '/about.html?mode=read',
     icon: Info,
     color: 'text-cyan-500',

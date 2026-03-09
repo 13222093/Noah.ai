@@ -15,9 +15,9 @@ const inter = Inter({ subsets: ['latin'] });
 
 // ✅ Konfigurasi disesuaikan dengan file yang ada
 export const metadata = {
-  metadataBase: new URL('https://floodzy.id'),
-  title: "Project X - Unified Flood Monitoring",
-  description: "Real-time flood detection, LSTM prediction, and visual verification",
+  metadataBase: new URL('https://noah.ai.id'),
+  title: "noah.ai — AI Flood Early Warning",
+  description: "AI-powered flood prediction, real-time monitoring, and SMS alerts for vulnerable communities",
   icons: {
     icon: [
       { url: '/web-app-manifest-192x192.png', sizes: '192x192' },

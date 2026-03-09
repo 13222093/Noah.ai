@@ -146,7 +146,7 @@ export function AQIDetailCard({ point, onClose }: { point: MockAQIPoint; onClose
             {/* Liquid Glass Base - Darkened for Contrast */}
             <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.5)]" />
 
-            {/* Floodzy Gradient Tint (Subtle Overlay) */}
+            {/* noah.ai Gradient Tint (Subtle Overlay) */}
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 via-transparent to-blue-500/10 opacity-50 pointer-events-none" />
 
             {/* Refraction Highlight (Edge) */}

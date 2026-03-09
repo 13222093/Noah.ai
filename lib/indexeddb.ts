@@ -1,6 +1,6 @@
 // lib/indexeddb.ts
 
-const DB_NAME = 'FloodzyDB';
+const DB_NAME = 'noah.aiDB';
 const DB_VERSION = 1;
 const STORE_NAME = 'disasterProneAreas';
 

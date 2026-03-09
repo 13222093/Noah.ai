@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Status Banjir Jakarta Realtime & Lokasi Rawan | Floodzy',
+    title: 'Status Banjir Jakarta Realtime & Lokasi Rawan | noah.ai',
     description: 'Peta banjir realtime Jakarta. Cek status pintu air Manggarai, titik rawan Ciliwung, kondisi pompa air, dan info banjir rob Jakarta Utara.',
 };
 
@@ -47,7 +47,7 @@ export default function JakartaPage() {
                     </p>
                     <div className="my-4">
                         <Link href="/dashboard" className="text-cyan-500 hover:underline font-bold">
-                            &rarr; Cek Status Operasional Pompa di Peta Floodzy
+                            &rarr; Cek Status Operasional Pompa di Peta noah.ai
                         </Link>
                     </div>
 
@@ -59,7 +59,7 @@ export default function JakartaPage() {
                     <div className="mt-12 p-6 border border-slate-200 dark:border-slate-800 rounded-lg">
                         <h3 className="text-lg font-bold mb-4">Apakah Rumah Anda Aman?</h3>
                         <p className="mb-4 text-sm text-slate-600 dark:text-slate-400">
-                            Gunakan fitur simulasi banjir di Floodzy untuk melihat radius genangan di area spesifik Anda.
+                            Gunakan fitur simulasi banjir di noah.ai untuk melihat radius genangan di area spesifik Anda.
                         </p>
                         <Link href="/dashboard" className="w-full block text-center bg-slate-900 dark:bg-slate-800 text-white py-3 rounded font-bold hover:bg-slate-800 transition">
                             Cek Radius Banjir

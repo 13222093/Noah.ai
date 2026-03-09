@@ -134,7 +134,7 @@ export function Header({ onMenuToggle, isMenuOpen }: HeaderProps) {
                   />
                 </div>
                 <div className="hidden sm:block">
-                  <h1 className="text-xl font-bold gradient-text">{t('common.floodzy')}</h1>
+                  <h1 className="text-xl font-bold gradient-text">{t('common.noah.ai')}</h1>
                   <p className="text-xs text-muted-foreground">
                     {t('common.floodDetectionSystem')}
                   </p>

@@ -68,7 +68,7 @@ export default function ContactPage() {
                                 <span>{'>>'} SYSTEM_DEPLOYMENT</span>
                             </div>
                             <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[0.9]">
-                                Deploy <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3B82F6] to-[#0099ff] animate-gradient">Floodzy</span><br />
+                                Deploy <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#3B82F6] to-[#0099ff] animate-gradient">noah.ai</span><br />
                                 In Your Region
                             </h1>
                             <p className="text-[#9499A6] text-lg leading-relaxed max-w-lg">
@@ -123,7 +123,7 @@ export default function ContactPage() {
                                         <input
                                             type="text"
                                             required
-                                            placeholder="FLOODZY DEMO REQUEST: [Org Name]"
+                                            placeholder="noah.ai DEMO REQUEST: [Org Name]"
                                             className="w-full bg-[#050507] border border-[#333] rounded p-3 font-mono text-sm text-[#3B82F6] placeholder-[#444] focus:border-[#3B82F6] focus:outline-none focus:ring-1 focus:ring-[#3B82F6] transition-all"
                                             value={formData.org}
                                             onChange={e => setFormData({ ...formData, org: e.target.value })}

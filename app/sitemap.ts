@@ -1,71 +1,71 @@
 export default function sitemap() {
     return [
         {
-            url: 'https://floodzy.id',
+            url: 'https://noah.ai.id',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/flood-map',
+            url: 'https://noah.ai.id/flood-map',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/weather-forecast',
+            url: 'https://noah.ai.id/weather-forecast',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/alerts',
+            url: 'https://noah.ai.id/alerts',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/flood-report',
+            url: 'https://noah.ai.id/flood-report',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/evacuation',
+            url: 'https://noah.ai.id/evacuation',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/sensor-data',
+            url: 'https://noah.ai.id/sensor-data',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/statistics',
+            url: 'https://noah.ai.id/statistics',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/education',
+            url: 'https://noah.ai.id/education',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/education/kenapa-jakarta-banjir',
+            url: 'https://noah.ai.id/education/kenapa-jakarta-banjir',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/education/panduan-siaga-banjir',
+            url: 'https://noah.ai.id/education/panduan-siaga-banjir',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/education/teknologi-monitoring-banjir',
+            url: 'https://noah.ai.id/education/teknologi-monitoring-banjir',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/education/banjir-jakarta-realtime',
+            url: 'https://noah.ai.id/education/banjir-jakarta-realtime',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/privacy',
+            url: 'https://noah.ai.id/privacy',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/data-source',
+            url: 'https://noah.ai.id/data-source',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/contact',
+            url: 'https://noah.ai.id/contact',
             lastModified: new Date().toISOString(),
         },
         {
-            url: 'https://floodzy.id/tentang-floodzy',
+            url: 'https://noah.ai.id/tentang-noah.ai',
             lastModified: new Date().toISOString(),
         },
     ];

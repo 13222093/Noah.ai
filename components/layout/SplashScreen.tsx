@@ -242,7 +242,7 @@ export function SplashScreen({ isFadingOut, onComplete }: SplashScreenProps) {
             >
               <motion.h1
                 className="flex justify-center text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight"
-                aria-label="Floodzie"
+                aria-label="noah.ai"
               >
                 {'Flood'.split('').map((char, index) => (
                   <motion.span

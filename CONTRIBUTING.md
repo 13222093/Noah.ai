@@ -1,6 +1,6 @@
-# Contributing to Floodzy
+# Contributing to noah.ai
 
-Terima kasih telah tertarik untuk berkontribusi ke **Floodzy**.  
+Terima kasih telah tertarik untuk berkontribusi ke **noah.ai**.  
 Dokumen ini menjelaskan aturan dan alur kontribusi agar kolaborasi berjalan rapi, aman, dan efisien.
 
 ---
@@ -87,7 +87,7 @@ Tidak ada secret / credential di kode
 Tidak menurunkan level keamanan (RLS, policy, dll)
 
 Kesesuaian Scope
-Relevan dengan tujuan Floodzy
+Relevan dengan tujuan noah.ai
 
 Tidak menambah kompleksitas yang tidak perlu
 
@@ -111,7 +111,7 @@ Data publik hanya tersedia melalui VIEW Supabase (read-only)
 
 Untuk pengembangan lokal, gunakan Docker atau database dummy
 
-Terima kasih telah berkontribusi dan membantu mengembangkan Floodzy.
+Terima kasih telah berkontribusi dan membantu mengembangkan noah.ai.
 
 markdown
 Salin kode

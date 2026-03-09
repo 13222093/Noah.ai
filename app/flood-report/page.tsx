@@ -338,7 +338,7 @@ export default function LaporBanjirPage() {
             <Droplets className="w-6 h-6 text-white" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">{t('common.floodzy')}</h1>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">{t('common.noah.ai')}</h1>
             <p className="text-xs sm:text-sm text-cyan-600 dark:text-cyan-400">{t('reportFlood.subtitle')}</p>
           </div>
         </div>

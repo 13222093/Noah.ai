@@ -1,8 +1,8 @@
 import Link from 'next/link';
 
 export const metadata = {
-    title: 'Sumber Data & Teknologi | Floodzy',
-    description: 'Transparansi sumber data sensor IoT dan API Floodzy.',
+    title: 'Sumber Data & Teknologi | noah.ai',
+    description: 'Transparansi sumber data sensor IoT dan API noah.ai.',
 };
 
 export default function DataSourcePage() {
@@ -17,7 +17,7 @@ export default function DataSourcePage() {
                             <span className="text-cyan-500">📡</span> Sensor IoT Independen
                         </h2>
                         <p className="text-slate-600 dark:text-slate-400 mb-4">
-                            Floodzy mengoperasikan jaringan sensor ultrasonik mandiri yang dipasang di titik-titik rawan banjir (Komunitas & Mitra).
+                            noah.ai mengoperasikan jaringan sensor ultrasonik mandiri yang dipasang di titik-titik rawan banjir (Komunitas & Mitra).
                             Data dikirim setiap 60 detik via LoRaWAN/GSM.
                         </p>
                         <div className="bg-slate-100 dark:bg-slate-800 p-3 rounded text-sm font-mono">

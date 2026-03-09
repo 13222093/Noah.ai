@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 export const metadata = {
-    title: 'Pusat Edukasi Banjir & Hidrologi | Floodzy',
+    title: 'Pusat Edukasi Banjir & Hidrologi | noah.ai',
     description: 'Artikel dan panduan lengkap tentang mitigasi bencana banjir, hidrologi, dan cara membaca data sensor cuaca.',
 };
 
@@ -72,7 +72,7 @@ export default function EducationHubPage() {
                             <div className="p-6 flex-1 flex flex-col">
                                 <h3 className="text-xl font-bold mb-3 group-hover:text-cyan-500 transition">Teknologi & Cara Baca Data</h3>
                                 <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 flex-1">
-                                    Memahami sensor IoT, satelit, dan cara membaca status pintu air di dashboard Floodzy.
+                                    Memahami sensor IoT, satelit, dan cara membaca status pintu air di dashboard noah.ai.
                                 </p>
                                 <div className="flex items-center text-xs text-slate-500 font-mono mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                                     <span>6 MIN READ</span>

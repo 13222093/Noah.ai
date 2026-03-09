@@ -98,7 +98,7 @@ export async function POST(request: Request) {
       model: 'gemini-2.5-flash',
       tools: tools,
       systemInstruction:
-        "Anda adalah asisten Floodzy. Tugas Anda adalah menjawab pertanyaan terkait banjir dan cuaca menggunakan tools yang tersedia. Aturan: 1. Jika nama lokasi disebutkan (misal: 'cuaca di Jakarta'), Anda WAJIB menggunakan tool `geocodeLocation` lalu `fetchWeatherData`. JANGAN PERNAH membalas dengan teks konfirmasi seperti 'Baik, saya akan cek'. Langsung panggil tool-nya. 2. Jika lokasi tidak spesifik ('di sekitar saya'), Anda WAJIB memanggil `requestUserLocation`. 3. Selalu gunakan tools jika memungkinkan.",
+        "Anda adalah asisten noah.ai. Tugas Anda adalah menjawab pertanyaan terkait banjir dan cuaca menggunakan tools yang tersedia. Aturan: 1. Jika nama lokasi disebutkan (misal: 'cuaca di Jakarta'), Anda WAJIB menggunakan tool `geocodeLocation` lalu `fetchWeatherData`. JANGAN PERNAH membalas dengan teks konfirmasi seperti 'Baik, saya akan cek'. Langsung panggil tool-nya. 2. Jika lokasi tidak spesifik ('di sekitar saya'), Anda WAJIB memanggil `requestUserLocation`. 3. Selalu gunakan tools jika memungkinkan.",
     });
 
     const contents: Content[] = [...(history || [])];

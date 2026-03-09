@@ -197,7 +197,7 @@ export async function geocodeLocation(
       url,
       {
         headers: {
-          'User-Agent': 'FloodzyApp/1.0 (devarahmat12334@gmail.com)', // Ganti dengan email Anda
+          'User-Agent': 'noah.aiApp/1.0 (devarahmat12334@gmail.com)', // Ganti dengan email Anda
         },
       },
       'Gagal mengidentifikasi lokasi. Silakan coba lagi.'

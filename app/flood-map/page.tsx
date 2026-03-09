@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useMemo } from 'react';
+import { Activity } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import {
   Carousel,
@@ -33,6 +34,10 @@ const MapSearchControl = dynamic(
 );
 const MapActionsControl = dynamic(
   () => import('@/components/flood-map/MapActionsControl'),
+  { ssr: false },
+);
+const PredictionLayer = dynamic(
+  () => import('@/components/flood-map/PredictionLayer'),
   { ssr: false },
 );
 
@@ -150,6 +155,7 @@ export default function PetaBanjirPage() {
   const [isRouting, setIsRouting] = useState(false); // New state
   const [isReporting, setIsReporting] = useState(false); // Added
   const [shouldOpenReportModal, setShouldOpenReportModal] = useState(false);
+  const [showPredictionLayer, setShowPredictionLayer] = useState(true);
 
   const evacuationPoints = mockEvacuationPoints;
 
@@ -371,6 +377,26 @@ export default function PetaBanjirPage() {
             }}
             isReporting={isReporting}
           />
+
+          {/* Prediction Risk Layer */}
+          <PredictionLayer visible={showPredictionLayer} />
+
+          {/* Prediction Layer Toggle */}
+          <div className="absolute bottom-24 right-3 z-[1001]">
+            <button
+              onClick={() => setShowPredictionLayer(!showPredictionLayer)}
+              className={clsx(
+                'flex items-center gap-1.5 px-3 py-2 rounded-lg shadow-md text-xs font-medium transition-colors',
+                showPredictionLayer
+                  ? 'bg-cyan-500 text-white hover:bg-cyan-600'
+                  : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'
+              )}
+              title="Toggle flood prediction overlay"
+            >
+              <Activity className="w-3.5 h-3.5" />
+              {showPredictionLayer ? 'Prediction ON' : 'Prediction OFF'}
+            </button>
+          </div>
         </FloodMapClient>
       </div>
 
