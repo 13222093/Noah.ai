@@ -325,7 +325,7 @@ body.sentinel-active #cursor-ring::after {
         box-shadow: none !important;
     }
 
-    .floodzy-logo,
+    .noah-logo,
     .text-cyan,
     .text-red,
     .text-warning {
@@ -349,7 +349,7 @@ header {
 }
 
 /* DRAMATIC LOGO */
-.floodzy-logo {
+.noah-logo {
     font-family: var(--font-display);
     text-transform: uppercase;
     font-size: 2rem;
@@ -379,8 +379,8 @@ header {
     }
 }
 
-.floodzy-logo::after {
-    content: 'FLOODZY';
+.noah-logo::after {
+    content: 'NOAH.AI';
     position: absolute;
     top: 0;
     left: 0;
@@ -1144,7 +1144,7 @@ h3 {
         font-size: 14px;
     }
 
-    .floodzy-logo {
+    .noah-logo {
         font-size: 1.25rem;
     }
 

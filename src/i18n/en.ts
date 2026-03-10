@@ -87,7 +87,7 @@ const en = {
         quickActions: 'Quick Actions',
         currentWeather: 'Current Weather',
         settings: 'Settings',
-        aboutFloodzy: 'About Floodzy'
+        aboutNoahAI: 'About noah.ai'
     },
     regionSelector: {
         title: 'Select Region',
@@ -535,7 +535,7 @@ const en = {
             }
         },
         gemini: {
-            welcome: '👋 Welcome to Floodzie Assistant!\n\nI can help you analyze:\n• Real-time flood status\n• Weather prediction and risk\n• Emergency action recommendations\n• Affected area information\n\nIs there anything you want to ask?',
+            welcome: '👋 Welcome to Noah.ai Assistant!\n\nI can help you analyze:\n• Real-time flood status\n• Weather prediction and risk\n• Emergency action recommendations\n• Affected area information\n\nIs there anything you want to ask?',
             suggestions: {
                 floodStatus: 'Flood status in my area',
                 weather: 'Today\'s weather forecast',
@@ -546,7 +546,7 @@ const en = {
                 quickAction: 'QUICK ACTION'
             },
             inputPlaceholder: 'Ask about flood conditions, weather, or evacuation...',
-            systemInfo: 'Connected to Floodzie system',
+            systemInfo: 'Connected to Noah.ai system',
             analyzing: 'Analyzing system data...',
             locationRequest: 'To provide accurate information, I need permission to access your location. Please approve the location request that appears in your browser.',
             locationSuccess: 'Your location was successfully obtained (Lat: {lat}, Lon: {lon}). Analyzing data...',
@@ -583,7 +583,7 @@ const en = {
     },
     settings: {
         title: 'Settings',
-        subtitle: 'Personalize your Floodzy experience',
+        subtitle: 'Personalize your noah.ai experience',
         defaultLocation: {
             title: 'Set Default Region',
             description: 'Choose the default location to load when the app starts.',

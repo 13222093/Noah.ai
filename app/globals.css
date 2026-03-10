@@ -1,17 +1,14 @@
 @import 'leaflet/dist/leaflet.css';
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
-
 @layer base {
   :root {
+    /* --- Legacy shadcn/ui variables (keep for existing components) --- */
     --background: 0 0% 100%;
     --foreground: 224 71.4% 4.1%;
-    --header-height: 4rem; /* Tambahkan ini */
     --card: 0 0% 100%;
     --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
@@ -29,7 +26,25 @@
     --border: 220 13% 91%;
     --input: 220 13% 91%;
     --ring: 224 71.4% 4.1%;
-    --radius: 0.5rem;
+    --radius: 0.375rem;
+
+    /* --- Command Center tokens (light mode) --- */
+    --cc-bg: #f8fafc;
+    --cc-surface: #ffffff;
+    --cc-elevated: #f1f5f9;
+    --cc-border: #e2e8f0;
+    --cc-border-active: rgba(0, 229, 255, 0.2);
+    --cc-cyan: #0891b2;
+    --cc-cyan-hover: #06b6d4;
+    --cc-cyan-inactive: #94a3b8;
+    --cc-cyan-glow: rgba(0, 229, 255, 0.1);
+    --cc-critical: #ff1744;
+    --cc-warning: #ff3d00;
+    --cc-caution: #ff9100;
+    --cc-safe: #00e676;
+    --cc-text: #0f172a;
+    --cc-text-secondary: #475569;
+    --cc-text-muted: #94a3b8;
   }
 
   .dark {
@@ -52,6 +67,24 @@
     --border: 215 27.9% 16.9%;
     --input: 215 27.9% 16.9%;
     --ring: 216 12.2% 83.9%;
+
+    /* --- Command Center tokens (dark mode) --- */
+    --cc-bg: #0a0e1a;
+    --cc-surface: #111827;
+    --cc-elevated: #1a2236;
+    --cc-border: #1e293b;
+    --cc-border-active: rgba(0, 229, 255, 0.2);
+    --cc-cyan: #00e5ff;
+    --cc-cyan-hover: #4dd0e1;
+    --cc-cyan-inactive: #26506a;
+    --cc-cyan-glow: rgba(0, 229, 255, 0.1);
+    --cc-critical: #ff1744;
+    --cc-warning: #ff3d00;
+    --cc-caution: #ff9100;
+    --cc-safe: #00e676;
+    --cc-text: #f1f5f9;
+    --cc-text-secondary: #94a3b8;
+    --cc-text-muted: #475569;
   }
 }
 
@@ -62,38 +95,223 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
     line-height: 1.6;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  h1, h2, h3, h4, h5, h6 {
     line-height: 1.2;
   }
 }
 
-/* Custom scrollbar */
+/* ===== COMMAND CENTER LAYOUT ===== */
+
+.cc-layout {
+  display: grid;
+  grid-template-columns: 60px 1fr;
+  grid-template-rows: 48px 1fr;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--cc-bg);
+}
+
+.cc-layout--with-right-panel {
+  grid-template-columns: 60px 1fr 280px;
+}
+
+/* NavRail */
+.cc-nav-rail {
+  grid-column: 1;
+  grid-row: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 60px;
+  background: var(--cc-surface);
+  border-right: 1px solid var(--cc-border);
+  z-index: 30;
+}
+
+.cc-nav-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  width: 100%;
+  border-bottom: 1px solid var(--cc-border);
+}
+
+.cc-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  color: var(--cc-text-muted);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  transition: color 0.15s, background-color 0.15s;
+}
+
+.cc-nav-item:hover {
+  color: var(--cc-text);
+  background: var(--cc-elevated);
+}
+
+.cc-nav-item--active {
+  color: var(--cc-cyan);
+  background: var(--cc-cyan-glow);
+}
+
+.cc-nav-label {
+  font-size: 9px;
+  font-weight: 500;
+  margin-top: 2px;
+  letter-spacing: 0.02em;
+}
+
+/* StatusBar */
+.cc-status-bar {
+  grid-column: 2 / -1;
+  grid-row: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 16px;
+  background: var(--cc-surface);
+  border-bottom: 1px solid var(--cc-border);
+  gap: 8px;
+  z-index: 20;
+}
+
+.cc-stat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: var(--cc-text-secondary);
+  font-size: 12px;
+  background: var(--cc-elevated);
+  border: 1px solid var(--cc-border);
+  white-space: nowrap;
+}
+
+.cc-stat-chip--critical {
+  color: var(--cc-critical);
+  background: rgba(255, 23, 68, 0.08);
+  border-color: rgba(255, 23, 68, 0.2);
+}
+
+.cc-stat-chip--normal {
+  color: var(--cc-safe);
+  background: rgba(0, 230, 118, 0.08);
+  border-color: rgba(0, 230, 118, 0.2);
+}
+
+/* Main Content */
+.cc-main {
+  grid-column: 2;
+  grid-row: 2;
+  overflow: auto;
+  position: relative;
+}
+
+/* Right Panel */
+.cc-right-panel {
+  grid-column: 3;
+  grid-row: 2;
+  border-left: 1px solid var(--cc-border);
+  background: var(--cc-surface);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Panel styling */
+.cc-panel {
+  background: var(--cc-surface);
+  border: 1px solid var(--cc-border);
+  border-radius: 6px;
+}
+
+.cc-panel:hover,
+.cc-panel.active {
+  border-color: var(--cc-border-active);
+  box-shadow: 0 0 12px var(--cc-cyan-glow);
+}
+
+/* ===== MOBILE LAYOUT ===== */
+@media (max-width: 767px) {
+  .cc-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 48px 1fr 56px;
+  }
+
+  .cc-layout--with-right-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .cc-nav-rail {
+    /* Bottom tab bar on mobile */
+    grid-column: 1;
+    grid-row: 3;
+    flex-direction: row;
+    width: 100%;
+    height: 56px;
+    border-right: none;
+    border-top: 1px solid var(--cc-border);
+    justify-content: space-around;
+    padding: 0 8px;
+  }
+
+  .cc-nav-logo {
+    display: none;
+  }
+
+  .cc-nav-item {
+    width: auto;
+    height: auto;
+    padding: 6px 12px;
+    min-width: 48px;
+  }
+
+  .cc-status-bar {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .cc-main {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .cc-right-panel {
+    display: none; /* Hidden on mobile, accessible via modal/drawer */
+  }
+}
+
+/* ===== CUSTOM SCROLLBAR ===== */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-muted;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/30 rounded-full;
+  background: var(--cc-border);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/50;
+  background: var(--cc-text-muted);
 }
 
-/* Glassmorphism utilities */
+/* ===== GLASSMORPHISM (legacy support) ===== */
 .glass {
   background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
@@ -106,7 +324,19 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Shimmer effect */
+/* ===== GRADIENT TEXT ===== */
+.gradient-text {
+  background: linear-gradient(135deg, var(--cc-cyan) 0%, #3b82f6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===== LOADING / SKELETON ===== */
+.skeleton {
+  @apply bg-muted animate-pulse;
+}
+
 .shimmer {
   position: relative;
   overflow: hidden;
@@ -115,33 +345,146 @@
 .shimmer::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
-/* Leaflet map styles */
+/* ===== FOCUS STYLES ===== */
+*:focus-visible {
+  outline: 2px solid var(--cc-cyan);
+  outline-offset: 2px;
+}
+
+/* ===== SKIP TO CONTENT (Accessibility) ===== */
+.skip-to-content {
+  position: absolute;
+  left: -9999px;
+  z-index: 999;
+  padding: 8px 16px;
+  background: var(--cc-cyan);
+  color: var(--cc-bg);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: 0 0 6px 0;
+}
+
+.skip-to-content:focus {
+  left: 0;
+  top: 0;
+}
+
+/* ===== LEAFLET OVERRIDES ===== */
 .leaflet-container {
-  @apply rounded-lg overflow-hidden;
+  @apply rounded-md overflow-hidden;
+  background: var(--cc-bg) !important;
 }
 
 .leaflet-popup-content-wrapper {
-  @apply glass rounded-lg shadow-glass;
+  background: var(--cc-surface) !important;
+  color: var(--cc-text) !important;
+  border: 1px solid var(--cc-border) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
 .leaflet-popup-tip {
-  @apply bg-white/10;
+  background: var(--cc-surface) !important;
 }
 
-/* Custom map controls */
+.leaflet-control-container {
+  pointer-events: none;
+}
+
+.leaflet-control-container .leaflet-control {
+  pointer-events: auto;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.leaflet-control-layers {
+  background: var(--cc-surface) !important;
+  color: var(--cc-text) !important;
+  border: 1px solid var(--cc-border) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+}
+
+.leaflet-control-layers-toggle {
+  width: 36px !important;
+  height: 36px !important;
+}
+
+.leaflet-control-layers-list {
+  padding: 6px !important;
+}
+
+.leaflet-control-layers-separator {
+  border-top: 1px solid var(--cc-border) !important;
+}
+
+.leaflet-control-attribution a,
+.leaflet-control-attribution {
+  color: #333 !important;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+
+/* --- Hero Popup Overrides --- */
+.aqi-popup-hero .leaflet-popup-content-wrapper,
+.aqi-popup-hero .leaflet-popup-tip {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+}
+.aqi-popup-hero .leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+  line-height: inherit !important;
+}
+
+/* ===== DATA PULSE ANIMATION ===== */
+@keyframes data-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+.data-pulse {
+  animation: data-pulse 2s ease-in-out infinite;
+}
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .data-pulse {
+    animation: none !important;
+  }
+}
+
+/* ===== RESPONSIVE UTILITIES ===== */
+@media (max-width: 768px) {
+  .mobile-padding { @apply px-4; }
+  .mobile-text { @apply text-sm; }
+}
+
+@media print {
+  .no-print { display: none !important; }
+}
+
+/* Map control custom styles */
 .map-control-glass {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
@@ -161,10 +504,8 @@
 .pulse-ring::before {
   content: '';
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  height: 100%;
+  top: 50%; left: 50%;
+  width: 100%; height: 100%;
   border-radius: 50%;
   background: currentColor;
   opacity: 0;
@@ -172,130 +513,8 @@
   animation: pulse-ring 1.25s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
 }
 
-/* Gradient text */
-.gradient-text {
-  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Loading skeleton */
-.skeleton {
-  @apply bg-muted animate-pulse;
-}
-
-/* Smooth transitions */
-* {
-  transition: all 0.2s ease-in-out;
-}
-
-/* Focus styles */
-*:focus {
-  @apply outline-none ring-2 ring-accent/20;
-}
-
-/* Button hover effects */
-.btn-hover {
-  @apply transition-all duration-200 ease-in-out;
-}
-
-.btn-hover:hover {
-  @apply transform scale-105 shadow-lg;
-}
-
-/* Card hover effects */
-.card-hover {
-  @apply transition-all duration-300 ease-in-out;
-}
-
-.card-hover:hover {
-  @apply transform -translate-y-1 shadow-xl;
-}
-
-/* Responsive utilities */
-@media (max-width: 768px) {
-  .mobile-padding {
-    @apply px-4;
-  }
-
-  .mobile-text {
-    @apply text-sm;
-  }
-}
-
-/* Print styles */
-@media print {
-  .no-print {
-    display: none !important;
-  }
-}
-
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* Make Leaflet attribution text readable on light backgrounds */
-.leaflet-control-attribution a,
-.leaflet-control-attribution {
-  color: #333 !important; /* Dark Gray */
-  -webkit-text-stroke: 0;
-  text-shadow: none;
-}
-
-/* Membuat container kontrol leaflet transparan dan tidak mengganggu */
-.leaflet-control-container {
-  pointer-events: none; /* Biarkan klik "tembus" ke peta */
-}
-
-/* Semua kontrol kustom kita harus memiliki pointer-events auto */
-.leaflet-control-container .leaflet-control {
-  pointer-events: auto; /* Tombol kita harus tetap bisa diklik */
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  background-color: transparent !important;
-  box-shadow: none !important;
-}
-
-/* Khusus untuk LayersControl bawaan, kita beri gaya shadcn/ui */
-.leaflet-control-layers {
-  background: hsl(var(--card)) !important;
-  color: hsl(var(--card-foreground)) !important;
-  border: 1px solid hsl(var(--border)) !important;
-  border-radius: var(--radius) !important;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
-}
-.leaflet-control-layers-toggle {
-  width: 36px !important;
-  height: 36px !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='lucide lucide-layers'%3E%3Cpath d='m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z'/%3E%3Cpath d='m22 17.65-8.58 3.9a2 2 0 0 1-1.66 0L2 17.65'/%3E%3Cpath d='m22 12.65-8.58 3.9a2 2 0 0 1-1.66 0L2 12.65'/%3E%3C/svg%3E") !important;
-  background-position: center !important;
-  background-repeat: no-repeat !important;
-  background-size: 20px 20px !important;
-}
-.leaflet-control-layers-list {
-  padding: 6px !important;
-}
-.leaflet-control-layers-separator {
-  border-top: 1px solid hsl(var(--border)) !important;
-}
-
-/* --- Hero Popup Overrides --- */
-.aqi-popup-hero .leaflet-popup-content-wrapper,
-.aqi-popup-hero .leaflet-popup-tip {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-  padding: 0 !important;
-}
-.aqi-popup-hero .leaflet-popup-content {
-  margin: 0 !important;
-  width: auto !important;
-  line-height: inherit !important;
-}
+/* Button/card hover (legacy) */
+.btn-hover { @apply transition-all duration-200 ease-in-out; }
+.btn-hover:hover { @apply transform scale-105 shadow-lg; }
+.card-hover { @apply transition-all duration-300 ease-in-out; }
+.card-hover:hover { @apply transform -translate-y-1 shadow-xl; }

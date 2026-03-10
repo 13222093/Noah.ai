@@ -247,7 +247,7 @@
     pointer-events: auto;
 }
 
-.floodzy-logo {
+.noah-logo {
     font-family: 'Playfair Display SC', serif;
     font-size: 2rem;
     font-weight: 700;
@@ -276,8 +276,8 @@
     }
 }
 
-.floodzy-logo::after {
-    content: 'FLOODZY';
+.noah-logo::after {
+    content: 'NOAH.AI';
     position: absolute;
     top: 0;
     left: 0;
@@ -996,7 +996,7 @@
         font-size: 14px;
     }
 
-    .floodzy-logo {
+    .noah-logo {
         font-size: 1.25rem;
     }
 

@@ -36,6 +36,7 @@ import { RegionDropdown } from '@/components/region-selector/RegionDropdown';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
+import { PageShell } from '@/components/layout/PageShell';
 
 // Define a type for the preferences data
 interface UserPreferencesData {
@@ -275,33 +276,17 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center">
-        <div className="text-slate-600 dark:text-slate-400">{t('settings.loading')}</div>
-      </div>
+      <PageShell title={t('settings.title')} subtitle={t('settings.subtitle')} icon={<Settings className="w-4 h-4" />}>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-cc-text-secondary">{t('settings.loading')}</div>
+        </div>
+      </PageShell>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-gradient-to-br dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 text-slate-900 dark:text-slate-200 transition-colors duration-300">
-      <div className="relative overflow-hidden bg-white dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700/50 shadow-sm dark:shadow-none">
-        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-500/5"></div>
-        <div className="relative container mx-auto px-6 py-8">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-xl shadow-lg shadow-cyan-500/20">
-              <Settings className="w-7 h-7 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-600 to-blue-600 dark:from-cyan-400 dark:to-blue-400 bg-clip-text text-transparent">
-                {t('settings.title')}
-              </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{t('settings.subtitle')}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-6 py-8">
-        <div className="flex flex-col gap-6">
+    <PageShell title={t('settings.title')} subtitle={t('settings.subtitle')} icon={<Settings className="w-4 h-4" />}>
+      <div className="space-y-6">
 
           {/* LOKASI DEFAULT (FULL-WIDTH) */}
           <Card className="bg-white dark:bg-slate-800/40 backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 rounded-xl shadow-sm dark:shadow-none transition-all duration-300">
@@ -500,8 +485,7 @@ export default function SettingsPage() {
               </CardContent>
             </Card>
           </div>
-        </div>
       </div>
-    </div>
+    </PageShell>
   );
 }

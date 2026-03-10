@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Video, Play, Pause, RefreshCw, AlertTriangle } from 'lucide-react';
+import { PageShell } from '@/components/layout/PageShell';
 
 export default function CCTVSimulationPage() {
   const [playing, setPlaying] = useState(false);
@@ -15,15 +16,8 @@ export default function CCTVSimulationPage() {
   ]);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          CCTV Simulation
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">
-          Multi-channel CCTV monitoring with YOLO flood detection overlay
-        </p>
-      </div>
+    <PageShell title="CCTV Monitoring" subtitle="Multi-channel YOLO flood detection" icon={<Video className="w-4 h-4" />}>
+      <div className="max-w-6xl mx-auto">
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         {channels.map((ch) => (
@@ -86,6 +80,7 @@ export default function CCTVSimulationPage() {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </PageShell>
   );
 }

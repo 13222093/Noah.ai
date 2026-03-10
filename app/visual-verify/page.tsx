@@ -3,7 +3,8 @@
 import React, { useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
-import { Loader2, Upload, ImageIcon, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Loader2, Upload, ImageIcon, AlertTriangle, CheckCircle, Camera } from 'lucide-react';
+import { PageShell } from '@/components/layout/PageShell';
 
 interface VerifyResult {
   is_flooded?: boolean;
@@ -91,15 +92,8 @@ export default function VisualVerifyPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          Visual Flood Verification
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">
-          Upload an image to detect flood indicators using YOLO
-        </p>
-      </div>
+    <PageShell title="Visual Verification (YOLO)" subtitle="Upload images to detect flooding" icon={<Camera className="w-4 h-4" />}>
+      <div className="max-w-4xl mx-auto">
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
@@ -220,6 +214,7 @@ export default function VisualVerifyPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </PageShell>
   );
 }

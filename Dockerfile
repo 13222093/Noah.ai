@@ -1,4 +1,4 @@
-# Dockerfile for Next.js App (Floodzy)
+# Dockerfile for Next.js App (noah.ai)
 
 # Stage 1: Builder
 # In this stage, we install dependencies and build the Next.js application.

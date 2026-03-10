@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { PageShell } from '@/components/layout/PageShell';
+import { GraduationCap } from 'lucide-react';
 
 export const metadata = {
     title: 'Pusat Edukasi Banjir & Hidrologi | noah.ai',
@@ -7,32 +9,32 @@ export const metadata = {
 
 export default function EducationHubPage() {
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 pt-24 pb-12">
-            <div className="container mx-auto px-4">
-                <header className="mb-12 text-center max-w-3xl mx-auto">
-                    <div className="text-cyan-500 font-mono tracking-widest text-sm mb-4">KNOWLEDGE BASE</div>
-                    <h1 className="text-4xl md:text-5xl font-bold font-display mb-6">Edu-Center</h1>
-                    <p className="text-lg text-slate-600 dark:text-slate-400">
+        <PageShell title="Education Hub" subtitle="Flood science & preparedness" icon={<GraduationCap className="w-4 h-4" />}>
+            <div className="max-w-6xl mx-auto">
+                <header className="mb-8 text-center max-w-3xl mx-auto">
+                    <div className="text-cc-cyan font-mono tracking-widest text-sm mb-3">KNOWLEDGE BASE</div>
+                    <h2 className="text-3xl md:text-4xl font-bold font-heading mb-4 text-cc-text">Edu-Center</h2>
+                    <p className="text-sm text-cc-text-secondary">
                         Memahami sains di balik bencana untuk meningkatkan kesiapsiagaan kita.
                         Data tanpa pemahaman hanyalah angka.
                     </p>
                 </header>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {/* Article Card 1: Analysis */}
                     <Link href="/education/kenapa-jakarta-banjir" className="group">
-                        <article className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition border border-slate-200 dark:border-slate-800 h-full flex flex-col">
-                            <div className="h-48 bg-slate-200 dark:bg-slate-800 relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
-                                    <span className="text-white font-mono text-xs bg-cyan-600 px-2 py-1 rounded">ANALISIS</span>
+                        <article className="bg-cc-surface rounded-lg overflow-hidden border border-cc-border hover:border-cc-border-active transition h-full flex flex-col">
+                            <div className="h-40 bg-cc-elevated relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                                    <span className="text-white font-mono text-xs bg-cc-cyan/80 px-2 py-1 rounded">ANALISIS</span>
                                 </div>
                             </div>
-                            <div className="p-6 flex-1 flex flex-col">
-                                <h3 className="text-xl font-bold mb-3 group-hover:text-cyan-500 transition">Kenapa Jakarta Sering Banjir?</h3>
-                                <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 flex-1">
+                            <div className="p-5 flex-1 flex flex-col">
+                                <h3 className="text-base font-bold mb-2 group-hover:text-cc-cyan transition text-cc-text">Kenapa Jakarta Sering Banjir?</h3>
+                                <p className="text-cc-text-secondary text-sm mb-3 flex-1">
                                     Bedah tuntas faktor topografi, penurunan muka tanah, dan cuaca ekstrem yang membuat ibu kota rentan.
                                 </p>
-                                <div className="flex items-center text-xs text-slate-500 font-mono mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center text-xs text-cc-text-muted font-mono mt-3 pt-3 border-t border-cc-border">
                                     <span>5 MIN READ</span>
                                 </div>
                             </div>
@@ -41,19 +43,19 @@ export default function EducationHubPage() {
 
                     {/* Article Card 2: Mitigation */}
                     <Link href="/education/panduan-siaga-banjir" className="group">
-                        <article className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition border border-slate-200 dark:border-slate-800 h-full flex flex-col">
-                            <div className="h-48 bg-yellow-100 dark:bg-yellow-900/20 relative overflow-hidden flex items-center justify-center">
-                                <span className="text-6xl">🎒</span>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
-                                    <span className="text-white font-mono text-xs bg-yellow-600 px-2 py-1 rounded">SAFETY</span>
+                        <article className="bg-cc-surface rounded-lg overflow-hidden border border-cc-border hover:border-cc-border-active transition h-full flex flex-col">
+                            <div className="h-40 bg-cc-elevated relative overflow-hidden flex items-center justify-center">
+                                <span className="text-5xl">🎒</span>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                                    <span className="text-white font-mono text-xs bg-cc-caution/80 px-2 py-1 rounded">SAFETY</span>
                                 </div>
                             </div>
-                            <div className="p-6 flex-1 flex flex-col">
-                                <h3 className="text-xl font-bold mb-3 group-hover:text-cyan-500 transition">Panduan Siaga & Mitigasi</h3>
-                                <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 flex-1">
+                            <div className="p-5 flex-1 flex flex-col">
+                                <h3 className="text-base font-bold mb-2 group-hover:text-cc-cyan transition text-cc-text">Panduan Siaga & Mitigasi</h3>
+                                <p className="text-cc-text-secondary text-sm mb-3 flex-1">
                                     Checklist evakuasi keluarga, barang wajib siaga, dan langkah kritis saat sirine berbunyi.
                                 </p>
-                                <div className="flex items-center text-xs text-slate-500 font-mono mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center text-xs text-cc-text-muted font-mono mt-3 pt-3 border-t border-cc-border">
                                     <span>7 MIN READ</span>
                                 </div>
                             </div>
@@ -62,19 +64,19 @@ export default function EducationHubPage() {
 
                     {/* Article Card 3: Technology */}
                     <Link href="/education/teknologi-monitoring-banjir" className="group">
-                        <article className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition border border-slate-200 dark:border-slate-800 h-full flex flex-col">
-                            <div className="h-48 bg-blue-100 dark:bg-blue-900/20 relative overflow-hidden flex items-center justify-center">
-                                <span className="text-6xl">📡</span>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
-                                    <span className="text-white font-mono text-xs bg-blue-600 px-2 py-1 rounded">TECH</span>
+                        <article className="bg-cc-surface rounded-lg overflow-hidden border border-cc-border hover:border-cc-border-active transition h-full flex flex-col">
+                            <div className="h-40 bg-cc-elevated relative overflow-hidden flex items-center justify-center">
+                                <span className="text-5xl">📡</span>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                                    <span className="text-white font-mono text-xs bg-blue-500/80 px-2 py-1 rounded">TECH</span>
                                 </div>
                             </div>
-                            <div className="p-6 flex-1 flex flex-col">
-                                <h3 className="text-xl font-bold mb-3 group-hover:text-cyan-500 transition">Teknologi & Cara Baca Data</h3>
-                                <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 flex-1">
+                            <div className="p-5 flex-1 flex flex-col">
+                                <h3 className="text-base font-bold mb-2 group-hover:text-cc-cyan transition text-cc-text">Teknologi & Cara Baca Data</h3>
+                                <p className="text-cc-text-secondary text-sm mb-3 flex-1">
                                     Memahami sensor IoT, satelit, dan cara membaca status pintu air di dashboard noah.ai.
                                 </p>
-                                <div className="flex items-center text-xs text-slate-500 font-mono mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center text-xs text-cc-text-muted font-mono mt-3 pt-3 border-t border-cc-border">
                                     <span>6 MIN READ</span>
                                 </div>
                             </div>
@@ -83,19 +85,19 @@ export default function EducationHubPage() {
 
                     {/* Article Card 4: Jakarta SEO */}
                     <Link href="/education/banjir-jakarta-realtime" className="group">
-                        <article className="bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition border border-slate-200 dark:border-slate-800 h-full flex flex-col">
-                            <div className="h-48 bg-red-100 dark:bg-red-900/20 relative overflow-hidden flex items-center justify-center">
-                                <span className="text-6xl">🏙️</span>
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
-                                    <span className="text-white font-mono text-xs bg-red-600 px-2 py-1 rounded">LOKAL</span>
+                        <article className="bg-cc-surface rounded-lg overflow-hidden border border-cc-border hover:border-cc-border-active transition h-full flex flex-col">
+                            <div className="h-40 bg-cc-elevated relative overflow-hidden flex items-center justify-center">
+                                <span className="text-5xl">🏙️</span>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                                    <span className="text-white font-mono text-xs bg-cc-critical/80 px-2 py-1 rounded">LOKAL</span>
                                 </div>
                             </div>
-                            <div className="p-6 flex-1 flex flex-col">
-                                <h3 className="text-xl font-bold mb-3 group-hover:text-cyan-500 transition">Status Banjir Jakarta</h3>
-                                <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 flex-1">
+                            <div className="p-5 flex-1 flex flex-col">
+                                <h3 className="text-base font-bold mb-2 group-hover:text-cc-cyan transition text-cc-text">Status Banjir Jakarta</h3>
+                                <p className="text-cc-text-secondary text-sm mb-3 flex-1">
                                     Titik rawan Ciliwung, kondisi pompa air, dan info banjir rob Jakarta Utara realtime.
                                 </p>
-                                <div className="flex items-center text-xs text-slate-500 font-mono mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                                <div className="flex items-center text-xs text-cc-text-muted font-mono mt-3 pt-3 border-t border-cc-border">
                                     <span>5 MIN READ</span>
                                 </div>
                             </div>
@@ -103,6 +105,6 @@ export default function EducationHubPage() {
                     </Link>
                 </div>
             </div>
-        </div>
+        </PageShell>
     );
 }

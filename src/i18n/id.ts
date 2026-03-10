@@ -87,7 +87,7 @@ const id = {
         quickActions: 'Aksi Cepat',
         currentWeather: 'Cuaca Sekarang',
         settings: 'Pengaturan',
-        aboutFloodzy: 'Tentang Floodzy'
+        aboutNoahAI: 'Tentang noah.ai'
     },
     regionSelector: {
         title: 'Pilih Wilayah',
@@ -535,7 +535,7 @@ const id = {
             }
         },
         gemini: {
-            welcome: '👋 Selamat datang di Floodzie Assistant!\n\nSaya dapat membantu Anda menganalisis:\n• Status banjir real-time\n• Prediksi cuaca dan risiko\n• Rekomendasi tindakan darurat\n• Informasi wilayah terdampak\n\nAda yang ingin Anda tanyakan?',
+            welcome: '👋 Selamat datang di Noah.ai Assistant!\n\nSaya dapat membantu Anda menganalisis:\n• Status banjir real-time\n• Prediksi cuaca dan risiko\n• Rekomendasi tindakan darurat\n• Informasi wilayah terdampak\n\nAda yang ingin Anda tanyakan?',
             suggestions: {
                 floodStatus: 'Status banjir wilayah saya',
                 weather: 'Prediksi cuaca hari ini',
@@ -546,7 +546,7 @@ const id = {
                 quickAction: 'AKSI CEPAT'
             },
             inputPlaceholder: 'Tanyakan tentang kondisi banjir, cuaca, atau evakuasi...',
-            systemInfo: 'Terhubung ke sistem Floodzie',
+            systemInfo: 'Terhubung ke sistem Noah.ai',
             analyzing: 'Menganalisis data sistem...',
             locationRequest: 'Untuk memberikan informasi yang akurat, saya memerlukan izin untuk mengakses lokasi Anda. Mohon setujui permintaan lokasi yang muncul di browser Anda.',
             locationSuccess: 'Lokasi Anda berhasil didapatkan (Lat: {lat}, Lon: {lon}). Menganalisis data...',
@@ -583,7 +583,7 @@ const id = {
     },
     settings: {
         title: 'Pengaturan',
-        subtitle: 'Personalisasi pengalaman Floodzy Anda',
+        subtitle: 'Personalisasi pengalaman noah.ai Anda',
         defaultLocation: {
             title: 'Tentukan Lokasi Wilayah',
             description: 'Pilih lokasi default yang akan dimuat saat aplikasi dimulai.',

@@ -1,7 +1,7 @@
 // app/layout.tsx
 
 import './globals.css';
-import { Inter } from 'next/font/google';
+import { Space_Grotesk, JetBrains_Mono } from 'next/font/google';
 import { ThemeProvider } from '@/hooks/useTheme';
 import { Toaster } from 'react-hot-toast';
 import { AlertCountProvider } from '@/components/contexts/AlertCountContext';
@@ -10,13 +10,22 @@ import ReactQueryProvider from '@/components/providers/ReactQueryProvider';
 import ClientLayoutWrapper from '@/components/layout/ClientLayoutWrapper';
 import { LanguageProvider } from '@/src/context/LanguageContext';
 
-// font
-const inter = Inter({ subsets: ['latin'] });
+// Command Center fonts
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+  display: 'swap',
+});
 
-// ✅ Konfigurasi disesuaikan dengan file yang ada
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
+  display: 'swap',
+});
+
 export const metadata = {
   metadataBase: new URL('https://noah.ai.id'),
-  title: "noah.ai — AI Flood Early Warning",
+  title: "noah.ai — AI Flood Command Center",
   description: "AI-powered flood prediction, real-time monitoring, and SMS alerts for vulnerable communities",
   icons: {
     icon: [
@@ -30,15 +39,14 @@ export const metadata = {
   },
 };
 
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id" suppressHydrationWarning>
-      <body className={`${inter.className} bg-slate-50 dark:bg-slate-950`}>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} font-sans bg-cc-bg`}>
         <ReactQueryProvider>
           <ThemeProvider>
             <AlertCountProvider>
@@ -50,9 +58,11 @@ export default function RootLayout({
                 toastOptions={{
                   duration: 5000,
                   style: {
-                    background: 'hsl(var(--card))',
-                    color: 'hsl(var(--card-foreground))',
-                    border: '1px solid hsl(var(--border))',
+                    background: 'var(--cc-surface)',
+                    color: 'var(--cc-text)',
+                    border: '1px solid var(--cc-border)',
+                    borderRadius: '6px',
+                    fontSize: '13px',
                   },
                 }}
               />
@@ -63,4 +73,3 @@ export default function RootLayout({
     </html>
   );
 }
-

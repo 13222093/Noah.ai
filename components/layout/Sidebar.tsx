@@ -132,7 +132,7 @@ const navigationItems: NavItem[] = [
   },
   {
     id: 'about',
-    label: 'aboutnoah.ai',
+    label: 'aboutNoahAI',
     href: '/about.html?mode=read',
     icon: Info,
     color: 'text-cyan-500',

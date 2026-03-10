@@ -9,6 +9,11 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        heading: ['var(--font-space-grotesk)', 'sans-serif'],
+        mono: ['var(--font-jetbrains-mono)', 'monospace'],
+        sans: ['var(--font-space-grotesk)', 'sans-serif'],
+      },
       colors: {
         // Ocean theme colors
         ocean: {
@@ -119,6 +124,25 @@ const config: Config = {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
+        // Command center tokens
+        cc: {
+          bg: 'var(--cc-bg)',
+          surface: 'var(--cc-surface)',
+          elevated: 'var(--cc-elevated)',
+          border: 'var(--cc-border)',
+          'border-active': 'var(--cc-border-active)',
+          cyan: 'var(--cc-cyan)',
+          'cyan-hover': 'var(--cc-cyan-hover)',
+          'cyan-inactive': 'var(--cc-cyan-inactive)',
+          'cyan-glow': 'var(--cc-cyan-glow)',
+          critical: 'var(--cc-critical)',
+          warning: 'var(--cc-warning)',
+          caution: 'var(--cc-caution)',
+          safe: 'var(--cc-safe)',
+          text: 'var(--cc-text)',
+          'text-secondary': 'var(--cc-text-secondary)',
+          'text-muted': 'var(--cc-text-muted)',
+        },
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
@@ -130,9 +154,9 @@ const config: Config = {
           'linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%)',
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        lg: '0.375rem',
+        md: '0.25rem',
+        sm: '0.125rem',
       },
       backdropBlur: {
         xs: '2px',

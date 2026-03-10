@@ -12,8 +12,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, CloudRain, Droplets, Activity, AlertTriangle, Zap } from 'lucide-react';
+import { Loader2, CloudRain, Droplets, Activity, AlertTriangle, Zap, BrainCircuit } from 'lucide-react';
 import { useLanguage } from '@/src/context/LanguageContext';
+import { PageShell } from '@/components/layout/PageShell';
 
 interface Scenario {
   id: string;
@@ -145,15 +146,8 @@ export default function FloodPredictPage() {
   const riskColor = RISK_COLORS[riskLevel] || RISK_COLORS.UNKNOWN;
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          Flood Prediction (LSTM)
-        </h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-1">
-          Predict water level based on rainfall data from Bogor and Jakarta
-        </p>
-      </div>
+    <PageShell title="Flood Prediction (LSTM)" subtitle="Rainfall-based water level prediction" icon={<BrainCircuit className="w-4 h-4" />}>
+      <div className="max-w-4xl mx-auto">
 
       {mlHealth && (
         <div className="flex gap-2 mb-6">
@@ -357,7 +351,8 @@ export default function FloodPredictPage() {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </PageShell>
   );
 }
 
