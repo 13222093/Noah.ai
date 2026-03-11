@@ -149,12 +149,36 @@ export default function PetaBanjirClient({
     }
   }, [isReporting, onMapClick, setIsReporting]); // Menambahkan setIsReporting ke dependency array
 
-  const handleReportSubmit = useCallback((formData: { waterLevel: number; notes: string; image?: File }) => {
-    console.log("Laporan Banjir Baru:", {
-      ...formData,
-      location: reportLocation ? [reportLocation.lat, reportLocation.lng] : null,
-    });
-    // TODO: Implement actual submission logic (e.g., API call)
+  const handleReportSubmit = useCallback(async (formData: { waterLevel: number; notes: string; image?: File }) => {
+    const reportData = {
+      location: reportLocation ? `${reportLocation.lat.toFixed(4)}, ${reportLocation.lng.toFixed(4)}` : 'Unknown',
+      latitude: reportLocation?.lat ?? 0,
+      longitude: reportLocation?.lng ?? 0,
+      water_level: formData.waterLevel <= 30 ? 'semata_kaki' : formData.waterLevel <= 50 ? 'selutut' : formData.waterLevel <= 80 ? 'sepaha' : formData.waterLevel <= 120 ? 'sepusar' : 'lebih_dari_sepusar',
+      description: formData.notes,
+      reporter_name: '',
+      reporter_contact: '',
+    };
+
+    try {
+      const res = await fetch('/api/flood-reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reportData),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json();
+        console.error('Failed to submit report:', errData);
+        alert(`Gagal mengirim laporan: ${errData.error || errData.message || 'Unknown error'}`);
+      } else {
+        alert('Laporan banjir berhasil dikirim!');
+      }
+    } catch (err) {
+      console.error('Network error submitting report:', err);
+      alert('Gagal mengirim laporan. Periksa koneksi internet Anda.');
+    }
+
     setIsModalOpen(false);
     setReportLocation(null);
   }, [reportLocation]);

@@ -114,9 +114,7 @@
   background: var(--cc-bg);
 }
 
-.cc-layout--with-right-panel {
-  grid-template-columns: 60px 1fr 280px;
-}
+/* Dead CSS removed: .cc-layout--with-right-panel was never applied (Bug #11) */
 
 /* NavRail */
 .cc-nav-rail {
@@ -250,9 +248,7 @@
     grid-template-rows: 48px 1fr 56px;
   }
 
-  .cc-layout--with-right-panel {
-    grid-template-columns: 1fr;
-  }
+
 
   .cc-nav-rail {
     /* Bottom tab bar on mobile */
@@ -492,6 +488,11 @@
 }
 
 /* Floating elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
 .floating {
   animation: float 3s ease-in-out infinite;
 }

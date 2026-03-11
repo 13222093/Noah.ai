@@ -92,6 +92,7 @@ interface OfficialBPBDData {
 import { cn } from '@/lib/utils';
 import { OverpassElement } from '@/lib/api';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { useMapLayerStore } from '@/lib/mapLayerStore';
 import {
   getCoordsByLocationName,
   getLocationNameByCoords,
@@ -319,8 +320,7 @@ export const FloodMap = React.memo(function FloodMap({
       attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community',
     },
   };
-  const [showFloodZones, setShowFloodZones] = useState(true); // Untuk mock data FLOOD_ZONES_MOCK
-  const [showWeatherStations, setShowWeatherStations] = useState(true);
+  const { showFloodZones, showWeatherStations, toggleFloodZones, toggleWeatherStations } = useMapLayerStore();
   const [showRealtimeAlerts, setShowRealtimeAlerts] = useState(true); // State baru untuk toggle peringatan real-time
   const [showCrowdsourcedReports, setShowCrowdsourcedReports] = useState(true); // NEW: State for crowdsourced reports visibility
   const [showOfficialBPBDData, setShowOfficialBPBDData] = useState(true); // NEW: State for official BPBD data visibility
@@ -1138,9 +1138,9 @@ export const FloodMap = React.memo(function FloodMap({
         isFullscreen={isFullscreen}
         onLayerChange={setSelectedLayer}
         selectedLayer={selectedLayer}
-        onFloodZonesToggle={() => setShowFloodZones(!showFloodZones)}
+        onFloodZonesToggle={toggleFloodZones}
         showFloodZones={showFloodZones}
-        onWeatherToggle={() => setShowWeatherStations(!showWeatherStations)}
+        onWeatherToggle={toggleWeatherStations}
         showWeatherStations={showWeatherStations}
         onRealtimeAlertsToggle={() =>
           setShowRealtimeAlerts(!showRealtimeAlerts)

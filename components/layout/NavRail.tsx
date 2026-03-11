@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
@@ -15,6 +15,7 @@ import {
   Info,
   Shield,
   Loader,
+  CloudSun,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAlertCount } from '@/components/contexts/AlertCountContext';
@@ -31,8 +32,9 @@ interface NavRailItem {
 
 const navItems: NavRailItem[] = [
   { id: 'command', label: 'Command', icon: LayoutDashboard, href: '/dashboard', panelId: 'alerts' },
-  { id: 'alerts', label: 'Alerts', icon: AlertTriangle, panelId: 'alerts' },
-  { id: 'data', label: 'Data', icon: Database, panelId: 'data' },
+  { id: 'alerts', label: 'Alerts', icon: AlertTriangle, href: '/alerts', panelId: 'alerts' },
+  { id: 'data', label: 'Data', icon: Database, href: '/sensor-data', panelId: 'data' },
+  { id: 'weather', label: 'Weather', icon: CloudSun, href: '/current-weather', panelId: 'weather' },
   { id: 'ai-tools', label: 'AI Tools', icon: BrainCircuit, panelId: 'ai-tools' },
   { id: 'more', label: 'More', icon: MoreHorizontal, action: 'overflow' },
 ];
@@ -54,8 +56,17 @@ export function NavRail() {
   const [isPending, startTransition] = useTransition();
   const [loadingPath, setLoadingPath] = useState<string | null>(null);
   const [isOverflowOpen, setIsOverflowOpen] = useState(false);
+  const [pendingPanel, setPendingPanel] = useState<PanelId | null>(null);
 
   const isDashboard = pathname === '/dashboard' || pathname === '/';
+
+  // Bug #4 fix: Set panel after navigation completes (replaces fragile setTimeout)
+  useEffect(() => {
+    if (isDashboard && pendingPanel) {
+      setPanel(pendingPanel);
+      setPendingPanel(null);
+    }
+  }, [isDashboard, pendingPanel, setPanel]);
 
   const handleNavigate = (href: string) => {
     setLoadingPath(href);
@@ -68,35 +79,40 @@ export function NavRail() {
   const handleNavClick = (item: NavRailItem) => {
     setIsOverflowOpen(false);
 
-    // If on dashboard and item has a panelId, swap the panel instead of navigating
-    if (isDashboard && item.panelId) {
-      setPanel(item.panelId);
-      return;
-    }
-
-    // If not on dashboard, navigate to dashboard first (for command/alerts/data/ai-tools)
+    // Command button: always go to dashboard
     if (item.id === 'command') {
-      handleNavigate('/dashboard');
+      if (isDashboard) {
+        // Already on dashboard — reset panel to default
+        setPanel('alerts');
+      } else {
+        // Navigate to dashboard
+        handleNavigate('/dashboard');
+      }
       return;
     }
 
-    // For non-dashboard pages, navigate to the relevant page
-    if (item.panelId) {
-      // Navigate to dashboard and set the panel
-      handleNavigate('/dashboard');
-      // Panel will be set after navigation
-      setTimeout(() => setPanel(item.panelId!), 100);
-      return;
-    }
-
+    // Items with href: always navigate to that page
     if (item.href) {
       handleNavigate(item.href);
+      return;
+    }
+
+    // Panel-only items (no href): swap panel on dashboard, or navigate to dashboard + set panel
+    if (item.panelId) {
+      if (isDashboard) {
+        setPanel(item.panelId);
+      } else {
+        handleNavigate('/dashboard');
+        setPendingPanel(item.panelId);
+      }
+      return;
     }
   };
 
   const isActive = (item: NavRailItem) => {
     if (isDashboard && item.panelId) {
-      if (item.id === 'command') return activePanel === 'alerts';
+      // Bug #1 fix: Command nav only navigates; panel-specific items show active state
+      if (item.id === 'command') return false;
       return activePanel === item.panelId;
     }
     if (item.id === 'command') return pathname === '/dashboard';

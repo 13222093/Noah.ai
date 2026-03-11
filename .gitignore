@@ -34,3 +34,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# python
+__pycache__/
+*.pyc
+*.pyo
+ml-service/venv/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+Thumbs.db

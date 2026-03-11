@@ -62,9 +62,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, [theme, mounted]);
 
-  // Pastikan render konsisten saat SSR → tampilkan children hanya setelah mounted
+  // Render children hidden during SSR to prevent full-page blank flash (Bug #5)
   if (!mounted) {
-    return null; // atau skeleton loader kalau mau
+    return (
+      <ThemeContext.Provider value={{ theme, setTheme: updateTheme, isDark }}>
+        <div style={{ visibility: 'hidden' }}>{children}</div>
+      </ThemeContext.Provider>
+    );
   }
 
   return (

@@ -99,7 +99,7 @@ export default function InfoEvakuasiPage() {
   };
 
   const openGoogleMaps = (lat: number, lon: number) => {
-    window.open(`http://googleusercontent.com/maps.google.com/2{lat},${lon}`, '_blank');
+    window.open(`https://www.google.com/maps?q=${lat},${lon}`, '_blank');
   };
 
   const getStatusColor = (location: EvacuationLocation) => {

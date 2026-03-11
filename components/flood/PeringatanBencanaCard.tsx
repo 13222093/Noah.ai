@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useCallback, useMemo, memo } from 'react';
 import Link from 'next/link';
-import { AlertTriangle, Bell, Info, Clock, Users, Eye } from 'lucide-react';
+import { ShieldAlert, AlertCircle, Info, Clock, Users } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { getTimeAgo } from '@/lib/utils';
@@ -37,9 +37,9 @@ const easeInOutCubic = (x: number) =>
 const getAlertIcon = (level: string) => {
   switch (level) {
     case 'danger':
-      return <AlertTriangle className="w-full h-full" />;
+      return <ShieldAlert className="w-full h-full" />;
     case 'warning':
-      return <Bell className="w-full h-full" />; // Menggunakan Bell untuk warning
+      return <AlertCircle className="w-full h-full" />;
     default:
       return <Info className="w-full h-full" />;
   }
@@ -53,6 +53,12 @@ export const PeringatanBencanaCard = memo(( // ADDED: memo
   const wrapRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLElement>(null);
   const { t, lang } = useLanguage();
+
+  // Respect prefers-reduced-motion for JS-driven animations
+  const prefersReducedMotion = useMemo(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }, []);
 
   // Memoized handlers untuk mengoptimalkan performa animasi
   const animationHandlers = useMemo(() => {
@@ -152,7 +158,7 @@ export const PeringatanBencanaCard = memo(( // ADDED: memo
 
   useEffect(() => {
     const wrap = wrapRef.current;
-    if (!wrap || !animationHandlers) return;
+    if (!wrap || !animationHandlers || prefersReducedMotion) return;
     wrap.addEventListener('pointerenter', handlePointerEnter as EventListener);
     wrap.addEventListener('pointermove', handlePointerMove as EventListener);
     wrap.addEventListener('pointerleave', handlePointerLeave as EventListener);
@@ -176,6 +182,7 @@ export const PeringatanBencanaCard = memo(( // ADDED: memo
     handlePointerEnter,
     handlePointerLeave,
     handlePointerMove,
+    prefersReducedMotion,
   ]);
 
   return (

@@ -147,7 +147,7 @@ export default function GeminiChatSection({
         whileHover={{ scale: 1.05, y: -2 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 z-40 bg-slate-800 dark:bg-slate-900 hover:bg-slate-700 dark:hover:bg-slate-800 text-white p-3 rounded-full shadow-2xl transition-all duration-300"
+        className="fixed bottom-4 right-4 z-[9998] bg-slate-800 dark:bg-slate-900 hover:bg-slate-700 dark:hover:bg-slate-800 text-white p-3 rounded-full shadow-2xl transition-all duration-300"
       >
         <Image src="/robonoah.ai.png" alt="Asisten AI noah.ai" width={40} height={40} className="rounded-full" />
         <motion.div
@@ -168,7 +168,7 @@ export default function GeminiChatSection({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+            className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4"
             onClick={(e) => {
               if (e.target === e.currentTarget) setIsOpen(false);
             }}

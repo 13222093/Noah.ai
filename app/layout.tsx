@@ -9,6 +9,7 @@ import 'leaflet/dist/leaflet.css';
 import ReactQueryProvider from '@/components/providers/ReactQueryProvider';
 import ClientLayoutWrapper from '@/components/layout/ClientLayoutWrapper';
 import { LanguageProvider } from '@/src/context/LanguageContext';
+import { StatsProvider } from '@/components/contexts/StatsContext';
 
 // Command Center fonts
 const spaceGrotesk = Space_Grotesk({
@@ -51,7 +52,9 @@ export default function RootLayout({
           <ThemeProvider>
             <AlertCountProvider>
               <LanguageProvider>
-                <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+                <StatsProvider>
+                  <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
+                </StatsProvider>
               </LanguageProvider>
               <Toaster
                 position="top-right"

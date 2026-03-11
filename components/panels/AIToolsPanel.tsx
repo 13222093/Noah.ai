@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -43,6 +43,23 @@ const aiToolItems = [
 export function AIToolsPanel() {
   const { resetPanel } = usePanel();
 
+  // Bug #8 fix: Check actual ML endpoint health instead of hardcoding "Online"
+  const [lstmHealth, setLstmHealth] = useState<boolean | null>(null);
+  const [yoloHealth, setYoloHealth] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkHealth = async (url: string, setter: (v: boolean) => void) => {
+      try {
+        const res = await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(5000) });
+        setter(res.ok || res.status === 405); // HEAD may not be allowed, but endpoint is up
+      } catch {
+        setter(false);
+      }
+    };
+    checkHealth('/api/flood-predict', setLstmHealth);
+    checkHealth('/api/cctv-scan', setYoloHealth);
+  }, []);
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -66,15 +83,19 @@ export function AIToolsPanel() {
           <div className="flex items-center justify-between p-2 bg-cc-elevated border border-cc-border rounded">
             <span className="text-xs text-cc-text">LSTM Predictor</span>
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-cc-safe" />
-              <span className="text-[10px] font-mono text-cc-safe">Online</span>
+              <span className={cn('w-2 h-2 rounded-full', lstmHealth === null ? 'bg-cc-caution' : lstmHealth ? 'bg-cc-safe' : 'bg-cc-critical')} />
+              <span className={cn('text-[10px] font-mono', lstmHealth === null ? 'text-cc-caution' : lstmHealth ? 'text-cc-safe' : 'text-cc-critical')}>
+                {lstmHealth === null ? 'Checking...' : lstmHealth ? 'Online' : 'Offline'}
+              </span>
             </div>
           </div>
           <div className="flex items-center justify-between p-2 bg-cc-elevated border border-cc-border rounded">
             <span className="text-xs text-cc-text">YOLO Detector</span>
             <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-cc-safe" />
-              <span className="text-[10px] font-mono text-cc-safe">Online</span>
+              <span className={cn('w-2 h-2 rounded-full', yoloHealth === null ? 'bg-cc-caution' : yoloHealth ? 'bg-cc-safe' : 'bg-cc-critical')} />
+              <span className={cn('text-[10px] font-mono', yoloHealth === null ? 'text-cc-caution' : yoloHealth ? 'text-cc-safe' : 'text-cc-critical')}>
+                {yoloHealth === null ? 'Checking...' : yoloHealth ? 'Online' : 'Offline'}
+              </span>
             </div>
           </div>
         </div>

@@ -13,6 +13,7 @@ import {
   Shield,
   Globe,
   Search,
+  MapPin,
 } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { useAlertCount } from '@/components/contexts/AlertCountContext';
@@ -20,6 +21,7 @@ import { useLanguage } from '@/src/context/LanguageContext';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import { CommandMenu } from './CommandMenu';
 import { cn } from '@/lib/utils';
+import { useStats } from '@/components/contexts/StatsContext';
 
 interface StatusBarProps {
   weatherData?: {
@@ -35,15 +37,20 @@ interface StatusBarProps {
     activeAlerts: number;
     floodZones: number;
     peopleAtRisk: number;
+    totalRegions?: number;
   };
 }
 
-export function StatusBar({ weatherData, mlHealth, stats }: StatusBarProps) {
+export function StatusBar({ weatherData, mlHealth, stats: propStats }: StatusBarProps) {
   const { theme, setTheme } = useTheme();
   const { highAlertCount, loadingAlerts } = useAlertCount();
   const { t } = useLanguage();
+  const { stats: contextStats } = useStats();
   const [isCommandOpen, setCommandOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
+
+  // Bug #3 fix: Merge prop stats with context stats (context takes priority when props are missing)
+  const stats = propStats || contextStats;
 
   useEffect(() => {
     const updateTime = () => {
@@ -113,6 +120,13 @@ export function StatusBar({ weatherData, mlHealth, stats }: StatusBarProps) {
             <span className="text-xs hidden md:inline">Zones</span>
           </div>
 
+          {/* Total regions */}
+          <div className="cc-stat-chip hidden sm:flex">
+            <MapPin className="w-3.5 h-3.5 text-cc-text-secondary" />
+            <span className="font-mono text-xs font-medium">{stats?.totalRegions ?? 0}</span>
+            <span className="text-xs hidden md:inline">Regions</span>
+          </div>
+
           {/* People at risk */}
           <div className="cc-stat-chip">
             <Users className="w-3.5 h-3.5 text-cc-warning" />
@@ -172,7 +186,7 @@ export function StatusBar({ weatherData, mlHealth, stats }: StatusBarProps) {
           {/* Theme toggle */}
           <button
             onClick={() => {
-              const themes: Array<typeof theme> = ['light', 'dark', 'system'];
+              const themes: Array<typeof theme> = ['light', 'dark', 'system', 'high-contrast'];
               const currentIndex = themes.indexOf(theme);
               setTheme(themes[(currentIndex + 1) % themes.length]);
             }}
