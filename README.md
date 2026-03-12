@@ -1,15 +1,16 @@
 <div align="center">
 
-# 🌊 noah.ai
+# 🌊 Noah AI
 
 **AI-Powered Flood Intelligence Platform for ASEAN**
 
-Real-time flood monitoring, LSTM prediction, YOLO visual verification, and Gemini-powered analysis — built as a unified command center.
+Real-time flood monitoring, hybrid LSTM + physics prediction, YOLOv8 visual verification, Gemini-powered AI chatbot, and Twilio SMS alerts — unified in a Hyprland-inspired tiling command center.
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Python](https://img.shields.io/badge/Python-3.10+-green?logo=python)](https://python.org/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-3.3-38bdf8?logo=tailwindcss)](https://tailwindcss.com/)
+[![Gemini](https://img.shields.io/badge/Gemini-2.5_Flash-4285F4?logo=google)](https://ai.google.dev/)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
 </div>
@@ -23,66 +24,86 @@ Real-time flood monitoring, LSTM prediction, YOLO visual verification, and Gemin
 - [Tech Stack](#tech-stack)
 - [Features](#features)
 - [Pages](#pages)
+- [API Routes](#api-routes)
 - [Getting Started](#getting-started)
 - [Environment Variables](#environment-variables)
 - [Scripts](#scripts)
 - [Project Structure](#project-structure)
 - [Design System](#design-system)
 - [Known Limitations](#known-limitations)
+- [UN SDG Alignment](#un-sdg-alignment)
 - [License](#license)
 
 ---
 
 ## Overview
 
-**noah.ai** is a unified flood intelligence platform that merges two systems:
+**Noah AI** is a unified flood intelligence platform designed for ASEAN disaster response. It merges real-time monitoring with advanced AI in a **closed-loop** system:
 
-- **Floodzy** — Jakarta flood monitoring frontend with region-based weather, evacuation routing, and alert management
-- **Jakarta-Floodnet** — ML backend with LSTM-based flood prediction and YOLO visual verification
+1. **LSTM Neural Network** predicts water levels at key flood gates
+2. **YOLOv8 Visual Verification** confirms rising waters from CCTV/photos
+3. **Cross-Validation Engine** scores alert confidence (0.0–1.0) by merging both signals
+4. **Twilio SMS Alerts** notify rural communities when risk is elevated
 
-The result is a **command center dashboard** with a map-centric dark theme layout, real-time alerts, AI chatbot, and integrated ML services — targeting disaster response teams across ASEAN.
+All of this is presented in a **Hyprland-inspired tiling window manager** dashboard — a dark, glassmorphic command center built for speed and information density.
 
-### Why noah.ai?
+### Why Noah AI?
 
-| Problem | Solution |
+| Problem | Noah AI Solution |
 |---|---|
-| Flood warnings arrive too late | LSTM predicts water levels 6 hours ahead |
-| Manual flood verification is slow | YOLO visual detection from CCTV/photos |
-| No unified view for responders | Command center dashboard with all data in one place |
-| Rural communities lack internet | SMS alert system via Twilio |
+| Flood warnings arrive too late | Hybrid LSTM + physics engine predicts water levels ahead of time |
+| Manual flood verification is slow | YOLOv8 detects floods from images/CCTV automatically |
+| No unified view for responders | Tiling command center with map, alerts, weather, and AI in one screen |
+| Rural communities lack internet | Bilingual SMS alerts via Twilio (Indonesian + English) |
+| No intelligent assistant | Gemini 2.5 Flash chatbot with function calling (water data, weather, earthquake) |
 
 ---
 
 ## Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        Next.js Frontend                      │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────────────┐ │
-│  │ Command  │ │  Flood   │ │   ML     │ │    Region        │ │
-│  │ Center   │ │   Map    │ │  Pages   │ │    Selector      │ │
-│  │ (Dashboard)│ │ (Leaflet)│ │ (Predict/│ │ (Province →      │ │
-│  │          │ │          │ │  Verify) │ │  District)       │ │
-│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────────┬─────────┘ │
-│       │             │            │                 │           │
-│  ┌────▼─────────────▼────────────▼─────────────────▼─────────┐ │
-│  │              Next.js API Routes (/api/*)                   │ │
-│  │  dashboard · alerts · flood-reports · predict · chatbot    │ │
-│  │  ml-health · cctv-scan · evacuation · weather · sms       │ │
-│  └────┬──────────────┬───────────────────────┬───────────────┘ │
-└───────┼──────────────┼───────────────────────┼─────────────────┘
-        │              │                       │
-   ┌────▼────┐   ┌─────▼─────┐          ┌─────▼──────┐
-   │ Supabase│   │ ML Service│          │  External  │
-   │  (DB +  │   │ (FastAPI) │          │   APIs     │
-   │  Auth)  │   │           │          │            │
-   └─────────┘   │ • LSTM    │          │ • OpenWeather│
-                 │ • YOLO    │          │ • Gemini AI │
-                 │ • Physics │          │ • Roboflow  │
-                 │   Fallback│          │ • BMKG      │
-                 └───────────┘          │ • Twilio    │
-                                        └────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                     NOAH AI — TILING DASHBOARD                  │
+│  ┌────────┐ ┌─────────────────────────┐ ┌────────────────────┐  │
+│  │  Left  │ │      Master Tile        │ │    Right Tile      │  │
+│  │  Tile  │ │    (Leaflet FloodMap    │ │  (Alerts/Weather/  │  │
+│  │(Forecast│ │   + Radar + AQI +      │ │   AI Chatbot)     │  │
+│  │ Layers │ │   Flood Zones +         │ │                    │  │
+│  │Reports)│ │   Evacuation Pins)      │ │                    │  │
+│  ├────────┴─┴─────────────────────────┴─┴────────────────────┤  │
+│  │ Bottom Tile (Evacuation|CCTV|News|Sensor|Stats|Infra|EQ)  │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                            │                                     │
+│  ┌─────────────────────────▼─────────────────────────────────┐  │
+│  │             Next.js API Routes (32 endpoints)              │  │
+│  │  predict · chatbot · smart-alert · sms-alert · weather     │  │
+│  │  verify-visual · water-level · rainfall-dual · evacuation  │  │
+│  └─────┬──────────────┬───────────────────────┬──────────────┘  │
+└────────┼──────────────┼───────────────────────┼─────────────────┘
+         │              │                       │
+    ┌────▼────┐   ┌─────▼──────┐         ┌─────▼──────────┐
+    │Supabase │   │ ML Service │         │  External APIs  │
+    │(Postgres)│   │ (FastAPI)  │         │                 │
+    │         │   │            │         │ • Google Gemini  │
+    │ • Reports│   │ • LSTM     │         │ • OpenWeatherMap│
+    │ • SMS   │   │ • YOLOv8   │         │ • BMKG          │
+    │   Subs  │   │ • Physics  │         │ • PetaBencana.id│
+    │ • Logs  │   │   Engine   │         │ • Twilio        │
+    └─────────┘   └────────────┘         └─────────────────┘
 ```
+
+### Closed-Loop AI Pipeline
+
+```
+LSTM Prediction ─┐
+                  ├── Cross-Validation ── Confidence Score ── SMS Alerts
+YOLOv8 Detection ┘        (smart-alert)      (0.0–1.0)     (Twilio)
+```
+
+1. `/api/predict` fetches live water-level + dual-location rainfall → forwards to ML LSTM
+2. `/api/smart-alert` runs LSTM prediction; if risk is elevated, runs CCTV scan via YOLO
+3. Confidence scoring: LSTM CRITICAL (+0.5) + YOLO flooded (+0.4 × probability)
+4. If confidence ≥ 0.3 → auto-fires `/api/sms-alert` → Twilio sends bilingual SMS to subscribers
 
 ---
 
@@ -91,73 +112,102 @@ The result is a **command center dashboard** with a map-centric dark theme layou
 ### Frontend
 | Technology | Purpose |
 |---|---|
-| **Next.js 16** | React framework with App Router, server components |
-| **TypeScript 5.2** | Type safety |
-| **Tailwind CSS 3.3** | Utility-first styling with custom Command Center design tokens |
-| **Leaflet + react-leaflet** | Interactive flood maps with prediction overlays |
-| **Zustand** | Global state management (selected location, map bounds) |
-| **Framer Motion** | Animations and transitions |
-| **Radix UI** | Accessible component primitives (Dialog, Popover, Drawer, etc.) |
-| **React Hook Form + Zod** | Form validation (flood reports, settings) |
-| **Recharts** | Data visualization and charts |
+| **Next.js 16** (App Router) | React framework with server/client components |
+| **TypeScript 5.2** | Type safety across the codebase |
+| **Tailwind CSS 3.3** | Utility-first styling with custom dark theme tokens |
+| **Leaflet + react-leaflet 4** | Interactive flood maps with 5+ toggleable layers |
+| **Zustand 5** | Global state (map layers, location, UI) |
+| **Framer Motion 11** | Animations (panel transitions, alerts, mobile sheet) |
+| **Radix UI** | Accessible component primitives (16 packages) |
+| **Recharts 3** | Data visualization and statistics charts |
+| **React Hook Form + Zod** | Form validation (flood reports, SMS subscription) |
+| **React Query** | Server state management and caching |
+| **cmdk** | ⌘K Command palette for keyboard navigation |
 | **Lucide React** | Icon library |
 
 ### Backend
 | Technology | Purpose |
 |---|---|
-| **Next.js API Routes** | Server-side endpoints for weather, alerts, dashboard widgets |
-| **Supabase** | PostgreSQL database + auth + real-time subscriptions |
-| **Google Gemini AI** | Chatbot intelligence + flood analysis |
-| **Twilio** | SMS alerts for rural flood warnings |
+| **Next.js API Routes** | 32 server-side endpoints |
+| **Supabase** | PostgreSQL database (flood reports, SMS subscribers, logs) |
+| **Google Gemini 2.5 Flash** | AI chatbot with function calling (7 tools) |
+| **Twilio** | SMS flood alerts for rural communities |
+| **Sentry** | Error monitoring and observability |
 
 ### ML Service (Python)
 | Technology | Purpose |
 |---|---|
-| **FastAPI** | ML API server |
-| **TensorFlow/Keras** | LSTM flood prediction model |
-| **Roboflow** | YOLO visual flood verification |
-| **Physics Engine** | Fallback when LSTM is unavailable |
+| **FastAPI** | ML API server (`/predict`, `/verify-visual`, `/health`) |
+| **TensorFlow/Keras** | LSTM flood prediction model (trained on Manggarai 2020 data) |
+| **YOLOv8 (Ultralytics)** | Visual flood boundary detection from images/CCTV |
+| **Physics Engine** | Hybrid fallback with dynamic AI/physics weighting |
 
 ---
 
 ## Features
 
-### 🖥️ Command Center Dashboard
-- **Map-centric layout** — Leaflet flood map fills the main area, sidebar for contextual data
-- **Dark theme** — Command center design tokens (`cc-bg`, `cc-surface`, `cc-elevated`) with 4-tier severity colors
-- **NavRail** — 6-item navigation: Command, Alerts, Data, Weather, AI Tools, More
-- **StatusBar** — Live KPIs: active alerts, flood zones, total regions, people at risk, ML health
-- **PanelSwitcher** — Swappable sidebar panels: Alert Feed, Sensor Data, Weather, AI Tools
-- **Location Picker** — Province → Regency → District selector, overlaid on map
-- **Fullscreen map** — Desktop: Escape key toggle. Mobile: Drawer with header
-- **⌘K Command Menu** — Quick keyboard-driven navigation
+### 🖥️ Tiling Command Center (Hyprland-Inspired)
+
+The default dashboard uses a **CSS Grid tiling window manager** layout:
+
+- **TilingStatusBar** — Noah AI gradient branding, LIVE indicator, map layer toggles, region selector, clock, theme switch, language switcher
+- **LeftTile (200px)** — Tabs: AI Forecast, Map Layers (5 toggles), Reports (with emergency contacts), SMS status, Settings
+- **Master Tile** — Full Leaflet FloodMap with radar overlay, AQI bubbles, flood zones, evacuation pins, prediction layer
+- **RightTile (280px)** — Tabs: Alert Feed (severity-filterable), Weather + AQI (OpenWeatherMap), AI Chat (Gemini)
+- **BottomTile (resizable)** — 7 tabs: Evacuation, CCTV AI, Berita Regional, Data Sensor, Statistics, Infrastructure, Earthquake
+- **DragDivider** — Resize bottom tile height (40–400px, persisted to localStorage)
+- **MobileSheet** — Swipe-up drawer for mobile (<768px) with tabbed content
 
 ### 🤖 AI Integration
-- **Noah AI Chatbot** — Gemini-powered assistant with geolocation awareness
-- **LSTM Flood Prediction** — 6-hour water level forecasting (falls back to physics engine)
-- **YOLO Visual Verification** — Upload photos for AI flood detection via Roboflow
-- **Gemini Analysis** — Natural language flood situation analysis
 
-### 🗺️ Flood Mapping
-- **Interactive Leaflet Map** — Flood-prone area overlays, weather stations, prediction layers
-- **Flood Report Submission** — Zod-validated form → `POST /api/flood-reports`
-- **Evacuation Routing** — Leaflet Routing Machine → Google Maps navigation
-- **PredictionLayer** — LSTM risk zones rendered on map, auto-refreshes every 5 minutes
+| Feature | Technology | Description |
+|---|---|---|
+| **Noah AI Chatbot** | Gemini 2.5 Flash | 7 function-calling tools: water levels, pump status, BMKG earthquake, PetaBencana reports, geocoding, weather, notifications |
+| **Flood Prediction** | LSTM + Physics | 3 modes: Auto (live data), Manual input, Demo Scenario |
+| **Visual Verification** | YOLOv8 | Upload image → flood probability (0–100%) + detected objects |
+| **Smart Alert** | Cross-validation | LSTM + YOLO → confidence score → auto SMS |
+| **Flood Risk Forecast** | LeftTile widget | Inline prediction in tiling dashboard |
 
-### 📱 Mobile Experience
-- **Bottom tab bar** — 6-item native-style navigation
-- **Fullscreen map drawer** — Swipe-up drawer with map + close button
-- **Responsive panels** — Touch-optimized alert feed and data views
+### 🗺️ Interactive Flood Map
 
-### 📡 Real-Time Data
-- **Weather dashboard** — OpenWeatherMap current conditions + forecast + AQI
-- **Water level monitoring** — 100+ sensor posts with status (Normal/Waspada/Siaga/Bahaya)
-- **Pump station status** — Infrastructure monitoring with operational/maintenance/offline states
-- **BMKG earthquake data** — Latest seismic activity from Indonesian Met Agency
+| Layer | Toggle | Source |
+|---|---|---|
+| Radar Overlay | `showRadar` | Precipitation tiles |
+| AQI Bubbles | `showAqi` | OpenWeatherMap Air Quality |
+| Flood Zones | `showFloodZones` | PetaBencana.id crowd-sourced |
+| Evacuation Pins | `showEvacPins` | API evacuation data |
+| Weather Stations | `showWeatherStations` | Station locations |
+| Prediction Layer | Auto | LSTM risk zone overlays |
+| Disaster Reports | Auto | PetaBencana.id reports |
 
-### 📲 SMS Alerts
-- **Twilio integration** — SMS flood warnings for rural communities without internet
-- **Subscription page** — Phone number registration at `/sms-subscribe`
+Additional map features:
+- **Map Controls** — Zoom, fullscreen, search, filter, report flood
+- **Flood Report Modal** — Zod-validated citizen report form (location, water level, photo)
+- **Evacuation Routing** — Leaflet Routing Machine with turn-by-turn
+- **Timeline Scrubber** — Historical data playback
+- **Map Legend** — Dynamic legend for active layers
+
+### 📡 Real-Time Data Integration
+
+| Data Source | What It Provides |
+|---|---|
+| **OpenWeatherMap** | Current weather, forecast, AQI (5-level scale) |
+| **BMKG** | Latest earthquake data for Indonesia |
+| **PetaBencana.id** | Crowd-sourced disaster reports (floods, earthquakes) |
+| **Water Level API** | Historical replay (Manggarai 2020) with dual-location rainfall |
+| **Mock Sensors** | 100+ water level posts + pump stations (development) |
+
+### 📲 SMS Alert System
+
+- **Subscription** — Register phone number at `/sms-subscribe` with preferred region and language
+- **Twilio Integration** — Bilingual SMS (Indonesian/English) capped at 160 chars
+- **Smart Triggering** — Auto-fired by `/api/smart-alert` when risk ≥ WASPADA
+- **Supabase Logging** — Every SMS logged with Twilio SID, status, and errors
+- **Graceful Degradation** — Logs warning if Twilio not configured, never crashes
+
+### 🌍 Multilingual Support
+
+Full i18n with `LanguageContext` — English and Bahasa Indonesia. Language persisted via `useLocalStorage`.
 
 ---
 
@@ -165,22 +215,79 @@ The result is a **command center dashboard** with a map-centric dark theme layou
 
 | Route | Description |
 |---|---|
-| `/dashboard` | Command Center — map + alerts + panels |
-| `/flood-map` | Interactive flood map with report submission |
-| `/flood-predict` | LSTM water level prediction |
-| `/visual-verify` | YOLO image analysis for flood detection |
-| `/alerts` | Full disaster alert listing |
-| `/evacuation` | Evacuation locations + Google Maps routing |
-| `/sensor-data` | Real-time sensor data simulator |
-| `/statistics` | Flood statistics and analytics |
+| `/` | Redirect → `/dashboard` |
+| `/dashboard` | **Tiling Command Center** (default) or Classic view (`?layout=classic`) |
+| `/alerts` | Full alert feed with severity categories |
+| `/sensor-data` | Flood reports from Supabase + Statistics Dashboard |
+| `/flood-predict` | LSTM prediction — Auto, Manual, and Demo Scenario modes |
+| `/visual-verify` | YOLOv8 image upload for flood detection |
+| `/flood-report` | Citizen flood report submission form |
+| `/flood-map` | Standalone interactive flood map |
+| `/evacuation` | Evacuation locations with routing |
+| `/cctv-simulation` | CCTV AI monitoring (simulated feeds) |
+| `/sms-subscribe` | SMS alert phone registration |
 | `/current-weather` | Current weather conditions |
 | `/weather-forecast` | Weather forecast |
-| `/education` | Flood preparedness education |
-| `/settings` | App preferences and theme switching |
-| `/sms-subscribe` | SMS alert subscription |
-| `/cctv-simulation` | CCTV monitoring simulation |
-| `/contact` | Contact and information |
-| `/data-source` | Data source attribution |
+| `/statistics` | Platform analytics and flood statistics |
+| `/education` | 4 educational articles on flood preparedness |
+| `/settings` | User preferences (theme, language, notifications) |
+| `/contact` | Contact information |
+| `/privacy` | Privacy policy |
+| `/data-source` | Data source attribution and documentation |
+
+---
+
+## API Routes
+
+### Core AI Pipeline (6 routes)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/predict` | POST | LSTM prediction proxy → ML service; Auto mode fetches live data |
+| `/api/verify-visual` | POST | Image upload → YOLOv8 flood detection |
+| `/api/smart-alert` | POST | Cross-validates LSTM + YOLO → confidence score → triggers SMS |
+| `/api/cctv-scan` | POST | CCTV frame analysis |
+| `/api/chatbot` | POST | Gemini 2.5 Flash with 7 function-calling tools |
+| `/api/flood-analysis` | POST | AI flood situation analysis |
+
+### Data & Monitoring (11 routes)
+
+| Endpoint | Description |
+|---|---|
+| `/api/water-level` | Water level data (Manggarai historical replay) |
+| `/api/rainfall-dual` | Dual-location rainfall (Jakarta + Bogor) |
+| `/api/weather` | OpenWeatherMap current conditions proxy |
+| `/api/weather-history` | Historical weather data |
+| `/api/air-quality` | Air Quality Index data |
+| `/api/sensor-simulator` | Simulated sensor data stream |
+| `/api/disaster-proxy` | PetaBencana.id report proxy |
+| `/api/disaster-reports` | Disaster report aggregation |
+| `/api/evacuation` | Evacuation point data |
+| `/api/regions` | Region metadata |
+| `/api/statistics` | Dashboard statistics |
+
+### Alerts & Communication (5 routes)
+
+| Endpoint | Description |
+|---|---|
+| `/api/sms-alert` | Sends Twilio SMS to subscribers per region |
+| `/api/sms-subscribe` | Phone subscription CRUD |
+| `/api/alerts` | Active alerts feed |
+| `/api/ai-alerts` | AI-generated alert summaries |
+| `/api/news-summary` | Regional news aggregation |
+
+### System (8 routes)
+
+| Endpoint | Description |
+|---|---|
+| `/api/health` | System health check |
+| `/api/ml-health` | ML service status (LSTM + YOLO readiness) |
+| `/api/dashboard` | Dashboard aggregate data |
+| `/api/scenarios` | Demo scenario list |
+| `/api/scenarios/[id]` | Run specific demo scenario |
+| `/api/preferences` | User preferences storage |
+| `/api/flood-reports` | Flood report CRUD |
+| `/api/analysis` | General analysis endpoint |
 
 ---
 
@@ -263,17 +370,17 @@ Copy `.env.example` to `.env.local` and configure:
 | Variable | Required | Description |
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | ✅ | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | Supabase anon key |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | Supabase anonymous key |
 | `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Supabase service role key |
 | `OPENWEATHER_API_KEY` | ✅ | OpenWeatherMap API key |
 | `GEMINI_API_KEY` | ✅ | Google Gemini API key |
 | `ML_API_URL` | ✅ | ML service URL (e.g. `http://localhost:8000`) |
-| `ROBOFLOW_API_KEY` | For YOLO | Roboflow API key for visual verification |
 | `TWILIO_ACCOUNT_SID` | For SMS | Twilio account SID |
 | `TWILIO_AUTH_TOKEN` | For SMS | Twilio auth token |
 | `TWILIO_PHONE_NUMBER` | For SMS | Twilio sender phone number |
-| `UPSTASH_REDIS_REST_URL` | Optional | Redis for rate limiting/caching |
-| `UPSTASH_REDIS_REST_TOKEN` | Optional | Redis token |
+| `UPSTASH_REDIS_REST_URL` | Optional | Redis for rate limiting |
+| `UPSTASH_REDIS_REST_TOKEN` | Optional | Redis auth token |
+| `ADMIN_SECRET` | Optional | Admin secret for ML demo mode toggle |
 
 ---
 
@@ -294,53 +401,132 @@ Copy `.env.example` to `.env.local` and configure:
 
 ```
 flood/
-├── app/                          # Next.js App Router pages
-│   ├── api/                      # API routes (dashboard, alerts, predict, chatbot, etc.)
-│   ├── dashboard/                # Command Center page
-│   ├── flood-map/                # Interactive flood map
-│   ├── flood-predict/            # LSTM prediction page
-│   ├── visual-verify/            # YOLO verification page
-│   ├── evacuation/               # Evacuation routing
-│   ├── globals.css               # Design tokens + Command Center theme
-│   └── layout.tsx                # Root layout with providers
+├── app/                              # Next.js App Router
+│   ├── api/                          # 32 API routes
+│   │   ├── predict/                  # LSTM prediction proxy
+│   │   ├── chatbot/                  # Gemini AI chatbot (function calling)
+│   │   ├── smart-alert/              # Cross-validation engine (LSTM + YOLO)
+│   │   ├── sms-alert/                # Twilio SMS sender
+│   │   ├── verify-visual/            # YOLO image verification
+│   │   ├── water-level/              # Water level data
+│   │   ├── rainfall-dual/            # Dual-location rainfall
+│   │   ├── weather/                  # OpenWeatherMap proxy
+│   │   └── ...                       # 24 more routes
+│   ├── dashboard/                    # Tiling command center
+│   ├── flood-predict/                # LSTM prediction page (3 modes)
+│   ├── visual-verify/                # YOLO verification page
+│   ├── sensor-data/                  # Supabase flood reports + statistics
+│   ├── evacuation/                   # Evacuation locations + routing
+│   ├── sms-subscribe/                # SMS registration
+│   ├── education/                    # 4 educational articles
+│   ├── globals.css                   # Design tokens + dark theme
+│   └── layout.tsx                    # Root layout (providers stack)
 ├── components/
-│   ├── layout/                   # CommandCenterView, NavRail, StatusBar, AppShell
-│   ├── panels/                   # PanelSwitcher, DataPanel, WeatherPanel, AIToolsPanel
-│   ├── contexts/                 # StatsContext, AlertCountContext
-│   ├── map/                      # FloodMap, WeatherInsightMap
-│   ├── flood-map/                # PetaBanjirClient, ReportFloodModal, PredictionLayer
-│   ├── region-selector/          # RegionDropdown (Province → District)
-│   ├── modals/                   # LocationPickerModal
-│   └── ui/                       # Radix-based primitives (Button, Dialog, Drawer, etc.)
-├── hooks/                        # useWeatherData, useDisasterData, useRegionData, useMediaQuery
-├── lib/                          # utils, store (Zustand), api client, mock data, constants
-├── ml-service/                   # Python FastAPI ML service
-│   ├── src/main.py               # API endpoints (/predict, /verify-visual, /health)
-│   ├── models/                   # LSTM model weights
-│   └── requirements.txt          # Python dependencies
-├── public/                       # Static assets
-├── types/                        # TypeScript type definitions
-└── src/context/                  # LanguageContext (i18n)
+│   ├── tiling/                       # Hyprland-inspired tiling system
+│   │   ├── TilingLayout.tsx          # Main grid layout
+│   │   ├── TilingStatusBar.tsx       # Top bar (Noah AI branding)
+│   │   ├── LeftTile.tsx              # Forecast, layers, reports, SMS
+│   │   ├── RightTile.tsx             # Alerts, weather, AI chat
+│   │   ├── BottomTile.tsx            # 7-tab panel (955 lines)
+│   │   ├── MobileSheet.tsx           # Mobile swipe-up drawer
+│   │   ├── DragDivider.tsx           # Resize bottom tile
+│   │   ├── RegionSelector.tsx        # Province → District dropdown
+│   │   └── tiling.css                # Tiling CSS grid styles
+│   ├── layout/                       # Shell components
+│   │   ├── ClientLayoutWrapper.tsx   # Layout mode detection
+│   │   ├── CommandCenterView.tsx     # Classic dashboard layout
+│   │   ├── NavRail.tsx               # Left navigation (classic mode)
+│   │   ├── StatusBar.tsx             # Top status bar (classic mode)
+│   │   ├── SplashScreen.tsx          # Loading animation
+│   │   └── CommandMenu.tsx           # ⌘K command palette
+│   ├── map/                          # Map system (11 components)
+│   │   ├── FloodMap.tsx              # Main Leaflet map (54K)
+│   │   ├── MapControls.tsx           # Zoom, fullscreen, search
+│   │   ├── MockAQILayer.tsx          # AQI visualization
+│   │   ├── RadarLayer.tsx            # Precipitation radar
+│   │   ├── TimelineScrubber.tsx      # Historical playback
+│   │   └── WeatherInsightMap.tsx     # Weather data overlay
+│   ├── flood-map/                    # Flood map features (12 components)
+│   │   ├── PetaBanjirClient.tsx      # PetaBencana integration
+│   │   ├── PredictionLayer.tsx       # LSTM risk zone overlay
+│   │   ├── ReportFloodModal.tsx      # Flood report form
+│   │   ├── MapFilterControl.tsx      # Layer filtering UI
+│   │   └── MapActionsControl.tsx     # Map interaction actions
+│   ├── contexts/                     # React contexts
+│   ├── providers/                    # Provider components
+│   ├── sensor-data/                  # Sensor data components
+│   ├── dashboard/                    # Statistics dashboard
+│   └── ui/                           # Radix-based component library
+├── hooks/                            # 16 React hooks
+│   ├── useWeatherData.ts             # Weather data fetching
+│   ├── useAirPollutionData.ts        # AQI data
+│   ├── useBmkgQuakeData.ts           # BMKG earthquake data
+│   ├── useDisasterData.ts            # PetaBencana reports
+│   ├── usePredictionData.ts          # ML prediction results
+│   ├── useTheme.tsx                  # Theme management (4 themes)
+│   ├── useMediaQuery.ts              # Responsive breakpoints
+│   └── ...                           # 9 more hooks
+├── lib/                              # Utilities and stores
+│   ├── api.ts                        # API type definitions
+│   ├── api.client.ts                 # Client-side API functions
+│   ├── api.server.ts                 # Server-side API functions
+│   ├── store.ts                      # Zustand app store
+│   ├── mapLayerStore.ts              # Map layer toggle store
+│   ├── constants.ts                  # Mock data, CCTV channels, alerts
+│   ├── mock-data.ts                  # Water level + pump generators
+│   ├── supabase/                     # Supabase client configuration
+│   └── utils.ts                      # Shared utilities
+├── ml-service/                       # Python ML microservice
+│   ├── src/
+│   │   ├── main.py                   # FastAPI app (predict, verify, scenarios)
+│   │   ├── lstm_model.py             # LSTM flood forecaster
+│   │   ├── yolo_model.py             # YOLOv8 visual verifier
+│   │   ├── preprocessing.py          # Data preprocessing pipeline
+│   │   ├── scenarios.py              # Demo scenarios
+│   │   └── metrics.py                # Model metrics
+│   ├── models/                       # Trained model weights (.h5, .pt)
+│   ├── data/                         # Training/historical data
+│   └── requirements.txt              # Python dependencies
+├── src/
+│   ├── context/LanguageContext.tsx    # i18n provider (EN/ID)
+│   ├── i18n/                         # Translation files
+│   └── lib/                          # Additional utilities
+├── types/                            # TypeScript type definitions
+├── public/                           # Static assets (icons, PWA manifest)
+├── supabase/                         # Supabase configuration
+└── tests/                            # Vitest test suite
 ```
 
 ---
 
 ## Design System
 
-The command center uses custom CSS custom properties for a cohesive dark theme:
+Noah AI uses a **dark, glassmorphic command center** aesthetic with CSS custom properties:
 
-| Token | Light | Dark | Purpose |
-|---|---|---|---|
-| `--cc-bg` | `#f8fafc` | `#0a0e1a` | Page background |
-| `--cc-surface` | `#ffffff` | `#111827` | Card/panel backgrounds |
-| `--cc-elevated` | `#f1f5f9` | `#1a2236` | Elevated surfaces |
-| `--cc-cyan` | `#0891b2` | `#00e5ff` | Primary accent |
-| `--cc-critical` | `#ff1744` | `#ff1744` | Danger/critical status |
-| `--cc-warning` | `#ff3d00` | `#ff3d00` | Warning status |
-| `--cc-caution` | `#ff9100` | `#ff9100` | Caution status |
-| `--cc-safe` | `#00e676` | `#00e676` | Safe/normal status |
+| Token | Dark Value | Purpose |
+|---|---|---|
+| `--cc-bg` | `#0a0e1a` | Page background |
+| `--cc-surface` | `#111827` | Card/panel backgrounds |
+| `--cc-elevated` | `#1a2236` | Elevated surfaces |
+| `--cc-cyan` | `#00e5ff` | Primary accent |
+| `--cc-critical` | `#ff1744` | Critical/danger status |
+| `--cc-warning` | `#ff3d00` | Warning status |
+| `--cc-caution` | `#ff9100` | Caution status |
+| `--cc-safe` | `#00e676` | Safe/normal status |
 
-Themes available: **Light**, **Dark**, **System**, **High Contrast**
+### Typography
+- **Space Grotesk** — UI text (headings, labels, body)
+- **JetBrains Mono** — Code, data values, timestamps
+
+### Themes
+4 theme modes: **Dark** (default), **Light**, **System**, **High Contrast**
+
+### UI Patterns
+- Colored left borders on cards (severity-themed)
+- Accent-colored labels for visual hierarchy
+- Glassmorphic panels (`bg-white/[0.03]`, `border-white/5`)
+- Pulsing LIVE indicators
+- Severity-based color coding (red → yellow → emerald)
 
 ---
 
@@ -348,23 +534,28 @@ Themes available: **Light**, **Dark**, **System**, **High Contrast**
 
 | Area | Status | Detail |
 |---|---|---|
-| LSTM Prediction | ⚠️ Falls back to physics engine | Model requires 62-feature preprocessing pipeline — currently sends simplified input |
-| CCTV Monitoring | ⚠️ Placeholder | All channels show offline — no live CCTV sources configured |
-| Infrastructure Status | ⚠️ Static mock data | Labeled as "(Placeholder)" in UI |
-| Flood Reports | ✅ Frontend works | POSTs to `/api/flood-reports` — backend storage via Supabase |
+| LSTM Prediction | ⚠️ Falls back to physics | Model needs 62-feature preprocessing — currently simplified 3-feature input |
+| CCTV Monitoring | ⚠️ Simulated | No live CCTV sources configured; uses demo channels |
+| Infrastructure Data | ⚠️ Mock data | Water levels and pump status generated from mock-data functions |
+| Supabase Data | ✅ With fallback | Falls back to mock data (50 reports) if Supabase has no records |
+| SMS Alerts | ✅ Graceful | Works with Twilio; skips silently if not configured |
+| AI Chatbot | ✅ Rate-limited | IP-based rate limiting to prevent abuse |
 
 ---
 
 ## UN SDG Alignment
 
-noah.ai aligns with:
-- **SDG 9** — Industry, Innovation & Infrastructure
-- **SDG 11** — Sustainable Cities & Communities
-- **SDG 13** — Climate Action
-- **SDG 17** — Partnerships for the Goals
+Noah AI directly supports the **ASEAN Capacity Building Roadmap 2025–2030** and targets:
+
+| SDG | Goal | Noah AI Contribution |
+|---|---|---|
+| **SDG 9** | Industry, Innovation & Infrastructure | Real-time monitoring of flood mitigation assets (pumps, flood gates) |
+| **SDG 11** | Sustainable Cities & Communities | Precision early warning for urban flood protection |
+| **SDG 13** | Climate Action | AI-enhanced adaptive capacity to climate hazards |
+| **SDG 17** | Partnerships for the Goals | Integrates PetaBencana.id, BMKG, OpenWeatherMap for regional collaboration |
 
 ---
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE) for details.
