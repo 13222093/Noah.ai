@@ -7,7 +7,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useWeatherData } from '@/hooks/useWeatherData';
 import { useAirPollutionData } from '@/hooks/useAirPollutionData';
 import { useAppStore } from '@/lib/store';
-import { AlertTriangle, Activity, Cloud, Wind, BarChart3, Clock, Bot, Send, Loader2, Droplets, Search, Info, MapPin, TrendingUp, Navigation, Zap } from 'lucide-react';
+import { AlertTriangle, Activity, Cloud, Wind, BarChart3, Clock, Bot, Send, Loader2, Droplets, Search, Info, MapPin, TrendingUp, Navigation, Zap, Gauge, Waves, Shield, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SegmentedTab } from './SegmentedControl';
 
@@ -148,60 +148,142 @@ export function RightTile() {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'alerts':
+      case 'alerts': {
+        const alerts = data.realTimeAlerts || [];
+        const critCount = alerts.filter((a: any) => a.level === 'critical').length;
+        const dangerCount = alerts.filter((a: any) => a.level === 'danger').length;
+        const warnCount = alerts.filter((a: any) => a.level === 'warning').length;
+
         return (
           <div className="p-2 space-y-2">
-            <div className="rounded-md bg-red-500/10 border border-red-500/20 px-3 py-2 text-xs">
-              <span className="text-red-400 font-semibold">
-                ⚡ {data.realTimeAlerts?.length || 0} peringatan aktif
-              </span>
+            {/* Summary header */}
+            <div className="flex items-center gap-2">
+              <div className="flex-1 flex items-center gap-1.5 rounded-lg bg-red-500/10 border border-red-500/20 px-2.5 py-1.5">
+                <Shield size={12} className="text-red-400" />
+                <span className="text-[11px] font-bold text-red-400">
+                  {alerts.length} Peringatan Aktif
+                </span>
+              </div>
+              {critCount > 0 && (
+                <div className="rounded-lg bg-red-500/20 border border-red-500/30 px-2 py-1.5 text-center">
+                  <p className="text-sm font-bold text-red-400">{critCount}</p>
+                  <p className="text-[7px] text-red-300 uppercase">Kritis</p>
+                </div>
+              )}
+              {dangerCount > 0 && (
+                <div className="rounded-lg bg-orange-500/15 border border-orange-500/25 px-2 py-1.5 text-center">
+                  <p className="text-sm font-bold text-orange-400">{dangerCount}</p>
+                  <p className="text-[7px] text-orange-300 uppercase">Bahaya</p>
+                </div>
+              )}
+              {warnCount > 0 && (
+                <div className="rounded-lg bg-yellow-500/15 border border-yellow-500/25 px-2 py-1.5 text-center">
+                  <p className="text-sm font-bold text-yellow-400">{warnCount}</p>
+                  <p className="text-[7px] text-yellow-300 uppercase">Siaga</p>
+                </div>
+              )}
             </div>
-            {(data.realTimeAlerts || []).slice(0, 15).map((alert: any, i: number) => {
-              // Severity mapping
-              const levelMap: Record<string, { label: string; color: string; border: string; bg: string }> = {
-                critical: { label: 'KRITIKAL', color: 'text-red-400', border: 'border-red-500/30', bg: 'bg-red-500/10' },
-                danger:   { label: 'BAHAYA', color: 'text-orange-400', border: 'border-orange-500/30', bg: 'bg-orange-500/10' },
-                warning:  { label: 'PERINGATAN', color: 'text-yellow-400', border: 'border-yellow-500/30', bg: 'bg-yellow-500/10' },
-                info:     { label: 'INFO', color: 'text-blue-400', border: 'border-blue-500/30', bg: 'bg-blue-500/10' },
+
+            {/* Alert cards */}
+            {alerts.slice(0, 15).map((alert: any, i: number) => {
+              const levelMap: Record<string, { label: string; color: string; border: string; bg: string; iconColor: string }> = {
+                critical: { label: 'KRITIKAL', color: 'text-red-400', border: 'border-l-red-500', bg: 'bg-red-500/5', iconColor: 'text-red-500' },
+                danger:   { label: 'BAHAYA', color: 'text-orange-400', border: 'border-l-orange-500', bg: 'bg-orange-500/5', iconColor: 'text-orange-500' },
+                warning:  { label: 'PERINGATAN', color: 'text-yellow-400', border: 'border-l-yellow-500', bg: 'bg-yellow-500/5', iconColor: 'text-yellow-500' },
+                info:     { label: 'INFO', color: 'text-blue-400', border: 'border-l-blue-500', bg: 'bg-blue-500/5', iconColor: 'text-blue-500' },
               };
               const sev = levelMap[alert.level] || levelMap.info;
 
-              // Relative time
               const elapsed = alert.timestamp ? Date.now() - new Date(alert.timestamp).getTime() : 0;
               const mins = Math.floor(elapsed / 60000);
               const relTime = mins < 1 ? 'Baru saja'
-                : mins < 60 ? `${mins} mnt yang lalu`
-                : mins < 1440 ? `${Math.floor(mins / 60)} jam yang lalu`
-                : `${Math.floor(mins / 1440)} hari yang lalu`;
+                : mins < 60 ? `${mins} mnt lalu`
+                : mins < 1440 ? `${Math.floor(mins / 60)} jam lalu`
+                : `${Math.floor(mins / 1440)} hari lalu`;
+
+              // TMA color
+              const tmaColor = alert.tma >= 150 ? 'text-red-400' : alert.tma >= 100 ? 'text-orange-400' : alert.tma >= 70 ? 'text-yellow-400' : 'text-emerald-400';
+              const tmaBarColor = alert.tma >= 150 ? 'bg-red-500' : alert.tma >= 100 ? 'bg-orange-500' : alert.tma >= 70 ? 'bg-yellow-500' : 'bg-emerald-500';
+              const tmaPct = Math.min((alert.tma / 250) * 100, 100);
 
               return (
                 <div
                   key={alert.id || i}
-                  className={cn('rounded-lg border px-3 py-2.5 space-y-1.5', sev.border, sev.bg)}
+                  className={cn('rounded-lg border border-white/5 border-l-2 px-3 py-2.5 space-y-2', sev.border, sev.bg)}
                 >
-                  {/* Header: title + severity badge */}
-                  <p className="text-xs font-semibold text-slate-200 leading-tight">
-                    {alert.title || 'Peringatan Banjir'}
-                  </p>
+                  {/* Title row */}
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="text-xs font-semibold text-white leading-tight flex-1">
+                      {alert.title || 'Peringatan Banjir'}
+                    </p>
+                    <AlertTriangle size={14} className={cn('shrink-0 mt-0.5', sev.iconColor)} />
+                  </div>
+
+                  {/* Severity + time */}
                   <div className="flex items-center gap-2">
-                    <span className={cn('text-[9px] font-extrabold uppercase tracking-wider', sev.color)}>
+                    <span className={cn('text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.5 rounded', sev.color,
+                      alert.level === 'critical' ? 'bg-red-500/20' :
+                      alert.level === 'danger' ? 'bg-orange-500/20' :
+                      alert.level === 'warning' ? 'bg-yellow-500/20' : 'bg-blue-500/20'
+                    )}>
                       {sev.label}
                     </span>
-                    <span className="text-[10px] text-slate-500">•</span>
-                    <span className="text-[10px] text-slate-500">🕐 {relTime}</span>
+                    <span className="text-[10px] text-slate-400 flex items-center gap-0.5">
+                      <Clock size={9} />
+                      {relTime}
+                    </span>
                   </div>
+
+                  {/* TMA Meter */}
+                  {alert.tma && (
+                    <div className="bg-white/[0.03] rounded-md p-2 border border-white/5">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[9px] text-slate-400 font-medium flex items-center gap-1">
+                          <Waves size={9} className="text-blue-400" />
+                          TMA (Tinggi Muka Air)
+                        </span>
+                        <span className={cn('text-[9px] font-bold px-1.5 py-0.5 rounded',
+                          alert.tmaStatus === 'Bahaya' ? 'bg-red-500/20 text-red-400' :
+                          alert.tmaStatus === 'Siaga 1' ? 'bg-orange-500/20 text-orange-400' :
+                          alert.tmaStatus === 'Siaga 2' ? 'bg-yellow-500/20 text-yellow-400' :
+                          'bg-emerald-500/20 text-emerald-400'
+                        )}>
+                          {alert.tmaStatus}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <p className={cn('text-lg font-bold tabular-nums', tmaColor)}>
+                          {alert.tma}<span className="text-[10px] text-slate-500 ml-0.5">cm</span>
+                        </p>
+                        <div className="flex-1">
+                          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
+                            <div className={cn('h-full rounded-full transition-all', tmaBarColor)} style={{ width: `${tmaPct}%` }} />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Affected areas */}
                   {alert.affectedAreas?.length > 0 && (
-                    <p className="text-[10px] text-slate-500">
-                      👥 Terdampak: {alert.affectedAreas.join(', ')}
-                    </p>
+                    <div className="flex items-start gap-1 flex-wrap">
+                      <MapPin size={9} className="text-cyan-400 mt-0.5 shrink-0" />
+                      {alert.affectedAreas.slice(0, 4).map((area: string) => (
+                        <span key={area} className="text-[9px] bg-white/5 text-slate-300 px-1.5 py-0.5 rounded">
+                          {area}
+                        </span>
+                      ))}
+                      {alert.affectedAreas.length > 4 && (
+                        <span className="text-[9px] text-slate-500">+{alert.affectedAreas.length - 4}</span>
+                      )}
+                    </div>
                   )}
                 </div>
               );
             })}
           </div>
         );
+      }
 
       case 'weather':
         return (

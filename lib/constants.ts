@@ -236,12 +236,14 @@ export const FLOOD_MOCK_ALERTS = [
     timestamp: new Date(Date.now() - 3600000).toISOString(),
     isActive: true,
     affectedAreas: ['Agam', 'Tanah Datar', 'Padang Panjang'],
+    tma: 220,
+    tmaStatus: 'Bahaya',
     actions: [
       'Jauhi bantaran sungai',
       'Ikuti arahan petugas evakuasi',
       'Siapkan tas siaga bencana',
     ],
-    coordinates: [-0.4, 100.4], // Agam/Bukittinggi area
+    coordinates: [-0.4, 100.4],
   },
   {
     id: '2',
@@ -253,8 +255,10 @@ export const FLOOD_MOCK_ALERTS = [
     timestamp: new Date(Date.now() - 7200000).toISOString(),
     isActive: true,
     affectedAreas: ['Demak', 'Kudus', 'Grobogan'],
+    tma: 180,
+    tmaStatus: 'Siaga 1',
     actions: ['Hindari jalur Pantura Demak-Kudus', 'Waspada arus deras'],
-    coordinates: [-6.89, 110.64], // Demak area
+    coordinates: [-6.89, 110.64],
   },
   {
     id: '3',
@@ -266,8 +270,10 @@ export const FLOOD_MOCK_ALERTS = [
     timestamp: new Date(Date.now() - 10800000).toISOString(),
     isActive: true,
     affectedAreas: ['Mahakam Ulu', 'Kubar'],
+    tma: 120,
+    tmaStatus: 'Siaga 2',
     actions: ['Amankan barang elektronik', 'Waspada hewan liar'],
-    coordinates: [0.5, 115.5], // Mahakam Ulu area
+    coordinates: [0.5, 115.5],
   },
   {
     id: '4',
@@ -279,8 +285,10 @@ export const FLOOD_MOCK_ALERTS = [
     timestamp: new Date(Date.now() - 1800000).toISOString(),
     isActive: true,
     affectedAreas: ['Kelapa Gading', 'Penjaringan', 'Tanjung Priok', 'Jakarta Utara'],
+    tma: 95,
+    tmaStatus: 'Siaga 3',
     actions: ['Hindari jalan RE Martadinata', 'Pantau pompa air'],
-    coordinates: [-6.15, 106.9], // Kelapa Gading area
+    coordinates: [-6.15, 106.9],
   },
   {
     id: '5',
@@ -291,6 +299,8 @@ export const FLOOD_MOCK_ALERTS = [
     timestamp: new Date(Date.now() - 4 * 3600000).toISOString(),
     isActive: true,
     affectedAreas: ['Banda Aceh', 'Aceh Besar', 'Darul Imarah'],
+    tma: 110,
+    tmaStatus: 'Siaga 2',
     actions: ['Pantau debit air', 'Siapkan evakuasi mandiri'],
     coordinates: [5.55, 95.32],
   },
@@ -303,6 +313,8 @@ export const FLOOD_MOCK_ALERTS = [
     timestamp: new Date(Date.now() - 5 * 3600000).toISOString(),
     isActive: true,
     affectedAreas: ['Medan', 'Medan Johor', 'Medan Polonia'],
+    tma: 150,
+    tmaStatus: 'Siaga 1',
     actions: ['Hindari underpass', 'Cari jalur alternatif'],
     coordinates: [3.54, 98.68],
   },
@@ -315,6 +327,8 @@ export const FLOOD_MOCK_ALERTS = [
     timestamp: new Date(Date.now() - 2 * 3600000).toISOString(),
     isActive: true,
     affectedAreas: ['Banjarmasin', 'Banjarmasin Utara', 'Alalak'],
+    tma: 85,
+    tmaStatus: 'Siaga 3',
     actions: ['Amankan dokumen penting', 'Waspada listrik'],
     coordinates: [-3.32, 114.59],
   },
@@ -327,6 +341,8 @@ export const FLOOD_MOCK_ALERTS = [
     timestamp: new Date(Date.now() - 3 * 3600000).toISOString(),
     isActive: true,
     affectedAreas: ['Bandung', 'Baleendah', 'Dayeuhkolot'],
+    tma: 100,
+    tmaStatus: 'Siaga 2',
     actions: ['Waspada luapan Citarum', 'Siapkan perahu karet'],
     coordinates: [-6.98, 107.63],
   },
