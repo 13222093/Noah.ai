@@ -7,7 +7,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useWeatherData } from '@/hooks/useWeatherData';
 import { useAirPollutionData } from '@/hooks/useAirPollutionData';
 import { useAppStore } from '@/lib/store';
-import { AlertTriangle, Activity, Cloud, Wind, BarChart3, Clock, Bot, Send, Loader2 } from 'lucide-react';
+import { AlertTriangle, Activity, Cloud, Wind, BarChart3, Clock, Bot, Send, Loader2, Droplets, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SegmentedTab } from './SegmentedControl';
 
@@ -207,42 +207,80 @@ export function RightTile() {
             {/* WEATHER SECTION */}
             {weatherLoading ? (
               <div className="text-center py-4 text-xs text-slate-500">Loading weather...</div>
-            ) : weatherData?.current ? (
-              <>
-                <div className="text-center py-2">
-                  <p className="text-3xl font-light text-slate-200">
-                    {Math.round(weatherData.current.main?.temp ?? 0)}°C
+            ) : weatherData?.current ? (() => {
+              const iconCode = weatherData.current.weather?.[0]?.icon;
+              const sunrise = weatherData.current.sys?.sunrise;
+              const sunset = weatherData.current.sys?.sunset;
+              const fmtTime = (ts: number) => new Date(ts * 1000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+              return (
+                <>
+                  {/* Hero: icon + temp */}
+                  <div className="flex items-center justify-center gap-3 py-2">
+                    {iconCode && (
+                      <img
+                        src={`https://openweathermap.org/img/wn/${iconCode}@2x.png`}
+                        alt="weather"
+                        className="w-16 h-16 -my-2 drop-shadow-lg"
+                      />
+                    )}
+                    <div className="text-center">
+                      <p className="text-3xl font-bold text-slate-100 tracking-tight">
+                        {Math.round(weatherData.current.main?.temp ?? 0)}°C
+                      </p>
+                      <p className="text-xs text-slate-400 capitalize">
+                        {weatherData.current.weather?.[0]?.description || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-center text-[10px] text-slate-600 -mt-1">
+                    Terasa seperti {Math.round(weatherData.current.main?.feels_like ?? 0)}°C
                   </p>
-                  <p className="text-xs text-slate-400 mt-1 capitalize">
-                    {weatherData.current.weather?.[0]?.description || 'N/A'}
-                  </p>
-                  <p className="text-[10px] text-slate-600 mt-0.5">
-                    Feels like {Math.round(weatherData.current.main?.feels_like ?? 0)}°C
-                  </p>
-                </div>
-                <div className="grid grid-cols-2 gap-2 text-xs text-slate-400">
-                  <div className="bg-white/5 rounded p-2">
-                    <p className="text-slate-600 text-[10px]">Humidity</p>
-                    <p>{weatherData.current.main?.humidity ?? '--'}%</p>
+
+                  {/* Stats grid with icons */}
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="bg-white/5 rounded-lg p-2 flex items-center gap-2">
+                      <Droplets size={14} className="text-blue-400 shrink-0" />
+                      <div>
+                        <p className="text-slate-600 text-[9px]">Kelembaban</p>
+                        <p className="text-slate-300 font-semibold">{weatherData.current.main?.humidity ?? '--'}%</p>
+                      </div>
+                    </div>
+                    <div className="bg-white/5 rounded-lg p-2 flex items-center gap-2">
+                      <Wind size={14} className="text-emerald-400 shrink-0" />
+                      <div>
+                        <p className="text-slate-600 text-[9px]">Angin</p>
+                        <p className="text-slate-300 font-semibold">{((weatherData.current.wind?.speed ?? 0) * 3.6).toFixed(1)} km/h</p>
+                      </div>
+                    </div>
+                    <div className="bg-white/5 rounded-lg p-2 flex items-center gap-2">
+                      <Activity size={14} className="text-purple-400 shrink-0" />
+                      <div>
+                        <p className="text-slate-600 text-[9px]">Tekanan</p>
+                        <p className="text-slate-300 font-semibold">{weatherData.current.main?.pressure ?? '--'} hPa</p>
+                      </div>
+                    </div>
+                    <div className="bg-white/5 rounded-lg p-2 flex items-center gap-2">
+                      <Search size={14} className="text-amber-400 shrink-0" />
+                      <div>
+                        <p className="text-slate-600 text-[9px]">Visibilitas</p>
+                        <p className="text-slate-300 font-semibold">{((weatherData.current.visibility ?? 0) / 1000).toFixed(1)} km</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="bg-white/5 rounded p-2">
-                    <p className="text-slate-600 text-[10px]">Wind</p>
-                    <p>{((weatherData.current.wind?.speed ?? 0) * 3.6).toFixed(1)} km/h</p>
-                  </div>
-                  <div className="bg-white/5 rounded p-2">
-                    <p className="text-slate-600 text-[10px]">Pressure</p>
-                    <p>{weatherData.current.main?.pressure ?? '--'} hPa</p>
-                  </div>
-                  <div className="bg-white/5 rounded p-2">
-                    <p className="text-slate-600 text-[10px]">Visibility</p>
-                    <p>{((weatherData.current.visibility ?? 0) / 1000).toFixed(1)} km</p>
-                  </div>
-                </div>
-              </>
-            ) : (
+
+                  {/* Sunrise / Sunset */}
+                  {sunrise && sunset && (
+                    <div className="flex items-center justify-center gap-6 text-[10px] text-slate-500">
+                      <span className="flex items-center gap-1">🌅 Terbit <span className="text-slate-300 font-medium">{fmtTime(sunrise)}</span></span>
+                      <span className="flex items-center gap-1">🌇 Terbenam <span className="text-slate-300 font-medium">{fmtTime(sunset)}</span></span>
+                    </div>
+                  )}
+                </>
+              );
+            })() : (
               <div className="text-center py-4">
-                <p className="text-3xl font-light text-slate-200">--°C</p>
-                <p className="text-xs text-slate-500 mt-1">Pilih lokasi untuk melihat cuaca</p>
+                <Cloud size={32} className="mx-auto text-slate-700 mb-2" />
+                <p className="text-xs text-slate-500">Pilih lokasi untuk melihat cuaca</p>
               </div>
             )}
 
