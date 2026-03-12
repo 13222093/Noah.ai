@@ -143,11 +143,11 @@ const DataSensorClientContent: React.FC<DataSensorClientContentProps> = ({ initi
   };
 
   const statCards = [
-    { label: t('sensorData.statistics.totalReports'), value: stats.total, badge: 'Total', icon: TableIcon, color: 'text-cyan-400', bg: 'bg-cyan-500/10', badgeColor: 'bg-cyan-500/20 text-cyan-400' },
-    { label: t('sensorData.statistics.highLevel'), value: stats.highLevel, badge: 'Tinggi', icon: AlertCircle, color: 'text-red-400', bg: 'bg-red-500/10', badgeColor: 'bg-red-500/20 text-red-400', sub: '(Sepusar/Lebih)' },
-    { label: t('sensorData.statistics.mediumLevel'), value: stats.mediumLevel, badge: 'Sedang', icon: Droplets, color: 'text-yellow-400', bg: 'bg-yellow-500/10', badgeColor: 'bg-yellow-500/20 text-yellow-400', sub: '(Selutut/Sepaha)' },
-    { label: t('sensorData.statistics.lowLevel'), value: stats.lowLevel, badge: 'Rendah', icon: Activity, color: 'text-emerald-400', bg: 'bg-emerald-500/10', badgeColor: 'bg-emerald-500/20 text-emerald-400', sub: '(Semata Kaki)' },
-    { label: t('sensorData.statistics.avgLevel'), value: `${stats.avgLevel}`, unit: 'cm', badge: 'Avg', icon: Gauge, color: 'text-purple-400', bg: 'bg-purple-500/10', badgeColor: 'bg-purple-500/20 text-purple-400' },
+    { label: t('sensorData.statistics.totalReports'), value: stats.total, badge: 'Total', icon: TableIcon, color: 'text-cyan-400', bg: 'bg-cyan-500/10', badgeColor: 'bg-cyan-500/20 text-cyan-400', border: 'border-l-cyan-500' },
+    { label: t('sensorData.statistics.highLevel'), value: stats.highLevel, badge: 'Tinggi', icon: AlertCircle, color: 'text-red-400', bg: 'bg-red-500/10', badgeColor: 'bg-red-500/20 text-red-400', sub: '(Sepusar/Lebih)', border: 'border-l-red-500' },
+    { label: t('sensorData.statistics.mediumLevel'), value: stats.mediumLevel, badge: 'Sedang', icon: Droplets, color: 'text-yellow-400', bg: 'bg-yellow-500/10', badgeColor: 'bg-yellow-500/20 text-yellow-400', sub: '(Selutut/Sepaha)', border: 'border-l-yellow-500' },
+    { label: t('sensorData.statistics.lowLevel'), value: stats.lowLevel, badge: 'Rendah', icon: Activity, color: 'text-emerald-400', bg: 'bg-emerald-500/10', badgeColor: 'bg-emerald-500/20 text-emerald-400', sub: '(Semata Kaki)', border: 'border-l-emerald-500' },
+    { label: t('sensorData.statistics.avgLevel'), value: `${stats.avgLevel}`, unit: 'cm', badge: 'Avg', icon: Gauge, color: 'text-purple-400', bg: 'bg-purple-500/10', badgeColor: 'bg-purple-500/20 text-purple-400', border: 'border-l-purple-500' },
   ];
 
   return (
@@ -160,25 +160,25 @@ const DataSensorClientContent: React.FC<DataSensorClientContentProps> = ({ initi
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-100">{t('sensorData.title')}</h1>
-            <p className="text-sm text-slate-500">{t('sensorData.subtitle')}</p>
+            <p className="text-sm text-slate-400">{t('sensorData.subtitle')}</p>
           </div>
         </div>
 
         {/* Stat Cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
           {statCards.map((card) => (
-            <div key={card.label} className={`rounded-xl border border-white/5 p-4 space-y-2 ${card.bg}`}>
+            <div key={card.label} className={`rounded-xl border border-white/5 border-l-2 ${(card as any).border} p-4 space-y-2 ${card.bg}`}>
               <div className="flex items-center justify-between">
                 <card.icon size={18} className={card.color} />
                 <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full ${card.badgeColor}`}>{card.badge}</span>
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-100">
+                <p className="text-2xl font-bold text-white">
                   {card.value}
-                  {(card as any).unit && <span className="text-sm text-slate-500 ml-0.5">{(card as any).unit}</span>}
+                  {(card as any).unit && <span className="text-sm text-slate-400 ml-0.5">{(card as any).unit}</span>}
                 </p>
-                <p className="text-[11px] text-slate-400 leading-tight">{card.label}</p>
-                {(card as any).sub && <p className="text-[10px] text-slate-600">{(card as any).sub}</p>}
+                <p className={`text-[11px] font-medium leading-tight ${card.color.replace('400', '300')}`}>{card.label}</p>
+                {(card as any).sub && <p className="text-[10px] text-slate-500">{(card as any).sub}</p>}
               </div>
             </div>
           ))}
@@ -237,8 +237,8 @@ const DataSensorClientContent: React.FC<DataSensorClientContentProps> = ({ initi
                       <TableIcon className="h-5 w-5 text-purple-400" />
                     </div>
                     <div>
-                      <h3 className="text-base font-semibold text-slate-200">{t('sensorData.reports.title')}</h3>
-                      <p className="text-xs text-slate-500">
+                      <h3 className="text-base font-semibold text-white">{t('sensorData.reports.title')}</h3>
+                      <p className="text-xs text-slate-400">
                         {t('sensorData.reports.showing')} {displayedReports.length} {t('sensorData.reports.of')} {laporan.length} {t('sensorData.reports.reports')}
                       </p>
                     </div>
@@ -258,19 +258,23 @@ const DataSensorClientContent: React.FC<DataSensorClientContentProps> = ({ initi
                           initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.03 }}
-                          className="p-4 hover:bg-white/[0.02] transition-colors"
+                          className={`p-4 hover:bg-white/[0.02] transition-colors border-l-2 ${
+                            classification.level === 'high' ? 'border-l-red-500' :
+                            classification.level === 'medium' ? 'border-l-yellow-500' :
+                            'border-l-emerald-500'
+                          }`}
                         >
                           <div className="flex items-start justify-between">
                             <div className="flex-1 space-y-1.5">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <MapPin className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
-                                <h4 className="font-semibold text-sm text-slate-200">{report.location}</h4>
+                                <h4 className="font-semibold text-sm text-white">{report.location}</h4>
                                 <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${classification.colorClass}`}>
                                   {classification.icon}
                                   {classification.label}
                                 </span>
                               </div>
-                              <div className="flex items-center gap-4 text-xs text-slate-500">
+                              <div className="flex items-center gap-4 text-xs text-slate-400">
                                 <span className="flex items-center gap-1">
                                   <Clock className="h-3 w-3" />
                                   {format(parseISO(report.created_at), 'dd MMM yyyy, HH:mm', { locale: lang === 'id' ? id : enUS })}
@@ -283,12 +287,12 @@ const DataSensorClientContent: React.FC<DataSensorClientContentProps> = ({ initi
                                 )}
                               </div>
                               {report.description && (
-                                <p className="text-xs text-slate-400 leading-relaxed">
+                                <p className="text-xs text-slate-300/70 leading-relaxed">
                                   {report.description.length > 100 ? `${report.description.substring(0, 100)}...` : report.description}
                                 </p>
                               )}
                             </div>
-                            <ChevronRight className="h-4 w-4 text-slate-600 ml-3 shrink-0 mt-1" />
+                            <ChevronRight className="h-4 w-4 text-slate-500 ml-3 shrink-0 mt-1" />
                           </div>
                         </motion.div>
                       );
@@ -326,8 +330,8 @@ const DataSensorClientContent: React.FC<DataSensorClientContentProps> = ({ initi
                     <CloudRain className="h-5 w-5 text-cyan-400" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-200">{t('sensorData.weather.title')}</h3>
-                    <p className="text-[10px] text-slate-500">{t('sensorData.weather.subtitle')}</p>
+                    <h3 className="text-sm font-semibold text-white">{t('sensorData.weather.title')}</h3>
+                    <p className="text-[10px] text-slate-400">{t('sensorData.weather.subtitle')}</p>
                   </div>
                 </div>
               </div>
@@ -345,7 +349,7 @@ const DataSensorClientContent: React.FC<DataSensorClientContentProps> = ({ initi
                 ) : weatherData ? (
                   <>
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-slate-100">{Math.round(weatherData.current.main.temp)}°C</div>
+                      <div className="text-3xl font-bold text-white">{Math.round(weatherData.current.main.temp)}°C</div>
                       <div className="text-xs text-slate-400 capitalize">{weatherData.current.weather[0].description}</div>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
@@ -357,8 +361,8 @@ const DataSensorClientContent: React.FC<DataSensorClientContentProps> = ({ initi
                       ].map((item) => (
                         <div key={item.label} className="text-center bg-white/[0.03] rounded-lg p-2.5 border border-white/5">
                           <item.icon className={`h-4 w-4 ${item.color} mx-auto mb-1`} />
-                          <div className="text-sm font-semibold text-slate-200">{item.value}</div>
-                          <div className="text-[9px] text-slate-500">{item.label}</div>
+                          <div className="text-sm font-semibold text-white">{item.value}</div>
+                          <div className="text-[9px] text-slate-400">{item.label}</div>
                         </div>
                       ))}
                     </div>
