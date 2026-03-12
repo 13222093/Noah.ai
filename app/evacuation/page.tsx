@@ -205,7 +205,7 @@ export default function InfoEvakuasiPage() {
               <MapPin size={12} className="text-cyan-400" />
               <span className="text-xs font-semibold text-slate-300">{t('evacuationInfo.map.title')}</span>
             </div>
-            <div className="h-[480px]">
+            <div className="h-[480px]" style={{ position: 'relative', zIndex: 1 }}>
               {L && evacuationIcon && (
                 <MapContainer center={mapCenter} zoom={mapZoom} scrollWheelZoom={true} className="h-full w-full">
                   <ChangeView center={mapCenter} zoom={mapZoom} />
@@ -279,7 +279,7 @@ export default function InfoEvakuasiPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
             onClick={() => setIsDialogOpen(false)}
           >
             <motion.div
