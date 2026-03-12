@@ -49,6 +49,7 @@ export function RightTile() {
   const data = useDashboardData();
   const [activeTab, setActiveTab] = useLocalStorage('noah-right-tab', 'alerts');
   const selectedLocation = useAppStore((s) => s.selectedLocation);
+  const [alertFilter, setAlertFilter] = useState<string | null>(null);
 
   // Weather data
   const { weatherData, isLoading: weatherLoading, fetchWeather } = useWeatherData();
@@ -158,34 +159,62 @@ export function RightTile() {
           <div className="p-2 space-y-2">
             {/* Summary header */}
             <div className="flex items-center gap-2">
-              <div className="flex-1 flex items-center gap-1.5 rounded-lg bg-red-500/10 border border-red-500/20 px-2.5 py-1.5">
+              <button
+                onClick={() => setAlertFilter(null)}
+                className={cn('flex-1 flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 transition-all cursor-pointer',
+                  alertFilter === null
+                    ? 'bg-red-500/15 border-2 border-red-500/40 ring-1 ring-red-500/20'
+                    : 'bg-red-500/10 border border-red-500/20 hover:bg-red-500/15'
+                )}
+              >
                 <Shield size={12} className="text-red-400" />
                 <span className="text-[11px] font-bold text-red-400">
-                  {alerts.length} Peringatan Aktif
+                  {alerts.length} Aktif
                 </span>
-              </div>
+              </button>
               {critCount > 0 && (
-                <div className="rounded-lg bg-red-500/20 border border-red-500/30 px-2 py-1.5 text-center">
+                <button
+                  onClick={() => setAlertFilter(alertFilter === 'critical' ? null : 'critical')}
+                  className={cn('rounded-lg px-2 py-1.5 text-center transition-all cursor-pointer',
+                    alertFilter === 'critical'
+                      ? 'bg-red-500/25 border-2 border-red-500/50 ring-1 ring-red-500/20'
+                      : 'bg-red-500/20 border border-red-500/30 hover:bg-red-500/25'
+                  )}
+                >
                   <p className="text-sm font-bold text-red-400">{critCount}</p>
                   <p className="text-[7px] text-red-300 uppercase">Kritis</p>
-                </div>
+                </button>
               )}
               {dangerCount > 0 && (
-                <div className="rounded-lg bg-orange-500/15 border border-orange-500/25 px-2 py-1.5 text-center">
+                <button
+                  onClick={() => setAlertFilter(alertFilter === 'danger' ? null : 'danger')}
+                  className={cn('rounded-lg px-2 py-1.5 text-center transition-all cursor-pointer',
+                    alertFilter === 'danger'
+                      ? 'bg-orange-500/25 border-2 border-orange-500/50 ring-1 ring-orange-500/20'
+                      : 'bg-orange-500/15 border border-orange-500/25 hover:bg-orange-500/20'
+                  )}
+                >
                   <p className="text-sm font-bold text-orange-400">{dangerCount}</p>
                   <p className="text-[7px] text-orange-300 uppercase">Bahaya</p>
-                </div>
+                </button>
               )}
               {warnCount > 0 && (
-                <div className="rounded-lg bg-yellow-500/15 border border-yellow-500/25 px-2 py-1.5 text-center">
+                <button
+                  onClick={() => setAlertFilter(alertFilter === 'warning' ? null : 'warning')}
+                  className={cn('rounded-lg px-2 py-1.5 text-center transition-all cursor-pointer',
+                    alertFilter === 'warning'
+                      ? 'bg-yellow-500/25 border-2 border-yellow-500/50 ring-1 ring-yellow-500/20'
+                      : 'bg-yellow-500/15 border border-yellow-500/25 hover:bg-yellow-500/20'
+                  )}
+                >
                   <p className="text-sm font-bold text-yellow-400">{warnCount}</p>
                   <p className="text-[7px] text-yellow-300 uppercase">Siaga</p>
-                </div>
+                </button>
               )}
             </div>
 
             {/* Alert cards */}
-            {alerts.slice(0, 15).map((alert: any, i: number) => {
+            {(alertFilter ? alerts.filter((a: any) => a.level === alertFilter) : alerts).slice(0, 15).map((alert: any, i: number) => {
               const levelMap: Record<string, { label: string; color: string; border: string; bg: string; iconColor: string }> = {
                 critical: { label: 'KRITIKAL', color: 'text-red-400', border: 'border-l-red-500', bg: 'bg-red-500/5', iconColor: 'text-red-500' },
                 danger:   { label: 'BAHAYA', color: 'text-orange-400', border: 'border-l-orange-500', bg: 'bg-orange-500/5', iconColor: 'text-orange-500' },
