@@ -16,6 +16,7 @@ import {
   Shield,
   Loader,
   CloudSun,
+  Video,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAlertCount } from '@/components/contexts/AlertCountContext';
@@ -41,6 +42,8 @@ const navItems: NavRailItem[] = [
 
 const overflowItems = [
   { id: 'statistics', label: 'Statistics', icon: BarChart3, href: '/statistics' },
+  { id: 'evacuation', label: 'Evacuation', icon: Shield, href: '/evacuation' },
+  { id: 'cctv', label: 'CCTV Monitoring', icon: Video, href: '/cctv-simulation' },
   { id: 'education', label: 'Education', icon: GraduationCap, href: '/education' },
   { id: 'sms', label: 'SMS Alert', icon: Phone, href: '/sms-subscribe' },
   { id: 'settings', label: 'Settings', icon: Settings, href: '/settings' },
@@ -117,7 +120,8 @@ export function NavRail() {
     }
     if (item.id === 'command') return pathname === '/dashboard';
     if (item.id === 'alerts') return pathname === '/alerts';
-    if (item.id === 'data') return pathname === '/sensor-data' || pathname === '/evacuation';
+    if (item.id === 'data') return pathname === '/sensor-data' || pathname === '/evacuation' || pathname === '/statistics';
+    if (item.id === 'weather') return pathname === '/current-weather';
     if (item.id === 'ai-tools') return pathname === '/flood-predict' || pathname === '/visual-verify' || pathname === '/cctv-simulation';
     return false;
   };

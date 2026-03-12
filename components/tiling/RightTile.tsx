@@ -13,8 +13,6 @@ import type { SegmentedTab } from './SegmentedControl';
 
 const RIGHT_TABS: SegmentedTab[] = [
   { id: 'alerts', label: 'Alerts', icon: AlertTriangle },
-  { id: 'sensor', label: 'Sensor', icon: Activity },
-  { id: 'status', label: 'Status', icon: BarChart3 },
   { id: 'weather', label: 'Weather', icon: Cloud },
   { id: 'aqi', label: 'AQI', icon: Wind },
   { id: 'ai', label: 'AI Chat', icon: Bot },
@@ -22,8 +20,6 @@ const RIGHT_TABS: SegmentedTab[] = [
 
 const SEE_FULL_ROUTES: Record<string, string> = {
   alerts: '/alerts',
-  sensor: '/sensor-data',
-  status: '/statistics',
   weather: '/current-weather',
   aqi: '/current-weather',
 };
@@ -158,143 +154,53 @@ export function RightTile() {
           <div className="p-2 space-y-2">
             <div className="rounded-md bg-red-500/10 border border-red-500/20 px-3 py-2 text-xs">
               <span className="text-red-400 font-semibold">
-                ⚡ {data.realTimeAlerts?.length || 0} active alerts
+                ⚡ {data.realTimeAlerts?.length || 0} peringatan aktif
               </span>
             </div>
-            {(data.realTimeAlerts || []).slice(0, 15).map((alert: any, i: number) => (
-              <div
-                key={alert.id || i}
-                className="rounded-md bg-white/[0.03] border border-white/5 px-3 py-2 space-y-1"
-              >
-                <div className="flex items-center justify-between">
-                  <span className={`text-[10px] font-bold uppercase ${
-                    alert.severity === 'high' || alert.severity === 'Parah'
-                      ? 'text-red-400'
-                      : alert.severity === 'medium' || alert.severity === 'Sedang'
-                      ? 'text-yellow-400'
-                      : 'text-blue-400'
-                  }`}>
-                    {alert.severity || 'Info'}
-                  </span>
-                  <span className="text-[10px] text-slate-600">
-                    {alert.timestamp || ''}
-                  </span>
-                </div>
-                <p className="text-xs text-slate-300 line-clamp-2">
-                  {alert.title || alert.description || 'Flood alert'}
-                </p>
-                <p className="text-[10px] text-slate-500 truncate">
-                  📍 {alert.location || 'Unknown location'}
-                </p>
-              </div>
-            ))}
-          </div>
-        );
+            {(data.realTimeAlerts || []).slice(0, 15).map((alert: any, i: number) => {
+              // Severity mapping
+              const levelMap: Record<string, { label: string; color: string; border: string; bg: string }> = {
+                critical: { label: 'KRITIKAL', color: 'text-red-400', border: 'border-red-500/30', bg: 'bg-red-500/10' },
+                danger:   { label: 'BAHAYA', color: 'text-orange-400', border: 'border-orange-500/30', bg: 'bg-orange-500/10' },
+                warning:  { label: 'PERINGATAN', color: 'text-yellow-400', border: 'border-yellow-500/30', bg: 'bg-yellow-500/10' },
+                info:     { label: 'INFO', color: 'text-blue-400', border: 'border-blue-500/30', bg: 'bg-blue-500/10' },
+              };
+              const sev = levelMap[alert.level] || levelMap.info;
 
-      case 'sensor':
-        return (
-          <div className="p-2 space-y-1">
-            <p className="text-[10px] text-slate-500 px-1 mb-1">Top 10 by severity</p>
-            {topSensors.map((post: any, i: number) => (
-              <div
-                key={post.id || i}
-                className="flex items-center justify-between px-2 py-1.5 rounded bg-white/[0.02] hover:bg-white/[0.05] transition-colors"
-              >
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-slate-300 truncate">{post.name}</p>
-                  <p className="text-[10px] text-slate-500">{post.tinggi} m</p>
-                </div>
-                <span
-                  className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
-                    post.status === 'Bahaya'
-                      ? 'bg-red-500/20 text-red-400'
-                      : post.status?.includes('Siaga')
-                      ? 'bg-yellow-500/20 text-yellow-400'
-                      : 'bg-emerald-500/20 text-emerald-400'
-                  }`}
+              // Relative time
+              const elapsed = alert.timestamp ? Date.now() - new Date(alert.timestamp).getTime() : 0;
+              const mins = Math.floor(elapsed / 60000);
+              const relTime = mins < 1 ? 'Baru saja'
+                : mins < 60 ? `${mins} mnt yang lalu`
+                : mins < 1440 ? `${Math.floor(mins / 60)} jam yang lalu`
+                : `${Math.floor(mins / 1440)} hari yang lalu`;
+
+              return (
+                <div
+                  key={alert.id || i}
+                  className={cn('rounded-lg border px-3 py-2.5 space-y-1.5', sev.border, sev.bg)}
                 >
-                  {post.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        );
-
-      case 'status':
-        return (
-          <div className="p-2 space-y-3">
-            {/* Pump system summary */}
-            <div className="space-y-1.5">
-              <h4 className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
-                <Activity size={12} className="text-yellow-400" />
-                Status Sistem Pompa
-              </h4>
-              <div className="space-y-1">
-                {[
-                  { label: 'Total Pompa Terdaftar', value: pumpStats.total, color: 'bg-blue-500', textColor: 'text-blue-400' },
-                  { label: 'Pompa Beroperasi', value: pumpStats.active, color: 'bg-emerald-500', textColor: 'text-emerald-400', icon: '✓' },
-                  { label: 'Pompa Tidak Beroperasi', value: pumpStats.offline, color: 'bg-red-500', textColor: 'text-red-400', icon: '✕' },
-                  { label: 'Membutuhkan Perbaikan', value: pumpStats.maintenance, color: 'bg-yellow-500', textColor: 'text-yellow-400', icon: '⚠' },
-                ].map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex items-center justify-between px-2.5 py-1.5 rounded bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
-                  >
-                    <span className="text-[11px] text-slate-400">{item.label}</span>
-                    <span className={cn(
-                      'inline-flex items-center justify-center min-w-[28px] h-5 rounded-full text-[10px] font-bold',
-                      `${item.color}/20 ${item.textColor}`,
-                    )}>
-                      {item.icon && <span className="mr-0.5 text-[8px]">{item.icon}</span>}
-                      {item.value}
+                  {/* Header: title + severity badge */}
+                  <p className="text-xs font-semibold text-slate-200 leading-tight">
+                    {alert.title || 'Peringatan Banjir'}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <span className={cn('text-[9px] font-extrabold uppercase tracking-wider', sev.color)}>
+                      {sev.label}
                     </span>
+                    <span className="text-[10px] text-slate-500">•</span>
+                    <span className="text-[10px] text-slate-500">🕐 {relTime}</span>
                   </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Divider */}
-            <div className="border-t border-white/5" />
-
-            {/* Aktivitas Terkini */}
-            <div className="space-y-1.5">
-              <h4 className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
-                <Clock size={12} className="text-cyan-400" />
-                Aktivitas Terkini
-              </h4>
-              <div className="space-y-1">
-                {recentActivity.map((post: any, i: number) => (
-                  <div
-                    key={post.id || i}
-                    className="flex items-start gap-2 px-2 py-1.5 rounded bg-white/[0.02] hover:bg-white/[0.04] transition-colors"
-                  >
-                    <span className={cn(
-                      'mt-1 w-1.5 h-1.5 rounded-full shrink-0',
-                      post.status === 'Bahaya' ? 'bg-red-500' :
-                      post.status?.includes('Siaga') ? 'bg-yellow-500' :
-                      'bg-blue-500'
-                    )} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[11px] text-slate-300">
-                        Tinggi Air {post.name}: {post.tinggi} m
-                        <span className="ml-1 text-slate-500">({post.status})</span>
-                      </p>
-                      <p className="text-[10px] text-slate-600">
-                        {timeAgo(post.lastUpdate)}
-                      </p>
-                    </div>
-                    <span className={cn(
-                      'text-[9px] font-medium px-1.5 py-0.5 rounded shrink-0',
-                      post.status === 'Bahaya' ? 'bg-red-500/20 text-red-400' :
-                      post.status?.includes('Siaga') ? 'bg-yellow-500/20 text-yellow-400' :
-                      'bg-emerald-500/20 text-emerald-400'
-                    )}>
-                      {post.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+                  {/* Affected areas */}
+                  {alert.affectedAreas?.length > 0 && (
+                    <p className="text-[10px] text-slate-500">
+                      👥 Terdampak: {alert.affectedAreas.join(', ')}
+                    </p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         );
 

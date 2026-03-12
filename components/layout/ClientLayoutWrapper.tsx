@@ -40,8 +40,17 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
   const isLandingPage = pathname === '/';
   const isContactPage = pathname === '/contact';
 
-  // Tiling mode: no NavRail/StatusBar — TilingLayout renders its own
-  if (isTilingMode) {
+  // Sub-pages linked from the tiling dashboard — same clean chrome, no NavRail/StatusBar
+  const tilingSubPages = [
+    '/alerts', '/sensor-data', '/statistics', '/evacuation',
+    '/cctv-simulation', '/current-weather', '/flood-predict',
+    '/visual-verify', '/flood-report', '/sms-subscribe',
+    '/settings', '/education',
+  ];
+  const isTilingSubPage = tilingSubPages.includes(pathname);
+
+  // Tiling mode and its sub-pages: no NavRail/StatusBar
+  if (isTilingMode || isTilingSubPage) {
     return (
       <SidebarContext.Provider value={{ isCollapsed: true, isDesktop }}>
         {children}
@@ -78,6 +87,7 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
     </SidebarContext.Provider>
   );
 }
+
 
 export default function ClientLayoutWrapper({
   children,

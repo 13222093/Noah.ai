@@ -892,3 +892,50 @@ export const EVACUATION_LOCATIONS_MOCK = [
     last_updated: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
   }
 ];
+
+export const CCTV_CHANNELS = [
+  {
+    id: 'manggarai',
+    name: 'PA Manggarai',
+    location: 'Manggarai, Jakarta Selatan',
+    coordinates: [-6.2297, 106.8507] as [number, number],
+    status: 'online' as const,
+    is_flooded: true,
+    flood_probability: 0.95,
+    objects_detected: ['flood', 'water', 'debris'],
+    lastScanOffsetMs: 60_000, // 1 minute ago at render time
+  },
+  {
+    id: 'katulampa',
+    name: 'Bendung Katulampa',
+    location: 'Bogor, Jawa Barat',
+    coordinates: [-6.6312, 106.8501] as [number, number],
+    status: 'online' as const,
+    is_flooded: true,
+    flood_probability: 0.82,
+    objects_detected: ['flood', 'water'],
+    lastScanOffsetMs: 180_000, // 3 minutes ago
+  },
+  {
+    id: 'karet',
+    name: 'PA Karet',
+    location: 'Tanah Abang, Jakarta Pusat',
+    coordinates: [-6.1975, 106.8157] as [number, number],
+    status: 'online' as const,
+    is_flooded: false,
+    flood_probability: 0.12,
+    objects_detected: [],
+    lastScanOffsetMs: 300_000, // 5 minutes ago
+  },
+  {
+    id: 'sunter',
+    name: 'Pos Pantau Sunter',
+    location: 'Sunter, Jakarta Utara',
+    coordinates: [-6.1469, 106.8726] as [number, number],
+    status: 'offline' as const,
+    is_flooded: false,
+    flood_probability: 0,
+    objects_detected: [],
+    lastScanOffsetMs: 0, // no scan
+  },
+];

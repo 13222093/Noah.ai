@@ -4,19 +4,24 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { TilePanel } from './TilePanel';
 import { useDashboardData } from './DashboardDataContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { Waves, Activity, Search, ChevronDown, ChevronUp, Shield, MapPin, Users, ExternalLink } from 'lucide-react';
+import { Waves, Activity, Search, ChevronDown, ChevronUp, ChevronRight, Shield, MapPin, Users, ExternalLink, BarChart3, Droplets, AlertCircle, TrendingUp, Gauge, Globe, Wrench, UserCheck, Video, Newspaper, Clock } from 'lucide-react';
 import type { SegmentedTab } from './SegmentedControl';
 import { cn } from '@/lib/utils';
+import { CCTV_CHANNELS } from '@/lib/constants';
 
 const BOTTOM_TABS: SegmentedTab[] = [
+  { id: 'evacuation', label: 'Evacuation', icon: Shield },
+  { id: 'cctv', label: 'CCTV AI', icon: Video },
+  { id: 'berita', label: 'Berita Regional', icon: Newspaper },
+  { id: 'sensor', label: 'Data Sensor', icon: Gauge },
+  { id: 'status', label: 'Statistik', icon: BarChart3 },
   { id: 'infrastructure', label: 'Infrastructure', icon: Waves },
   { id: 'earthquake', label: 'Earthquake', icon: Activity },
-  { id: 'evacuation', label: 'Evacuation', icon: Shield },
 ];
 
 export function BottomTile() {
   const data = useDashboardData();
-  const [activeTab, setActiveTab] = useLocalStorage('noah-bottom-tab', 'infrastructure');
+  const [activeTab, setActiveTab] = useLocalStorage('noah-bottom-tab', 'evacuation');
   const [waterSearch, setWaterSearch] = useState('');
   const [pumpSearch, setPumpSearch] = useState('');
   const [evacSearch, setEvacSearch] = useState('');
@@ -296,6 +301,382 @@ export function BottomTile() {
           </div>
         );
 
+      case 'sensor':
+        {
+          const posts = data.waterLevelPosts || [];
+          const total = posts.length;
+          const bahaya = posts.filter((p: any) => p.status === 'Bahaya').length;
+          const waspada = posts.filter((p: any) => p.status?.includes('Siaga')).length;
+          const normal = posts.filter((p: any) => p.status === 'Normal').length;
+          const avgLevel = total > 0
+            ? (posts.reduce((sum: number, p: any) => sum + (parseFloat(p.tinggi) || 0), 0) / total).toFixed(1)
+            : '0';
+
+          const statCards = [
+            { label: 'Total Laporan', value: total, sub: '', icon: BarChart3, color: 'text-blue-400', bg: 'bg-blue-500/10', badge: 'Total', badgeColor: 'bg-blue-500/20 text-blue-400' },
+            { label: 'Level Bahaya', value: bahaya, sub: '(Sepusar/Lebih)', icon: AlertCircle, color: 'text-red-400', bg: 'bg-red-500/10', badge: 'Tinggi', badgeColor: 'bg-red-500/20 text-red-400' },
+            { label: 'Level Waspada', value: waspada, sub: '(Selutut/Sepaha)', icon: Droplets, color: 'text-yellow-400', bg: 'bg-yellow-500/10', badge: 'Sedang', badgeColor: 'bg-yellow-500/20 text-yellow-400' },
+            { label: 'Level Normal', value: normal, sub: '(Semata Kaki)', icon: TrendingUp, color: 'text-emerald-400', bg: 'bg-emerald-500/10', badge: 'Rendah', badgeColor: 'bg-emerald-500/20 text-emerald-400' },
+            { label: 'Rata-rata Level', value: `${avgLevel}cm`, sub: '', icon: Gauge, color: 'text-purple-400', bg: 'bg-purple-500/10', badge: 'Avg', badgeColor: 'bg-purple-500/20 text-purple-400' },
+          ];
+
+          return (
+            <div className="p-3 space-y-3">
+              <div className="flex items-center gap-2">
+                <Gauge size={16} className="text-blue-400" />
+                <div>
+                  <h3 className="text-sm font-bold text-slate-200">Analisis Data Sensor</h3>
+                  <p className="text-[10px] text-slate-500">Monitoring laporan banjir dan data cuaca real-time</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-5 gap-2">
+                {statCards.map((card) => (
+                  <div key={card.label} className={cn('rounded-lg border border-white/5 p-2.5 space-y-1', card.bg)}>
+                    <div className="flex items-center justify-between">
+                      <card.icon size={14} className={card.color} />
+                      <span className={cn('text-[8px] font-semibold px-1.5 py-0.5 rounded-full', card.badgeColor)}>{card.badge}</span>
+                    </div>
+                    <p className="text-xl font-bold text-slate-200">{card.value}</p>
+                    <p className="text-[10px] text-slate-400 leading-tight">{card.label}</p>
+                    {card.sub && <p className="text-[9px] text-slate-600">{card.sub}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+      case 'status':
+        {
+          const alerts = data.realTimeAlerts || [];
+          const pumps = data.pumpStatusData || [];
+          const totalAlerts = alerts.length;
+          const evacuees = alerts.reduce((sum: number, a: any) => sum + (a.affectedAreas?.length || 0) * 3500, 0);
+          const infraDamage = Math.floor(totalAlerts * 150 + pumps.filter((p: any) => p.status !== 'Aktif').length * 80);
+          const regionsAffected = new Set(alerts.map((a: any) => a.regionId)).size;
+          const activePumps = pumps.filter((p: any) => p.status === 'Aktif').length;
+          const readiness = pumps.length > 0 ? Math.round((activePumps / pumps.length) * 100) : 85;
+
+          const statusCards = [
+            { label: 'TOTAL INSIDEN', value: totalAlerts, trend: `↗ ${Math.round(totalAlerts * 1.2)}%`, trendColor: 'text-red-400', icon: AlertCircle, color: 'text-blue-400', bg: 'bg-blue-500/10', sub: 'Insiden tercatat' },
+            { label: 'PENGUNGSI', value: evacuees.toLocaleString('id-ID'), trend: `↗ 20%`, trendColor: 'text-red-400', icon: Users, color: 'text-amber-400', bg: 'bg-amber-500/10', sub: 'Orang dievakuasi' },
+            { label: 'INFRASTRUKTUR RUSAK', value: infraDamage.toLocaleString('id-ID'), trend: `↘ 8%`, trendColor: 'text-emerald-400', icon: Wrench, color: 'text-orange-400', bg: 'bg-orange-500/10', sub: 'Bangunan & fasilitas' },
+            { label: 'WILAYAH TERDAMPAK', value: regionsAffected, trend: `↗ 3%`, trendColor: 'text-yellow-400', icon: Globe, color: 'text-teal-400', bg: 'bg-teal-500/10', sub: 'Kabupaten/Kota' },
+            { label: 'POMPA AKTIF', value: `${activePumps}/${pumps.length}`, trend: `${readiness}%`, trendColor: readiness > 70 ? 'text-emerald-400' : 'text-red-400', icon: Gauge, color: 'text-purple-400', bg: 'bg-purple-500/10', sub: 'Kesiapsiagaan pompa' },
+            { label: 'KESIAPSIAGAAN', value: `${readiness}%`, trend: `↗ 2%`, trendColor: 'text-emerald-400', icon: UserCheck, color: 'text-cyan-400', bg: 'bg-cyan-500/10', sub: 'Skor nasional' },
+          ];
+
+          return (
+            <div className="p-3 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <BarChart3 size={16} className="text-blue-400" />
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-200">Dashboard Statistik</h3>
+                    <p className="text-[10px] text-slate-500">Monitoring dan analisis data bencana Indonesia</p>
+                  </div>
+                </div>
+                <span className="flex items-center gap-1 text-[10px] text-emerald-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Real-time Data
+                </span>
+              </div>
+              <div className="grid grid-cols-6 gap-2">
+                {statusCards.map((card) => (
+                  <div key={card.label} className={cn('rounded-lg border border-white/5 p-2.5 space-y-1', card.bg)}>
+                    <div className="flex items-center justify-between">
+                      <card.icon size={14} className={card.color} />
+                      <span className={cn('text-[9px] font-medium', card.trendColor)}>{card.trend}</span>
+                    </div>
+                    <p className="text-lg font-bold text-slate-200">{card.value}</p>
+                    <p className="text-[9px] text-slate-500 uppercase font-semibold leading-tight">{card.label}</p>
+                    <p className="text-[9px] text-slate-600">{card.sub}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        }
+
+      case 'cctv':
+        {
+          // Sort: flooded first, then online, then offline
+          const sorted = [...CCTV_CHANNELS].sort((a, b) => {
+            if (a.is_flooded !== b.is_flooded) return a.is_flooded ? -1 : 1;
+            if (a.status !== b.status) return a.status === 'online' ? -1 : 1;
+            return 0;
+          });
+          const onlineCount = CCTV_CHANNELS.filter(c => c.status === 'online').length;
+          const floodedCount = CCTV_CHANNELS.filter(c => c.is_flooded).length;
+          const normalCount = onlineCount - floodedCount;
+          const offlineCount = CCTV_CHANNELS.length - onlineCount;
+
+          return (
+            <div className="p-3 space-y-2">
+              {/* Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Video size={14} className="text-blue-400" />
+                  <span className="text-xs font-bold text-slate-200">CCTV Flood Detection</span>
+                </div>
+                <span className="text-[10px] text-slate-400">
+                  🟢 {onlineCount}/{CCTV_CHANNELS.length} Online
+                </span>
+              </div>
+
+              <div className="flex gap-2">
+                {/* Camera cards grid */}
+                <div className="flex-1 grid grid-cols-4 gap-2">
+                  {sorted.map((ch) => {
+                    const scanTime = ch.lastScanOffsetMs > 0
+                      ? (() => {
+                          const mins = Math.floor(ch.lastScanOffsetMs / 60000);
+                          return mins < 1 ? 'Baru saja' : `${mins}m lalu`;
+                        })()
+                      : '--';
+
+                    const borderClass = ch.is_flooded
+                      ? 'border-red-500/50'
+                      : ch.status === 'online'
+                        ? 'border-emerald-500/30'
+                        : 'border-white/5';
+
+                    const bgClass = ch.is_flooded
+                      ? 'bg-red-500/5'
+                      : ch.status === 'online'
+                        ? 'bg-emerald-500/5'
+                        : 'bg-white/[0.02]';
+
+                    return (
+                      <div
+                        key={ch.id}
+                        className={cn(
+                          'rounded-lg border p-2 space-y-1.5',
+                          borderClass,
+                          bgClass,
+                          ch.is_flooded && 'data-pulse',
+                        )}
+                      >
+                        {/* Camera placeholder */}
+                        <div className="aspect-video bg-slate-900 rounded flex items-center justify-center relative overflow-hidden">
+                          <Video size={16} className={cn(
+                            'opacity-40',
+                            ch.status === 'offline' ? 'text-slate-700' : 'text-slate-500',
+                          )} />
+                          {/* Status badge overlay */}
+                          <span className={cn(
+                            'absolute top-1 right-1 text-[7px] font-bold px-1 py-0.5 rounded',
+                            ch.is_flooded ? 'bg-red-600 text-white' :
+                            ch.status === 'online' ? 'bg-emerald-600 text-white' :
+                            'bg-slate-700 text-slate-400',
+                          )}>
+                            {ch.is_flooded ? '🔴 BANJIR' : ch.status === 'online' ? '🟢 NORMAL' : '⚪ OFF'}
+                          </span>
+                        </div>
+
+                        {/* Info */}
+                        <p className="text-[10px] font-semibold text-slate-300 truncate">{ch.name}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] text-slate-500">{scanTime}</span>
+                          {ch.status === 'online' && (
+                            <span className={cn(
+                              'text-[9px] font-bold',
+                              ch.flood_probability >= 0.7 ? 'text-red-400' :
+                              ch.flood_probability >= 0.3 ? 'text-yellow-400' :
+                              'text-emerald-400',
+                            )}>
+                              {Math.round(ch.flood_probability * 100)}%
+                            </span>
+                          )}
+                        </div>
+                        {/* Confidence bar */}
+                        {ch.status === 'online' && (
+                          <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                            <div
+                              className={cn(
+                                'h-full rounded-full transition-all',
+                                ch.flood_probability >= 0.7 ? 'bg-red-500' :
+                                ch.flood_probability >= 0.3 ? 'bg-yellow-500' :
+                                'bg-emerald-500',
+                              )}
+                              style={{ width: `${Math.round(ch.flood_probability * 100)}%` }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Summary panel */}
+                <div className="w-36 shrink-0 rounded-lg border border-white/5 bg-white/[0.02] p-2.5 space-y-2">
+                  <p className="text-[10px] font-semibold text-slate-400 uppercase">Ringkasan</p>
+                  {floodedCount > 0 && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] text-red-400">🔴 Banjir</span>
+                      <span className="text-xs font-bold text-red-400">{floodedCount}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-emerald-400">🟢 Normal</span>
+                    <span className="text-xs font-bold text-emerald-400">{normalCount}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-slate-500">⚪ Offline</span>
+                    <span className="text-xs font-bold text-slate-500">{offlineCount}</span>
+                  </div>
+                  <div className="border-t border-white/5 pt-1.5">
+                    <p className="text-[9px] text-slate-600">Model: YOLOv8</p>
+                    <p className="text-[9px] text-slate-600">Scan: Auto 3s</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        }
+
+      case 'berita':
+        {
+          const NEWS_ITEMS = [
+            {
+              id: 1,
+              source: 'KOMPAS',
+              sourceColor: 'text-blue-400',
+              headline: 'Banjir Bandang Terjang Agam, 3 Jembatan Putus dan Ratusan Rumah Terendam',
+              summary: 'Banjir bandang melanda Kab. Agam pagi ini, menyebabkan 3 jembatan penghubung antar desa putus total. Ratusan rumah terendam hingga 1,5 meter.',
+              region: 'Sumatera Barat',
+              offsetMs: 25 * 60_000,
+              severity: 'high' as const,
+              url: 'https://kompas.com',
+              time: '12:22',
+            },
+            {
+              id: 2,
+              source: 'DETIK',
+              sourceColor: 'text-emerald-400',
+              headline: 'BPBD: Debit Air Sungai Ciliwung Terus Naik, Warga Diminta Waspada',
+              summary: 'BPBD DKI Jakarta memantau debit Sungai Ciliwung yang terus naik sejak dini hari. Warga bantaran sungai diminta bersiap evakuasi.',
+              region: 'DKI Jakarta',
+              offsetMs: 45 * 60_000,
+              severity: 'medium' as const,
+              url: 'https://detik.com',
+              time: '12:02',
+            },
+            {
+              id: 3,
+              source: 'CNN ID',
+              sourceColor: 'text-red-400',
+              headline: 'Curah Hujan Tinggi, BMKG Keluarkan Peringatan Dini Banjir untuk Jabodetabek',
+              summary: 'BMKG mengeluarkan peringatan dini cuaca ekstrem dengan potensi hujan lebat disertai petir dan angin kencang di wilayah Jabodetabek.',
+              region: 'Nasional',
+              offsetMs: 90 * 60_000,
+              severity: 'high' as const,
+              url: 'https://cnnindonesia.com',
+              time: '11:17',
+            },
+            {
+              id: 4,
+              source: 'TEMPO',
+              sourceColor: 'text-amber-400',
+              headline: 'Bendungan Katulampa Siaga 1, Potensi Banjir Kiriman ke Jakarta Malam Ini',
+              summary: 'Ketinggian air di Bendungan Katulampa mencapai Siaga 1. Diprediksi banjir kiriman akan tiba di Jakarta dalam 8-10 jam.',
+              region: 'Jawa Barat',
+              offsetMs: 120 * 60_000,
+              severity: 'high' as const,
+              url: 'https://tempo.co',
+              time: '10:47',
+            },
+            {
+              id: 5,
+              source: 'ANTARA',
+              sourceColor: 'text-purple-400',
+              headline: 'Pemkot Semarang Siagakan 200 Personel untuk Antisipasi Banjir Rob',
+              summary: 'Pemerintah Kota Semarang menerjunkan 200 personel gabungan untuk mengantisipasi potensi banjir rob di pesisir utara.',
+              region: 'Jawa Tengah',
+              offsetMs: 180 * 60_000,
+              severity: 'low' as const,
+              url: 'https://antaranews.com',
+              time: '09:47',
+            },
+            {
+              id: 6,
+              source: 'REPUBLIKA',
+              sourceColor: 'text-cyan-400',
+              headline: 'Tanggul Sungai Citarum Jebol, 5 Desa di Bandung Terendam Banjir',
+              summary: 'Tanggul Sungai Citarum di Kabupaten Bandung jebol akibat debit air tinggi. Lima desa terendam, ribuan warga mengungsi.',
+              region: 'Jawa Barat',
+              offsetMs: 240 * 60_000,
+              severity: 'high' as const,
+              url: 'https://republika.co.id',
+              time: '08:47',
+            },
+          ];
+
+          return (
+            <div className="p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Newspaper size={14} className="text-blue-400" />
+                  <span className="text-xs font-bold text-slate-200">Berita & Laporan Regional</span>
+                  <span className="text-[9px] text-slate-600">— Ringkasan AI dari berbagai sumber</span>
+                </div>
+                <span className="text-[10px] text-slate-500">{NEWS_ITEMS.length} artikel terbaru</span>
+              </div>
+
+              <div className="flex gap-2.5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'thin' }}>
+                {NEWS_ITEMS.map((item) => {
+                  const mins = Math.floor(item.offsetMs / 60000);
+                  const timeLabel = mins < 60 ? `${mins}m lalu` : `${Math.floor(mins / 60)}j lalu`;
+                  return (
+                    <div
+                      key={item.id}
+                      className={cn(
+                        'rounded-lg border p-3 space-y-2 shrink-0 w-[260px]',
+                        item.severity === 'high' ? 'border-red-500/20 bg-red-500/[0.03]'
+                          : item.severity === 'medium' ? 'border-yellow-500/20 bg-yellow-500/[0.03]'
+                          : 'border-white/5 bg-white/[0.02]',
+                      )}
+                    >
+                      {/* Source + badge */}
+                      <div className="flex items-center justify-between">
+                        <span className={cn('text-[9px] font-bold uppercase', item.sourceColor)}>{item.source}</span>
+                        <span className="text-[8px] px-1.5 py-0.5 rounded bg-white/5 text-slate-500">📍 {item.region}</span>
+                      </div>
+
+                      {/* Headline */}
+                      <p className="text-[11px] text-slate-200 leading-snug font-semibold line-clamp-2">{item.headline}</p>
+
+                      {/* Time */}
+                      <div className="flex items-center gap-1 text-[9px] text-slate-500">
+                        <Clock size={9} />
+                        <span>{item.time} WIB</span>
+                        <span className="text-slate-700">·</span>
+                        <span>{timeLabel}</span>
+                      </div>
+
+                      {/* Ringkasan */}
+                      <div className="bg-white/[0.03] rounded p-2 border border-white/5">
+                        <p className="text-[9px] text-cyan-400 font-semibold mb-0.5">📋 Ringkasan:</p>
+                        <p className="text-[10px] text-slate-400 leading-snug line-clamp-2">{item.summary}</p>
+                      </div>
+
+                      {/* Baca Selengkapnya */}
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 text-[10px] text-cyan-400 hover:text-cyan-300 transition-colors font-medium"
+                      >
+                        Baca Selengkapnya <ChevronRight size={10} />
+                      </a>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        }
+
       default:
         return null;
     }
@@ -310,6 +691,10 @@ export function BottomTile() {
       seeFullRoute={
         activeTab === 'infrastructure' ? '/sensor-data'
         : activeTab === 'evacuation' ? '/evacuation'
+        : activeTab === 'sensor' ? '/sensor-data'
+        : activeTab === 'status' ? '/statistics'
+        : activeTab === 'cctv' ? '/cctv-simulation'
+        : activeTab === 'berita' ? '/alerts'
         : undefined
       }
       seeFullLabel="See Full"
