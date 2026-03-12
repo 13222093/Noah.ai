@@ -30,17 +30,9 @@ export function WeatherPopupContent() {
   const [error, setError] = useState<string | null>(null);
   const [weather, setWeather] = useState<any | null>(null);
 
-  const OPENWEATHERMAP_API_KEY = process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY;
-
   const fetchWeatherData = () => {
     setIsLoading(true);
     setError(null);
-
-    if (!OPENWEATHERMAP_API_KEY) {
-      setError('OpenWeatherMap API key tidak ditemukan. Harap tambahkan NEXT_PUBLIC_OPENWEATHERMAP_API_KEY ke file .env Anda.');
-      setIsLoading(false);
-      return;
-    }
 
     if (!navigator.geolocation) {
       setError('Geolocation tidak didukung oleh browser ini.');
@@ -51,16 +43,33 @@ export function WeatherPopupContent() {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
-          const response = await fetch(
-            `https://api.openweathermap.org/data/2.5/weather?lat=${position.coords.latitude}&lon=${position.coords.longitude}&appid=${OPENWEATHERMAP_API_KEY}&units=metric&lang=id`
-          );
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+          // Try client-side first (if NEXT_PUBLIC key is available)
+          const apiKey = process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY || process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY;
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          if (apiKey) {
+            const response = await fetch(
+              `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=id`
+            );
+            if (response.ok) {
+              const data = await response.json();
+              setWeather(data);
+              return;
+            }
           }
+
+          // Fallback: use server-side API route
+          const response = await fetch(`/api/dashboard?lat=${lat}&lon=${lon}`);
+          if (!response.ok) throw new Error(`Server error: ${response.status}`);
           const data = await response.json();
-          setWeather(data);
+          if (data.weather) {
+            setWeather(data.weather);
+          } else {
+            throw new Error('Weather data tidak tersedia.');
+          }
         } catch (err: any) {
-          setError('Gagal mengambil data cuaca dari server: ' + err.message);
+          setError('Gagal mengambil data cuaca: ' + err.message);
         } finally {
           setIsLoading(false);
         }
