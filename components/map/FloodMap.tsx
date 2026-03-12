@@ -30,8 +30,11 @@ patchLeafletContainer();
 
 
 // Impor dari file proyek Anda
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
+
+const EvacuationRouting = dynamic(() => import('./EvacuationRouting'), { ssr: false });
 import {
   Layers,
   Maximize2,
@@ -253,21 +256,21 @@ interface FloodMapProps {
 }
 
 function MapEffect({ onMapLoad, mapRef }: { onMapLoad?: (map: any) => void, mapRef: React.MutableRefObject<any | null> }) {
-    const map = useMap();
+  const map = useMap();
 
-    useEffect(() => {
-        if (map) {
-            mapRef.current = map;
-            if (onMapLoad) {
-                onMapLoad(map);
-            }
-        }
-        return () => {
-            mapRef.current = null;
-        };
-    }, [map, onMapLoad, mapRef]);
+  useEffect(() => {
+    if (map) {
+      mapRef.current = map;
+      if (onMapLoad) {
+        onMapLoad(map);
+      }
+    }
+    return () => {
+      mapRef.current = null;
+    };
+  }, [map, onMapLoad, mapRef]);
 
-    return null;
+  return null;
 }
 
 export const FloodMap = React.memo(function FloodMap({
@@ -340,8 +343,63 @@ export const FloodMap = React.memo(function FloodMap({
       setSelectedLayer(preEvacLayer);
       setPreEvacLayer(null);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showEvacPins]);
+
+  // --- Evacuation locations & routing ---
+  const [evacLocations, setEvacLocations] = useState<any[]>([]);
+  const [evacRouteTarget, setEvacRouteTarget] = useState<[number, number] | null>(null);
+  const [userGeoPos, setUserGeoPos] = useState<[number, number] | null>(null);
+
+  useEffect(() => {
+    if (showEvacPins && evacLocations.length === 0) {
+      fetch('/api/evacuation')
+        .then(r => r.json())
+        .then(data => setEvacLocations(Array.isArray(data) ? data : []))
+        .catch(() => {});
+    }
+  }, [showEvacPins]);
+
+  const handleEvacRoute = useCallback((lat: number, lng: number) => {
+    if (!navigator.geolocation) {
+      toast.error('Geolocation tidak didukung oleh browser Anda.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserGeoPos([pos.coords.latitude, pos.coords.longitude]);
+        setEvacRouteTarget([lat, lng]);
+      },
+      () => {
+        // Fallback: use map center
+        const m = mapRef.current;
+        if (m) {
+          const c = m.getCenter();
+          setUserGeoPos([c.lat, c.lng]);
+          setEvacRouteTarget([lat, lng]);
+        } else {
+          toast.error('Tidak dapat menentukan lokasi Anda.');
+        }
+      },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }, []);
+
+  const clearEvacRoute = useCallback(() => {
+    setEvacRouteTarget(null);
+    setUserGeoPos(null);
+  }, []);
+
+  const evacIcon = useMemo(() => {
+    return (L as any).divIcon({
+      className: 'evac-pin',
+      iconSize: [28, 28] as any,
+      iconAnchor: [14, 28] as any,
+      popupAnchor: [0, -28] as any,
+      html: `<div style="width:28px;height:28px;background:#ef4444;border:2px solid #fff;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.4)"><svg width="14" height="14" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>`,
+    });
+  }, []);
+
   const [showRealtimeAlerts, setShowRealtimeAlerts] = useState(true);
   const [showCrowdsourcedReports, setShowCrowdsourcedReports] = useState(true);
   const [showOfficialBPBDData, setShowOfficialBPBDData] = useState(true);
@@ -398,7 +456,7 @@ export const FloodMap = React.memo(function FloodMap({
     }
   }, [regionLat, regionLng]);
 
-  
+
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchedLocation, setSearchedLocation] =
@@ -633,7 +691,7 @@ export const FloodMap = React.memo(function FloodMap({
         boxZoom={false}
         dragging={true}
         keyboard={false}
-        
+
         touchZoom={true}
         className="w-full h-full bg-slate-900"
         zoomControl={false}
@@ -648,7 +706,7 @@ export const FloodMap = React.memo(function FloodMap({
 
         <MapUpdater center={center} zoom={zoom} />
         <MapEvents
-          onLocationSelect={() => {}}
+          onLocationSelect={() => { }}
           onReverseGeocode={handleMapClick}
         />
         {onMapBoundsChange && <MapBoundsUpdater onMapBoundsChange={onMapBoundsChange} />}
@@ -854,6 +912,47 @@ export const FloodMap = React.memo(function FloodMap({
               </Popup>
             </Polygon>
           ))}
+
+        {/* Evacuation Pins Layer */}
+        {showEvacPins && evacLocations.map((loc: any) => {
+          const lat = parseFloat(loc.latitude);
+          const lng = parseFloat(loc.longitude);
+          if (isNaN(lat) || isNaN(lng)) return null;
+          const pct = loc.capacity_total > 0 ? Math.round((loc.capacity_current / loc.capacity_total) * 100) : 0;
+          const statusColor = pct >= 90 ? '#ef4444' : pct >= 70 ? '#f59e0b' : '#22c55e';
+          return (
+            <Marker key={loc.id} position={[lat, lng]} icon={evacIcon}>
+              <Popup>
+                <div style={{minWidth: 200, fontFamily: 'sans-serif'}}>
+                  <div style={{display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:6}}>
+                    <strong style={{fontSize:13}}>{loc.name}</strong>
+                    <span style={{fontSize:10, padding:'2px 6px', borderRadius:8, background:statusColor, color:'#fff'}}>
+                      {pct}%
+                    </span>
+                  </div>
+                  <div style={{fontSize:11, color:'#94a3b8', marginBottom:4}}>{loc.address}</div>
+                  <div style={{fontSize:11, marginBottom:4}}>Kapasitas: {loc.capacity_current}/{loc.capacity_total}</div>
+                  {loc.contact_phone && <div style={{fontSize:11, marginBottom:6}}>📞 {loc.contact_phone}</div>}
+                  <button
+                    onClick={() => handleEvacRoute(lat, lng)}
+                    style={{
+                      width: '100%', padding: '6px 0', background: '#3b82f6', color: '#fff',
+                      border: 'none', borderRadius: 6, fontSize: 12, cursor: 'pointer',
+                      fontWeight: 600, marginTop: 2,
+                    }}
+                  >
+                    🧭 Rute Evakuasi
+                  </button>
+                </div>
+              </Popup>
+            </Marker>
+          );
+        })}
+
+        {/* Evacuation Route */}
+        {evacRouteTarget && userGeoPos && (
+          <EvacuationRouting start={userGeoPos} end={evacRouteTarget} />
+        )}
 
         {/* Weather Stations (global data) */}
         {showWeatherStations && globalWeatherStations.map((station) => (
