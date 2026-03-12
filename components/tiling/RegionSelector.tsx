@@ -126,6 +126,29 @@ export function RegionSelector() {
         provinceCode: provinceCode ?? undefined,
         provinceName: provinceName ?? undefined,
       });
+    } else if (districtName && (latitude == null || longitude == null)) {
+      // Fallback: geocode the district name when DB has no coordinates
+      const query = `${districtName}${regencyName ? ', ' + regencyName : ''}, Indonesia`;
+      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`, {
+        headers: { 'Accept-Language': 'id' },
+      })
+        .then(r => r.json())
+        .then(results => {
+          if (results && results.length > 0) {
+            const { lat, lon } = results[0];
+            setSelectedLocation({
+              latitude: parseFloat(lat),
+              longitude: parseFloat(lon),
+              districtName,
+              districtCode: districtCode ?? undefined,
+              regencyCode: regencyCode ?? undefined,
+              regencyName: regencyName ?? undefined,
+              provinceCode: provinceCode ?? undefined,
+              provinceName: provinceName ?? undefined,
+            });
+          }
+        })
+        .catch(() => {/* geocoding failed, silently ignore */});
     } else if (!districtName && !latitude) {
       // Reset was called — clear app-wide location too
       setSelectedLocation(null);
