@@ -279,17 +279,56 @@ export function BottomTile() {
       case 'evacuation':
         return (
           <div className="flex flex-col h-full">
-            {/* Search */}
-            <div className="px-2 py-1 shrink-0">
-              <div className="relative">
+            {/* Search + Stats row */}
+            <div className="px-2 py-1 shrink-0 flex items-stretch gap-2">
+              {/* Search (narrower) */}
+              <div className="relative w-[220px] shrink-0">
                 <Search size={11} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-600" />
                 <input
                   value={evacSearch}
                   onChange={(e) => setEvacSearch(e.target.value)}
                   placeholder="Cari lokasi evakuasi..."
-                  className="w-full bg-white/5 rounded pl-6 pr-2 py-1 text-[11px] text-slate-300 placeholder:text-slate-600 border border-white/5 focus:border-blue-500/50 outline-none"
+                  className="w-full h-full bg-white/5 rounded pl-6 pr-2 py-1 text-[11px] text-slate-300 placeholder:text-slate-600 border border-white/5 focus:border-blue-500/50 outline-none"
                 />
               </div>
+              {/* Stat cards */}
+              {(() => {
+                const total = evacLocations.length;
+                const available = evacLocations.reduce((s: number, l: any) => s + Math.max(0, (l.capacity_total || 0) - (l.capacity_current || 0)), 0);
+                const almostFull = evacLocations.filter((l: any) => l.capacity_total > 0 && (l.capacity_current / l.capacity_total) >= 0.7).length;
+                return (
+                  <div className="flex-1 grid grid-cols-4 gap-1.5">
+                    <div className="rounded border border-white/5 bg-white/[0.03] px-2 py-1 flex items-center justify-between">
+                      <div>
+                        <p className="text-[8px] text-slate-600 uppercase leading-tight">Total Lokasi</p>
+                        <p className="text-sm font-bold text-blue-400">{total}</p>
+                      </div>
+                      <Shield size={12} className="text-blue-400/50" />
+                    </div>
+                    <div className="rounded border border-white/5 bg-white/[0.03] px-2 py-1 flex items-center justify-between">
+                      <div>
+                        <p className="text-[8px] text-slate-600 uppercase leading-tight">Slot Tersedia</p>
+                        <p className="text-sm font-bold text-emerald-400">{available}</p>
+                      </div>
+                      <Users size={12} className="text-emerald-400/50" />
+                    </div>
+                    <div className="rounded border border-white/5 bg-white/[0.03] px-2 py-1 flex items-center justify-between">
+                      <div>
+                        <p className="text-[8px] text-slate-600 uppercase leading-tight">Hampir Penuh</p>
+                        <p className="text-sm font-bold text-amber-400">{almostFull}</p>
+                      </div>
+                      <AlertTriangle size={12} className="text-amber-400/50" />
+                    </div>
+                    <div className="rounded border border-white/5 bg-white/[0.03] px-2 py-1 flex items-center justify-between">
+                      <div>
+                        <p className="text-[8px] text-slate-600 uppercase leading-tight">Status</p>
+                        <p className="text-sm font-bold text-cyan-400">Live</p>
+                      </div>
+                      <Clock size={12} className="text-cyan-400/50" />
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
             {/* Content */}
             <div className="flex-1 overflow-y-auto px-2 pb-2">
