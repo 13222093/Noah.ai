@@ -75,26 +75,25 @@ async function DataSensorPage() {
         created_at: new Date(Date.now() - hoursAgo * 3600000).toISOString(),
       };
     });
-    error = null; // Clear any previous error since we have fallback data
+    error = null;
   }
 
-  // The main page layout is returned immediately, not blocked by the data fetch
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 text-slate-900 dark:text-white font-sans">
+    <div className="min-h-screen bg-[#0a0f1a] text-white font-sans">
       {/* Header */}
-      <header className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/50 sticky top-0 z-10">
+      <header className="bg-white/[0.03] backdrop-blur-xl border-b border-white/5 sticky top-0 z-10">
         <div className="container mx-auto px-6 py-4">
           <DataSensorHeader />
         </div>
       </header>
 
-      {/* Konten Utama */}
+      {/* Main content */}
       <main className="container mx-auto px-6 py-8">
         <Suspense fallback={<StatisticsDashboardSkeleton />}>
           <StatisticsDashboard />
         </Suspense>
 
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-lg mt-8">
+        <div className="bg-white/[0.03] rounded-xl p-6 border border-white/5 mt-8">
           {error ? (
             <DataSensorError message={error.message} />
           ) : (

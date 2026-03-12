@@ -19,7 +19,9 @@ import {
   Activity,
   Thermometer,
   Wind,
-  Cloud
+  Cloud,
+  Gauge,
+  BarChart3,
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -41,7 +43,7 @@ interface LaporanBanjir {
   photo_url?: string;
   reporter_name?: string;
   reporter_contact?: string;
-  created_at: string; // ISO string
+  created_at: string;
 }
 
 const classifyWaterLevelString = (waterLevelString: string, t: (key: string) => string): {
@@ -52,17 +54,17 @@ const classifyWaterLevelString = (waterLevelString: string, t: (key: string) => 
 } => {
   switch (waterLevelString) {
     case 'semata_kaki':
-      return { label: t('sensorData.filter.low'), level: 'low', colorClass: 'text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-500/20', icon: <Activity className="h-4 w-4" /> };
+      return { label: t('sensorData.filter.low'), level: 'low', colorClass: 'text-emerald-400 bg-emerald-500/20', icon: <Activity className="h-4 w-4" /> };
     case 'selutut':
-      return { label: t('sensorData.filter.medium').split('/')[0], level: 'medium', colorClass: 'text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-500/20', icon: <Droplets className="h-4 w-4" /> };
+      return { label: t('sensorData.filter.medium').split('/')[0], level: 'medium', colorClass: 'text-yellow-400 bg-yellow-500/20', icon: <Droplets className="h-4 w-4" /> };
     case 'sepaha':
-      return { label: t('sensorData.filter.medium').split('/')[1] || t('sensorData.filter.medium'), level: 'medium', colorClass: 'text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-500/20', icon: <Droplets className="h-4 w-4" /> };
+      return { label: t('sensorData.filter.medium').split('/')[1] || t('sensorData.filter.medium'), level: 'medium', colorClass: 'text-orange-400 bg-orange-500/20', icon: <Droplets className="h-4 w-4" /> };
     case 'sepusar':
-      return { label: t('sensorData.filter.high').split('/')[0], level: 'high', colorClass: 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-500/20', icon: <AlertCircle className="h-4 w-4" /> };
+      return { label: t('sensorData.filter.high').split('/')[0], level: 'high', colorClass: 'text-red-400 bg-red-500/20', icon: <AlertCircle className="h-4 w-4" /> };
     case 'lebih_dari_sepusar':
-      return { label: t('sensorData.filter.high').split('/')[1] || t('sensorData.filter.high'), level: 'high', colorClass: 'text-red-700 dark:text-red-500 bg-red-200 dark:bg-red-700/20', icon: <AlertCircle className="h-4 w-4" /> };
+      return { label: t('sensorData.filter.high').split('/')[1] || t('sensorData.filter.high'), level: 'high', colorClass: 'text-red-500 bg-red-500/30', icon: <AlertCircle className="h-4 w-4" /> };
     default:
-      return { label: 'Unknown', level: 'low', colorClass: 'text-slate-600 dark:text-gray-400 bg-slate-100 dark:bg-gray-500/20', icon: <Activity className="h-4 w-4" /> };
+      return { label: 'Unknown', level: 'low', colorClass: 'text-slate-400 bg-white/5', icon: <Activity className="h-4 w-4" /> };
   }
 };
 
@@ -72,47 +74,31 @@ interface DataSensorClientContentProps {
 
 const DataSensorClientContent: React.FC<DataSensorClientContentProps> = ({ initialLaporan }) => {
   const { t, lang } = useLanguage();
-  const [laporan, setLaporan] = useState<LaporanBanjir[]>(initialLaporan);
+  const [laporan] = useState<LaporanBanjir[]>(initialLaporan);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
-  const [scheduleEmail, setScheduleEmail] = useState('');
-  const [scheduleFrequency, setScheduleFrequency] = useState('daily');
-  const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
-  const [alertThreshold, setAlertThreshold] = useState('high');
-  const [alertMethod, setAlertMethod] = useState('email');
-  const [isWeatherModalOpen, setIsWeatherModalOpen] = useState(false);
   const { weatherData, isLoading: isWeatherLoading, error: weatherError, fetchWeather } = useWeatherData();
 
   useEffect(() => {
-    // Fetch weather data for a default location (e.g., Jakarta)
     fetchWeather(-6.2088, 106.8456);
   }, [fetchWeather]);
 
-  const INITIAL_DISPLAY_LIMIT = 5; // You can adjust this value
+  const INITIAL_DISPLAY_LIMIT = 8;
   const [displayLimit, setDisplayLimit] = useState(INITIAL_DISPLAY_LIMIT);
 
-  // Perbaikan: Mendefinisikan filteredAndSortedLaporan
   const filteredAndSortedLaporan = useMemo(() => {
     const filtered = laporan.filter(report => {
       const matchesSearch = searchTerm === '' ||
         report.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (report.description && report.description.toLowerCase().includes(searchTerm.toLowerCase()));
-
       const level = classifyWaterLevelString(report.water_level, t).level;
       const matchesFilter = selectedFilter === 'all' || selectedFilter === level;
-
       return matchesSearch && matchesFilter;
     });
-
-    // Sorting by created_at in descending order (terbaru ke terlama)
-    const sorted = [...filtered].sort((a, b) =>
+    return [...filtered].sort((a, b) =>
       parseISO(b.created_at).getTime() - parseISO(a.created_at).getTime()
     );
-
-    return sorted;
   }, [laporan, searchTerm, selectedFilter, t]);
-
 
   const displayedReports = useMemo(() => {
     return (filteredAndSortedLaporan || []).slice(0, displayLimit);
@@ -123,29 +109,13 @@ const DataSensorClientContent: React.FC<DataSensorClientContentProps> = ({ initi
     const highLevel = laporan.filter(r => classifyWaterLevelString(r.water_level, t).level === 'high').length;
     const mediumLevel = laporan.filter(r => classifyWaterLevelString(r.water_level, t).level === 'medium').length;
     const lowLevel = laporan.filter(r => classifyWaterLevelString(r.water_level, t).level === 'low').length;
-
-    return { total, highLevel, mediumLevel, lowLevel, avgLevel: 0 };
+    const avgLevel = total > 0 ? Math.round((highLevel * 80 + mediumLevel * 40 + lowLevel * 15) / total) : 0;
+    return { total, highLevel, mediumLevel, lowLevel, avgLevel };
   }, [laporan, t]);
 
   const handleExportData = () => {
-    // Menggunakan displayedReports (seperti yang tampaknya dimaksudkan)
-    if (displayedReports.length === 0) {
-      alert(t('sensorData.modals.weather.unavailable'));
-      return;
-    }
-
-    const headers = [
-      'ID',
-      t('sensorData.reports.location'),
-      'Latitude',
-      'Longitude',
-      'Water Level',
-      'Description',
-      'Reporter Name',
-      'Reporter Contact',
-      t('sensorData.reports.time')
-    ];
-
+    if (displayedReports.length === 0) return;
+    const headers = ['ID', 'Location', 'Latitude', 'Longitude', 'Water Level', 'Description', 'Reporter', 'Contact', 'Time'];
     const csvContent = [
       headers.join(','),
       ...displayedReports.map(report =>
@@ -155,162 +125,83 @@ const DataSensorClientContent: React.FC<DataSensorClientContentProps> = ({ initi
           report.latitude,
           report.longitude,
           `"${classifyWaterLevelString(report.water_level, t).label}"`,
-          `"${report.description ? report.description.replace(/"/g, '""') : ''}"`,
-          `"${report.reporter_name ? report.reporter_name.replace(/"/g, '""') : ''}"`,
-          `"${report.reporter_contact ? report.reporter_contact.replace(/"/g, '""') : ''}"`,
+          `"${report.description?.replace(/"/g, '""') || ''}"`,
+          `"${report.reporter_name?.replace(/"/g, '""') || ''}"`,
+          `"${report.reporter_contact || ''}"`,
           `"${format(parseISO(report.created_at), 'dd MMM yyyy, HH:mm', { locale: lang === 'id' ? id : enUS })}"`
         ].join(',')
       )
     ].join('\n');
-
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', 'laporan_banjir.csv');
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'laporan_banjir.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  const handleOpenScheduleModal = () => {
-    setIsScheduleModalOpen(true);
-  };
-
-  const handleCloseScheduleModal = () => {
-    setIsScheduleModalOpen(false);
-    setScheduleEmail('');
-    setScheduleFrequency('daily');
-  };
-
-  const handleScheduleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert(t('sensorData.modals.schedule.success').replace('{email}', scheduleEmail).replace('{frequency}', scheduleFrequency));
-    handleCloseScheduleModal();
-  };
-
-  const handleOpenAlertModal = () => {
-    setIsAlertModalOpen(true);
-  };
-
-  const handleCloseAlertModal = () => {
-    setIsAlertModalOpen(false);
-    setAlertThreshold('high');
-    setAlertMethod('email');
-  };
-
-  const handleAlertSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    alert(t('sensorData.modals.alert.success').replace('{threshold}', alertThreshold).replace('{method}', alertMethod));
-    handleCloseAlertModal();
-  };
-
-  const handleOpenWeatherModal = () => {
-    setIsWeatherModalOpen(true);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          fetchWeather(position.coords.latitude, position.coords.longitude);
-        },
-        (geoError) => {
-          console.error("Error getting geolocation:", geoError);
-          alert(t('sensorData.modals.weather.geolocationError'));
-        }
-      );
-    } else {
-      alert(t('sensorData.modals.weather.geolocationUnsupported'));
-    }
-  };
-
-  const handleCloseWeatherModal = () => {
-    setIsWeatherModalOpen(false);
-  };
+  const statCards = [
+    { label: t('sensorData.statistics.totalReports'), value: stats.total, badge: 'Total', icon: TableIcon, color: 'text-cyan-400', bg: 'bg-cyan-500/10', badgeColor: 'bg-cyan-500/20 text-cyan-400' },
+    { label: t('sensorData.statistics.highLevel'), value: stats.highLevel, badge: 'Tinggi', icon: AlertCircle, color: 'text-red-400', bg: 'bg-red-500/10', badgeColor: 'bg-red-500/20 text-red-400', sub: '(Sepusar/Lebih)' },
+    { label: t('sensorData.statistics.mediumLevel'), value: stats.mediumLevel, badge: 'Sedang', icon: Droplets, color: 'text-yellow-400', bg: 'bg-yellow-500/10', badgeColor: 'bg-yellow-500/20 text-yellow-400', sub: '(Selutut/Sepaha)' },
+    { label: t('sensorData.statistics.lowLevel'), value: stats.lowLevel, badge: 'Rendah', icon: Activity, color: 'text-emerald-400', bg: 'bg-emerald-500/10', badgeColor: 'bg-emerald-500/20 text-emerald-400', sub: '(Semata Kaki)' },
+    { label: t('sensorData.statistics.avgLevel'), value: `${stats.avgLevel}`, unit: 'cm', badge: 'Avg', icon: Gauge, color: 'text-purple-400', bg: 'bg-purple-500/10', badgeColor: 'bg-purple-500/20 text-purple-400' },
+  ];
 
   return (
-    <div className="w-full text-slate-900 dark:text-white">
-      <div className="container mx-auto px-6 py-8">
-        {/* Header Section */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="p-3 bg-cyan-100 dark:bg-cyan-500/20 rounded-xl">
-              <TableIcon className="h-6 w-6 text-cyan-600 dark:text-cyan-400" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">{t('sensorData.title')}</h1>
-              <p className="text-slate-500 dark:text-gray-400">{t('sensorData.subtitle')}</p>
-            </div>
+    <div className="w-full text-white">
+      <div className="space-y-6">
+        {/* Page title */}
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-cyan-500/10 rounded-xl">
+            <TableIcon className="h-6 w-6 text-cyan-400" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-100">{t('sensorData.title')}</h1>
+            <p className="text-sm text-slate-500">{t('sensorData.subtitle')}</p>
           </div>
         </div>
 
-        {/* Stats Overview */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <TableIcon className="h-8 w-8 text-cyan-600 dark:text-cyan-400" />
-              <span className="bg-cyan-100 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 text-xs px-2 py-1 rounded-full">Total</span>
+        {/* Stat Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          {statCards.map((card) => (
+            <div key={card.label} className={`rounded-xl border border-white/5 p-4 space-y-2 ${card.bg}`}>
+              <div className="flex items-center justify-between">
+                <card.icon size={18} className={card.color} />
+                <span className={`text-[9px] font-semibold px-2 py-0.5 rounded-full ${card.badgeColor}`}>{card.badge}</span>
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-100">
+                  {card.value}
+                  {(card as any).unit && <span className="text-sm text-slate-500 ml-0.5">{(card as any).unit}</span>}
+                </p>
+                <p className="text-[11px] text-slate-400 leading-tight">{card.label}</p>
+                {(card as any).sub && <p className="text-[10px] text-slate-600">{(card as any).sub}</p>}
+              </div>
             </div>
-            <div className="text-3xl font-bold mb-1 text-slate-900 dark:text-white">{stats.total}</div>
-            <div className="text-slate-500 dark:text-gray-400 text-sm">{t('sensorData.statistics.totalReports')}</div>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <AlertCircle className="h-8 w-8 text-red-500 dark:text-red-400" />
-              <span className="bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 text-xs px-2 py-1 rounded-full">{t('common.levels.high')}</span>
-            </div>
-            <div className="text-3xl font-bold mb-1 text-slate-900 dark:text-white">{stats.highLevel}</div>
-            <div className="text-slate-500 dark:text-gray-400 text-sm">{t('sensorData.statistics.highLevel')}</div>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <Droplets className="h-8 w-8 text-yellow-500 dark:text-yellow-400" />
-              <span className="bg-yellow-100 dark:bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 text-xs px-2 py-1 rounded-full">{t('common.levels.medium')}</span>
-            </div>
-            <div className="text-3xl font-bold mb-1 text-slate-900 dark:text-white">{stats.mediumLevel}</div>
-            <div className="text-slate-500 dark:text-gray-400 text-sm">{t('sensorData.statistics.mediumLevel')}</div>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <Activity className="h-8 w-8 text-green-500 dark:text-green-400" />
-              <span className="bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 text-xs px-2 py-1 rounded-full">{t('common.levels.low')}</span>
-            </div>
-            <div className="text-3xl font-bold mb-1 text-slate-900 dark:text-white">{stats.lowLevel}</div>
-            <div className="text-slate-500 dark:text-gray-400 text-sm">{t('sensorData.statistics.lowLevel')}</div>
-          </div>
-
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <TrendingUp className="h-8 w-8 text-purple-500 dark:text-purple-400" />
-              <span className="bg-purple-100 dark:bg-purple-500/20 text-purple-600 dark:text-purple-400 text-xs px-2 py-1 rounded-full">Avg</span>
-            </div>
-            <div className="text-3xl font-bold mb-1 text-slate-900 dark:text-white">{stats.avgLevel}<span className="text-lg text-slate-400 dark:text-gray-400">cm</span></div>
-            <div className="text-slate-500 dark:text-gray-400 text-sm">{t('sensorData.statistics.avgLevel')}</div>
-          </div>
+          ))}
         </div>
 
-        {/* Filters and Search */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl p-6 border border-slate-200 dark:border-slate-700 mb-8 shadow-sm">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
-            <div className="flex items-center space-x-4">
-              <div className="relative flex-1 lg:w-80">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+        {/* Search + Filters */}
+        <div className="bg-white/[0.03] rounded-xl p-4 border border-white/5">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1">
+              <div className="relative flex-1 lg:max-w-xs">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-600" />
                 <input
                   type="text"
                   placeholder={t('sensorData.filter.searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent placeholder-slate-400"
+                  className="w-full bg-white/5 border border-white/5 text-slate-200 pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-cyan-500/50 placeholder:text-slate-600 text-sm"
                 />
               </div>
               <select
                 value={selectedFilter}
                 onChange={(e) => setSelectedFilter(e.target.value)}
-                className="bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="bg-white/5 border border-white/5 text-slate-300 px-4 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-cyan-500/50 text-sm"
               >
                 <option value="all">{t('sensorData.filter.allLevels')}</option>
                 <option value="low">{t('sensorData.filter.low')}</option>
@@ -318,15 +209,15 @@ const DataSensorClientContent: React.FC<DataSensorClientContentProps> = ({ initi
                 <option value="high">{t('sensorData.filter.high')}</option>
               </select>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <button
                 onClick={handleExportData}
-                className="flex items-center space-x-2 bg-cyan-100 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 px-4 py-2 rounded-lg hover:bg-cyan-200 dark:hover:bg-cyan-500/30 transition-colors"
+                className="flex items-center gap-2 bg-cyan-500/10 text-cyan-400 px-4 py-2 rounded-lg hover:bg-cyan-500/20 transition-colors text-sm font-medium"
               >
                 <Download className="h-4 w-4" />
                 <span>{t('sensorData.filter.export')}</span>
               </button>
-              <button className="flex items-center space-x-2 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-4 py-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
+              <button className="flex items-center gap-2 bg-white/5 text-slate-400 px-4 py-2 rounded-lg hover:bg-white/10 transition-colors text-sm">
                 <Filter className="h-4 w-4" />
                 <span>{t('sensorData.filter.filter')}</span>
               </button>
@@ -334,406 +225,192 @@ const DataSensorClientContent: React.FC<DataSensorClientContentProps> = ({ initi
           </div>
         </div>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-8">
-          {/* Reports Table */}
+        {/* Main Grid: Reports + Weather Sidebar */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+          {/* Reports */}
           <div className="xl:col-span-2">
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
-              <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+            <div className="bg-white/[0.03] rounded-xl border border-white/5 overflow-hidden">
+              <div className="p-4 border-b border-white/5">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="p-2 bg-purple-100 dark:bg-purple-500/20 rounded-lg">
-                      <TableIcon className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-purple-500/10 rounded-lg">
+                      <TableIcon className="h-5 w-5 text-purple-400" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold text-slate-900 dark:text-white">{t('sensorData.reports.title')}</h3>
-                      <p className="text-sm text-slate-500 dark:text-gray-400">
+                      <h3 className="text-base font-semibold text-slate-200">{t('sensorData.reports.title')}</h3>
+                      <p className="text-xs text-slate-500">
                         {t('sensorData.reports.showing')} {displayedReports.length} {t('sensorData.reports.of')} {laporan.length} {t('sensorData.reports.reports')}
                       </p>
-                      {/* Note: Button component is not imported, assuming it's from a library like shadcn/ui */}
-                      {displayedReports.length < filteredAndSortedLaporan.length && (
-                        <button
-                          onClick={() => setDisplayLimit(filteredAndSortedLaporan.length)}
-                          className="mt-4 w-full border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-gray-300 rounded-lg px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                        >
-                          {t('sensorData.reports.viewMore')} ({filteredAndSortedLaporan.length - displayedReports.length} {t('sensorData.reports.moreReports')})
-                        </button>
-                      )}
                     </div>
                   </div>
-                  {/* Mengganti latestReports dengan displayedReports */}
-                  <div className="text-2xl font-bold text-slate-900 dark:text-white">{displayedReports.length}</div>
+                  <div className="text-xl font-bold text-slate-200">{displayedReports.length}</div>
                 </div>
               </div>
 
-              <div className="overflow-x-auto">
-                {/* Mengganti latestReports dengan displayedReports */}
+              <div>
                 {displayedReports.length > 0 ? (
-                  <div className="divide-y divide-slate-200 dark:divide-slate-700">
-                    {displayedReports.map((report, index) => (
-                      <div key={report.id || index} className="p-6 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-3 mb-3">
-                              <MapPin className="h-4 w-4 text-cyan-600 dark:text-cyan-400 flex-shrink-0" />
-                              <h4 className="font-semibold text-slate-900 dark:text-white truncate">{report.location}</h4>
-                              <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${classifyWaterLevelString(report.water_level || '', t).colorClass}`}>
-                                {classifyWaterLevelString(report.water_level || '', t).icon}
-                                <span>{classifyWaterLevelString(report.water_level || '', t).label}</span>
+                  <div className="divide-y divide-white/5">
+                    {displayedReports.map((report, index) => {
+                      const classification = classifyWaterLevelString(report.water_level || '', t);
+                      return (
+                        <motion.div
+                          key={report.id || index}
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: index * 0.03 }}
+                          className="p-4 hover:bg-white/[0.02] transition-colors"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 space-y-1.5">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <MapPin className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
+                                <h4 className="font-semibold text-sm text-slate-200">{report.location}</h4>
+                                <span className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${classification.colorClass}`}>
+                                  {classification.icon}
+                                  {classification.label}
+                                </span>
                               </div>
-                            </div>
-
-                            <div className="flex items-center space-x-4 text-sm text-slate-500 dark:text-gray-400 mb-2">
-                              <div className="flex items-center space-x-1">
-                                <Clock className="h-3 w-3" />
-                                <span>{format(parseISO(report.created_at), 'dd MMM yyyy, HH:mm', { locale: lang === 'id' ? id : enUS })}</span>
+                              <div className="flex items-center gap-4 text-xs text-slate-500">
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {format(parseISO(report.created_at), 'dd MMM yyyy, HH:mm', { locale: lang === 'id' ? id : enUS })}
+                                </span>
+                                {report.reporter_name && (
+                                  <span className="flex items-center gap-1">
+                                    <Eye className="h-3 w-3" />
+                                    {report.reporter_name}
+                                  </span>
+                                )}
                               </div>
-                              {report.reporter_name && (
-                                <div className="flex items-center space-x-1">
-                                  <Eye className="h-3 w-3" />
-                                  <span>{report.reporter_name}</span>
-                                </div>
+                              {report.description && (
+                                <p className="text-xs text-slate-400 leading-relaxed">
+                                  {report.description.length > 100 ? `${report.description.substring(0, 100)}...` : report.description}
+                                </p>
                               )}
                             </div>
-
-                            {report.description && (
-                              <p className="text-slate-600 dark:text-gray-300 text-sm leading-relaxed">
-                                {report.description.length > 100
-                                  ? `${report.description.substring(0, 100)}...`
-                                  : report.description
-                                }
-                              </p>
-                            )}
-                            {report.photo_url && (
-                              <div className="relative w-48 h-48 mt-2">
-                                <Image
-                                  src={report.photo_url}
-                                  alt="Foto Laporan"
-                                  fill
-                                  className="object-cover rounded-md"
-                                  unoptimized
-                                />
-                              </div>
-                            )}
+                            <ChevronRight className="h-4 w-4 text-slate-600 ml-3 shrink-0 mt-1" />
                           </div>
-
-                          <button className="ml-4 p-2 text-slate-400 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-400 transition-colors">
-                            <ChevronRight className="h-4 w-4" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+                        </motion.div>
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="p-12 text-center">
-                    <TableIcon className="h-16 w-16 text-slate-400 dark:text-gray-600 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-slate-500 dark:text-gray-400 mb-2">{t('sensorData.reports.noData')}</h3>
-                    <p className="text-slate-400 dark:text-gray-500">{t('sensorData.reports.noDataDesc')}</p>
+                    <TableIcon className="h-12 w-12 text-slate-700 mx-auto mb-3" />
+                    <h3 className="text-sm font-semibold text-slate-400 mb-1">{t('sensorData.reports.noData')}</h3>
+                    <p className="text-xs text-slate-600">{t('sensorData.reports.noDataDesc')}</p>
                   </div>
                 )}
               </div>
+
+              {displayedReports.length < filteredAndSortedLaporan.length && (
+                <div className="p-4 border-t border-white/5">
+                  <button
+                    onClick={() => setDisplayLimit(filteredAndSortedLaporan.length)}
+                    className="w-full border border-white/10 text-slate-400 rounded-lg px-4 py-2 text-sm hover:bg-white/5 transition-colors"
+                  >
+                    {t('sensorData.reports.viewMore')} ({filteredAndSortedLaporan.length - displayedReports.length} {t('sensorData.reports.moreReports')})
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Weather Analysis Sidebar */}
-          <div className="space-y-6">
+          {/* Sidebar */}
+          <div className="space-y-4">
             {/* Current Weather */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
-              <div className="p-6 border-b border-slate-200 dark:border-slate-700">
-                <div className="flex items-center space-x-3">
-                  <div className="p-2 bg-cyan-100 dark:bg-cyan-500/20 rounded-lg">
-                    <CloudRain className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
+            <div className="bg-white/[0.03] rounded-xl border border-white/5 overflow-hidden">
+              <div className="p-4 border-b border-white/5">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-cyan-500/10 rounded-lg">
+                    <CloudRain className="h-5 w-5 text-cyan-400" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-slate-900 dark:text-white">{t('sensorData.weather.title')}</h3>
-                    <p className="text-sm text-slate-500 dark:text-gray-400">{t('sensorData.weather.subtitle')}</p>
+                    <h3 className="text-sm font-semibold text-slate-200">{t('sensorData.weather.title')}</h3>
+                    <p className="text-[10px] text-slate-500">{t('sensorData.weather.subtitle')}</p>
                   </div>
                 </div>
               </div>
-              <div className="p-6 space-y-4">
+              <div className="p-4 space-y-4">
                 {isWeatherLoading ? (
-                  <div className="text-center py-8">
-                    <Loader2 className="h-8 w-8 animate-spin text-cyan-600 dark:text-cyan-400 mx-auto mb-3" />
-                    <p className="text-slate-500 dark:text-gray-400">{t('sensorData.weather.loading')}</p>
+                  <div className="text-center py-6">
+                    <Loader2 className="h-6 w-6 animate-spin text-cyan-400 mx-auto mb-2" />
+                    <p className="text-xs text-slate-500">{t('sensorData.weather.loading')}</p>
                   </div>
                 ) : weatherError ? (
-                  <div className="text-center py-8">
-                    <AlertCircle className="h-8 w-8 text-red-500 dark:text-red-400 mx-auto mb-3" />
-                    <p className="text-red-500 dark:text-red-400">{t('sensorData.weather.error')} {weatherError}</p>
+                  <div className="text-center py-6">
+                    <AlertCircle className="h-6 w-6 text-red-400 mx-auto mb-2" />
+                    <p className="text-xs text-red-400">{weatherError}</p>
                   </div>
                 ) : weatherData ? (
                   <>
-                    <div className="text-center mb-6">
-                      <div className="text-4xl font-bold text-slate-900 dark:text-white mb-2">{Math.round(weatherData.current.main.temp)}°C</div>
-                      <div className="text-slate-500 dark:text-gray-400">{weatherData.current.weather[0].description}</div>
+                    <div className="text-center">
+                      <div className="text-3xl font-bold text-slate-100">{Math.round(weatherData.current.main.temp)}°C</div>
+                      <div className="text-xs text-slate-400 capitalize">{weatherData.current.weather[0].description}</div>
                     </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="text-center">
-                        <Droplets className="h-6 w-6 text-blue-500 dark:text-blue-400 mx-auto mb-2" />
-                        <div className="text-lg font-semibold text-slate-900 dark:text-white">{weatherData.current.main.humidity}%</div>
-                        <div className="text-xs text-slate-500 dark:text-gray-400">{t('sensorData.weather.humidity')}</div>
-                      </div>
-                      <div className="text-center">
-                        <Wind className="h-6 w-6 text-green-500 dark:text-green-400 mx-auto mb-2" />
-                        <div className="text-lg font-semibold text-slate-900 dark:text-white">{weatherData.current.wind.speed} m/s</div>
-                        <div className="text-xs text-slate-500 dark:text-gray-400">{t('sensorData.weather.wind')}</div>
-                      </div>
-                      <div className="text-center">
-                        <Thermometer className="h-6 w-6 text-orange-500 dark:text-orange-400 mx-auto mb-2" />
-                        <div className="text-lg font-semibold text-slate-900 dark:text-white">{weatherData.current.main.pressure} hPa</div>
-                        <div className="text-xs text-slate-500 dark:text-gray-400">{t('sensorData.weather.pressure')}</div>
-                      </div>
-                      <div className="text-center">
-                        <Eye className="h-6 w-6 text-purple-500 dark:text-purple-400 mx-auto mb-2" />
-                        <div className="text-lg font-semibold text-slate-900 dark:text-white">{weatherData.current.visibility / 1000} km</div>
-                        <div className="text-xs text-slate-500 dark:text-gray-400">{t('sensorData.weather.visibility')}</div>
-                      </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {[
+                        { icon: Droplets, value: `${weatherData.current.main.humidity}%`, label: t('sensorData.weather.humidity'), color: 'text-blue-400' },
+                        { icon: Wind, value: `${weatherData.current.wind.speed} m/s`, label: t('sensorData.weather.wind'), color: 'text-emerald-400' },
+                        { icon: Thermometer, value: `${weatherData.current.main.pressure} hPa`, label: t('sensorData.weather.pressure'), color: 'text-orange-400' },
+                        { icon: Eye, value: `${weatherData.current.visibility / 1000} km`, label: t('sensorData.weather.visibility'), color: 'text-purple-400' },
+                      ].map((item) => (
+                        <div key={item.label} className="text-center bg-white/[0.03] rounded-lg p-2.5 border border-white/5">
+                          <item.icon className={`h-4 w-4 ${item.color} mx-auto mb-1`} />
+                          <div className="text-sm font-semibold text-slate-200">{item.value}</div>
+                          <div className="text-[9px] text-slate-500">{item.label}</div>
+                        </div>
+                      ))}
                     </div>
                   </>
                 ) : (
-                  <div className="text-center py-8">
-                    <AlertCircle className="h-8 w-8 text-slate-400 dark:text-gray-400 mx-auto mb-3" />
-                    <p className="text-slate-500 dark:text-gray-400">{t('sensorData.weather.unavailable')}</p>
+                  <div className="text-center py-6">
+                    <AlertCircle className="h-6 w-6 text-slate-600 mx-auto mb-2" />
+                    <p className="text-xs text-slate-500">{t('sensorData.weather.unavailable')}</p>
                   </div>
                 )}
               </div>
             </div>
-
-
 
             {/* Flood Report Chart */}
             <FloodReportChart />
 
-            {/* Sensor Simulator (Floodnet-style real-time stream) */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">
+            {/* Sensor Simulator */}
+            <div className="bg-white/[0.03] rounded-xl border border-white/5 p-4">
+              <h3 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
+                <Activity size={14} className="text-cyan-400" />
                 Simulated Sensor Stream
               </h3>
               <SensorSimulatorChart />
             </div>
 
             {/* Quick Actions */}
-            <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-4">{t('sensorData.actions.title')}</h3>
-              <div className="space-y-3">
-                <button
-                  onClick={handleExportData}
-                  className="w-full flex items-center justify-between p-3 bg-cyan-100 dark:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 rounded-lg hover:bg-cyan-200 dark:hover:bg-cyan-500/30 transition-colors"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Download className="h-4 w-4" />
-                    <span>{t('sensorData.filter.export')}</span>
-                  </div>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={handleOpenScheduleModal}
-                  className="w-full flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-gray-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Calendar className="h-4 w-4" />
-                    <span>{t('sensorData.actions.scheduleReport')}</span>
-                  </div>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={handleOpenAlertModal}
-                  className="w-full flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-gray-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-                >
-                  <div className="flex items-center space-x-3">
-                    <AlertCircle className="h-4 w-4" />
-                    <span>{t('sensorData.actions.alertSettings')}</span>
-                  </div>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={handleOpenWeatherModal}
-                  className="w-full flex items-center justify-between p-3 bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-gray-300 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Cloud className="h-4 w-4" />
-                    <span>{t('sensorData.actions.currentWeather')}</span>
-                  </div>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
+            <div className="bg-white/[0.03] rounded-xl border border-white/5 p-4">
+              <h3 className="text-sm font-semibold text-slate-200 mb-3">{t('sensorData.actions.title')}</h3>
+              <div className="space-y-2">
+                {[
+                  { onClick: handleExportData, icon: Download, label: t('sensorData.filter.export'), color: 'text-cyan-400 bg-cyan-500/10 hover:bg-cyan-500/20' },
+                  { onClick: () => {}, icon: Calendar, label: t('sensorData.actions.scheduleReport'), color: 'text-slate-400 bg-white/5 hover:bg-white/10' },
+                  { onClick: () => {}, icon: AlertCircle, label: t('sensorData.actions.alertSettings'), color: 'text-slate-400 bg-white/5 hover:bg-white/10' },
+                  { onClick: () => {}, icon: Cloud, label: t('sensorData.actions.currentWeather'), color: 'text-slate-400 bg-white/5 hover:bg-white/10' },
+                ].map((action) => (
+                  <button
+                    key={action.label}
+                    onClick={action.onClick}
+                    className={`w-full flex items-center justify-between p-2.5 rounded-lg transition-colors text-sm ${action.color}`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <action.icon className="h-4 w-4" />
+                      <span>{action.label}</span>
+                    </div>
+                    <ChevronRight className="h-3.5 w-3.5 opacity-50" />
+                  </button>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
-      {isScheduleModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-auto shadow-xl">
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">{t('sensorData.modals.schedule.title')}</h3>
-            <form onSubmit={handleScheduleSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="scheduleEmail" className="block text-slate-700 dark:text-gray-300 text-sm font-medium mb-1">{t('sensorData.modals.schedule.emailLabel')}</label>
-                <input
-                  type="email"
-                  id="scheduleEmail"
-                  value={scheduleEmail}
-                  onChange={(e) => setScheduleEmail(e.target.value)}
-                  placeholder="contoh@email.com"
-                  className="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="scheduleFrequency" className="block text-slate-700 dark:text-gray-300 text-sm font-medium mb-1">{t('sensorData.modals.schedule.frequencyLabel')}</label>
-                <select
-                  id="scheduleFrequency"
-                  value={scheduleFrequency}
-                  onChange={(e) => setScheduleFrequency(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                >
-                  <option value="daily">{t('sensorData.modals.schedule.daily')}</option>
-                  <option value="weekly">{t('sensorData.modals.schedule.weekly')}</option>
-                  <option value="monthly">{t('sensorData.modals.schedule.monthly')}</option>
-                </select>
-              </div>
-              <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={handleCloseScheduleModal}
-                  className="px-4 py-2 bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors"
-                >
-                  {t('sensorData.modals.schedule.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors"
-                >
-                  {t('sensorData.modals.schedule.submit')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {isAlertModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-auto shadow-xl">
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">{t('sensorData.modals.alert.title')}</h3>
-            <form onSubmit={handleAlertSubmit} className="space-y-4">
-              <div>
-                <label htmlFor="alertThreshold" className="block text-slate-700 dark:text-gray-300 text-sm font-medium mb-1">{t('sensorData.modals.alert.thresholdLabel')}</label>
-                <select
-                  id="alertThreshold"
-                  value={alertThreshold}
-                  onChange={(e) => setAlertThreshold(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                >
-                  <option value="low">{t('sensorData.filter.low')}</option>
-                  <option value="medium">{t('sensorData.filter.medium')}</option>
-                  <option value="high">{t('sensorData.filter.high')}</option>
-                </select>
-              </div>
-              <div>
-                <label htmlFor="alertMethod" className="block text-slate-700 dark:text-gray-300 text-sm font-medium mb-1">{t('sensorData.modals.alert.methodLabel')}</label>
-                <select
-                  id="alertMethod"
-                  value={alertMethod}
-                  onChange={(e) => setAlertMethod(e.target.value)}
-                  className="w-full bg-slate-50 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-900 dark:text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                >
-                  <option value="email">{t('sensorData.modals.alert.email')}</option>
-                  <option value="sms">{t('sensorData.modals.alert.sms')}</option>
-                </select>
-              </div>
-              <div className="flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={handleCloseAlertModal}
-                  className="px-4 py-2 bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors"
-                >
-                  {t('sensorData.modals.alert.cancel')}
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 transition-colors"
-                >
-                  {t('sensorData.modals.alert.save')}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {isWeatherModalOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-auto shadow-xl">
-            <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-4">{t('sensorData.modals.weather.title')}</h3>
-            {isWeatherLoading ? (
-              <div className="text-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-cyan-600 dark:text-cyan-400 mx-auto mb-3" />
-                <p className="text-slate-500 dark:text-gray-400">{t('sensorData.weather.loading')}</p>
-              </div>
-            ) : weatherError ? (
-              <div className="text-center py-8">
-                <AlertCircle className="h-8 w-8 text-red-500 dark:text-red-400 mx-auto mb-3" />
-                <p className="text-red-500 dark:text-red-400">{t('sensorData.weather.error')} {weatherError}</p>
-              </div>
-            ) : weatherData ? (
-              <div className="space-y-4">
-                <div className="text-center">
-                  <p className="text-slate-500 dark:text-gray-400 text-sm">{t('sensorData.reports.location')}: {weatherData?.current?.name}</p>
-                  <div className="text-5xl font-bold text-slate-900 dark:text-white mt-2">{Math.round(weatherData?.current?.main?.temp || 0)}°C</div>
-                  <p className="text-slate-500 dark:text-gray-400 text-lg">{weatherData?.current?.weather?.[0]?.description}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4 text-center">
-                  <div>
-                    <Droplets className="h-6 w-6 text-blue-500 dark:text-blue-400 mx-auto mb-1" />
-                    <p className="text-lg font-semibold text-slate-900 dark:text-white">{weatherData?.current?.main?.humidity}%</p>
-                    <p className="text-xs text-slate-500 dark:text-gray-400">{t('sensorData.weather.humidity')}</p>
-                  </div>
-                  <div>
-                    <Wind className="h-6 w-6 text-green-500 dark:text-green-400 mx-auto mb-1" />
-                    <p className="text-lg font-semibold text-slate-900 dark:text-white">{weatherData?.current?.wind?.speed} m/s</p>
-                    <p className="text-xs text-slate-500 dark:text-gray-400">{t('sensorData.weather.wind')}</p>
-                  </div>
-                  <div>
-                    <Thermometer className="h-6 w-6 text-orange-500 dark:text-orange-400 mx-auto mb-1" />
-                    <p className="text-lg font-semibold text-slate-900 dark:text-white">{weatherData?.current?.main?.pressure} hPa</p>
-                    <p className="text-xs text-slate-500 dark:text-gray-400">{t('sensorData.weather.pressure')}</p>
-                  </div>
-                  <div>
-                    <Eye className="h-6 w-6 text-purple-500 dark:text-purple-400 mx-auto mb-1" />
-                    <p className="text-lg font-semibold text-slate-900 dark:text-white">{weatherData?.current?.visibility ? weatherData.current.visibility / 1000 : 'N/A'} km</p>
-                    <p className="text-xs text-slate-500 dark:text-gray-400">{t('sensorData.weather.visibility')}</p>
-                  </div>
-                  <div>
-                    <Clock className="h-6 w-6 text-yellow-500 dark:text-yellow-400 mx-auto mb-1" />
-                    <p className="text-lg font-semibold text-slate-900 dark:text-white">{weatherData?.current?.sys?.sunrise ? format(new Date(weatherData.current.sys.sunrise * 1000), 'HH:mm') : 'N/A'}</p>
-                    <p className="text-xs text-slate-500 dark:text-gray-400">{t('sensorData.weather.sunrise')}</p>
-                  </div>
-                  <div>
-                    <Clock className="h-6 w-6 text-yellow-500 dark:text-yellow-400 mx-auto mb-1" />
-                    <p className="text-lg font-semibold text-slate-900 dark:text-white">{weatherData?.current?.sys?.sunset ? format(new Date(weatherData.current.sys.sunset * 1000), 'HH:mm') : 'N/A'}</p>
-                    <p className="text-xs text-slate-500 dark:text-gray-400">{t('sensorData.weather.sunset')}</p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <AlertCircle className="h-8 w-8 text-slate-400 dark:text-gray-400 mx-auto mb-3" />
-                <p className="text-slate-500 dark:text-gray-400">{t('sensorData.weather.unavailable')}</p>
-              </div>
-            )}
-            <div className="flex justify-end mt-6">
-              <button
-                type="button"
-                onClick={handleCloseWeatherModal}
-                className="px-4 py-2 bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-white rounded-lg hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors"
-              >
-                {t('sensorData.modals.weather.close')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
