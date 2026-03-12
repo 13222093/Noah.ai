@@ -422,14 +422,14 @@ export function BottomTile() {
               </div>
               <div className="grid grid-cols-5 gap-2">
                 {statCards.map((card) => (
-                  <div key={card.label} className={cn('rounded-lg border border-white/5 p-2.5 space-y-1', card.bg)}>
+                  <div key={card.label} className={cn('rounded-lg border border-white/5 border-l-2 p-2.5 space-y-1', card.bg, card.color.replace('text-', 'border-l-'))}>
                     <div className="flex items-center justify-between">
                       <card.icon size={14} className={card.color} />
                       <span className={cn('text-[8px] font-semibold px-1.5 py-0.5 rounded-full', card.badgeColor)}>{card.badge}</span>
                     </div>
-                    <p className="text-xl font-bold text-slate-200">{card.value}</p>
-                    <p className="text-[10px] text-slate-400 leading-tight">{card.label}</p>
-                    {card.sub && <p className="text-[9px] text-slate-600">{card.sub}</p>}
+                    <p className="text-xl font-bold text-white">{card.value}</p>
+                    <p className={cn('text-[10px] font-medium leading-tight', card.color)}>{card.label}</p>
+                    {card.sub && <p className="text-[9px] text-slate-400">{card.sub}</p>}
                   </div>
                 ))}
               </div>
