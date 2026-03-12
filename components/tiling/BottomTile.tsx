@@ -298,33 +298,36 @@ export function BottomTile() {
                 const almostFull = evacLocations.filter((l: any) => l.capacity_total > 0 && (l.capacity_current / l.capacity_total) >= 0.7).length;
                 return (
                   <div className="flex-1 grid grid-cols-4 gap-1.5">
-                    <div className="rounded border border-white/5 bg-white/[0.03] px-2 py-1 flex items-center justify-between">
+                    <div className="rounded border border-white/5 border-l-2 border-l-blue-500 bg-blue-500/5 px-2 py-1 flex items-center justify-between">
                       <div>
-                        <p className="text-[8px] text-slate-600 uppercase leading-tight">Total Lokasi</p>
-                        <p className="text-sm font-bold text-blue-400">{total}</p>
+                        <p className="text-[8px] text-blue-300 font-medium uppercase leading-tight">Total Lokasi</p>
+                        <p className="text-sm font-bold text-white">{total}</p>
                       </div>
-                      <Shield size={12} className="text-blue-400/50" />
+                      <Shield size={12} className="text-blue-400/70" />
                     </div>
-                    <div className="rounded border border-white/5 bg-white/[0.03] px-2 py-1 flex items-center justify-between">
+                    <div className="rounded border border-white/5 border-l-2 border-l-emerald-500 bg-emerald-500/5 px-2 py-1 flex items-center justify-between">
                       <div>
-                        <p className="text-[8px] text-slate-600 uppercase leading-tight">Slot Tersedia</p>
-                        <p className="text-sm font-bold text-emerald-400">{available}</p>
+                        <p className="text-[8px] text-emerald-300 font-medium uppercase leading-tight">Slot Tersedia</p>
+                        <p className="text-sm font-bold text-white">{available}</p>
                       </div>
-                      <Users size={12} className="text-emerald-400/50" />
+                      <Users size={12} className="text-emerald-400/70" />
                     </div>
-                    <div className="rounded border border-white/5 bg-white/[0.03] px-2 py-1 flex items-center justify-between">
+                    <div className="rounded border border-white/5 border-l-2 border-l-amber-500 bg-amber-500/5 px-2 py-1 flex items-center justify-between">
                       <div>
-                        <p className="text-[8px] text-slate-600 uppercase leading-tight">Hampir Penuh</p>
-                        <p className="text-sm font-bold text-amber-400">{almostFull}</p>
+                        <p className="text-[8px] text-amber-300 font-medium uppercase leading-tight">Hampir Penuh</p>
+                        <p className="text-sm font-bold text-white">{almostFull}</p>
                       </div>
-                      <AlertTriangle size={12} className="text-amber-400/50" />
+                      <AlertTriangle size={12} className="text-amber-400/70" />
                     </div>
-                    <div className="rounded border border-white/5 bg-white/[0.03] px-2 py-1 flex items-center justify-between">
+                    <div className="rounded border border-white/5 border-l-2 border-l-cyan-500 bg-cyan-500/5 px-2 py-1 flex items-center justify-between">
                       <div>
-                        <p className="text-[8px] text-slate-600 uppercase leading-tight">Status</p>
-                        <p className="text-sm font-bold text-cyan-400">Live</p>
+                        <p className="text-[8px] text-cyan-300 font-medium uppercase leading-tight">Status</p>
+                        <p className="text-sm font-bold text-cyan-400 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                          Live
+                        </p>
                       </div>
-                      <Clock size={12} className="text-cyan-400/50" />
+                      <Clock size={12} className="text-cyan-400/70" />
                     </div>
                   </div>
                 );
@@ -352,27 +355,30 @@ export function BottomTile() {
                       <div
                         key={loc.id || i}
                         onClick={() => setSelectedEvacLocation(loc)}
-                        className="rounded-md bg-white/[0.03] border border-white/5 p-2.5 space-y-1.5 hover:bg-white/[0.05] transition-colors cursor-pointer"
+                        className={cn(
+                          'rounded-md bg-white/[0.03] border border-white/5 p-2.5 space-y-1.5 hover:bg-white/[0.06] transition-colors cursor-pointer border-l-2',
+                          pct >= 90 ? 'border-l-red-500' : pct >= 70 ? 'border-l-orange-500' : 'border-l-emerald-500'
+                        )}
                       >
                         <div className="flex items-start justify-between gap-1">
-                          <p className="text-[11px] font-semibold text-slate-200 leading-tight">{loc.name}</p>
+                          <p className="text-[11px] font-semibold text-white leading-tight">{loc.name}</p>
                           <span className={cn('text-[9px] font-medium px-1.5 py-0.5 rounded-full shrink-0', statusColor)}>
                             {loc.operational_status || 'N/A'}
                           </span>
                         </div>
-                        <p className="text-[10px] text-slate-500 flex items-center gap-1">
-                          <MapPin size={9} className="shrink-0" />
+                        <p className="text-[10px] text-slate-400 flex items-center gap-1">
+                          <MapPin size={9} className="shrink-0 text-cyan-500/70" />
                           <span className="truncate">{loc.address || '--'}</span>
                         </p>
                         {/* Capacity bar */}
                         <div className="space-y-0.5">
                           <div className="flex items-center justify-between text-[10px]">
-                            <span className="text-slate-500 flex items-center gap-0.5">
+                            <span className="text-slate-400 flex items-center gap-0.5">
                               <Users size={9} /> Kapasitas
                             </span>
-                            <span className="text-slate-300 font-medium">{loc.capacity_current}/{loc.capacity_total}</span>
+                            <span className="text-white font-medium">{loc.capacity_current}/{loc.capacity_total}</span>
                           </div>
-                          <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                             <div className={cn('h-full rounded-full transition-all', barColor)} style={{ width: `${Math.min(pct, 100)}%` }} />
                           </div>
                         </div>
