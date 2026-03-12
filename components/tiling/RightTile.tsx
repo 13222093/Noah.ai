@@ -19,7 +19,6 @@ const RIGHT_TABS: SegmentedTab[] = [
 
 const SEE_FULL_ROUTES: Record<string, string> = {
   alerts: '/alerts',
-  weather: '/weather-forecast',
 };
 
 // AQI level mapping (OpenWeatherMap 1-5 scale)
@@ -288,6 +287,46 @@ export function RightTile() {
                 <p className="text-2xl font-bold text-slate-600">--</p>
                 <p className="text-xs text-slate-500">Pilih lokasi untuk melihat AQI</p>
               </div>
+            )}
+
+            {/* DIVIDER */}
+            <div className="border-t border-white/5 my-1" />
+
+            {/* 5-DAY FORECAST */}
+            <h4 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+              <BarChart3 size={10} className="text-emerald-400" /> Prakiraan 5 Hari
+            </h4>
+            {weatherData?.daily && weatherData.daily.length > 0 ? (
+              <div className="space-y-1">
+                {weatherData.daily.slice(0, 5).map((day: any, i: number) => {
+                  const dt = new Date(day.dt * 1000);
+                  const dayName = dt.toLocaleDateString('id-ID', { weekday: 'short' });
+                  const desc = day.weather?.[0]?.description || '--';
+                  const iconCode = day.weather?.[0]?.icon;
+                  const hi = Math.round(day.main?.temp_max ?? day.main?.temp ?? 0);
+                  const lo = Math.round(day.main?.temp_min ?? day.main?.temp ?? 0);
+                  return (
+                    <div key={i} className="flex items-center gap-2 bg-white/5 rounded-lg px-2 py-1.5">
+                      <span className="text-xs font-semibold text-slate-300 w-8">{dayName}</span>
+                      {iconCode ? (
+                        <img
+                          src={`https://openweathermap.org/img/wn/${iconCode}.png`}
+                          alt={desc}
+                          className="w-7 h-7 -my-1"
+                        />
+                      ) : (
+                        <Cloud size={16} className="text-slate-500 w-7" />
+                      )}
+                      <span className="text-[10px] text-slate-400 flex-1 capitalize truncate">{desc}</span>
+                      <span className="text-xs text-slate-300 font-medium whitespace-nowrap">
+                        {hi}° / {lo}°
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-[10px] text-slate-600">Pilih lokasi untuk melihat prakiraan</p>
             )}
           </div>
         );
