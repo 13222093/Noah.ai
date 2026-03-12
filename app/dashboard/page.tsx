@@ -14,7 +14,7 @@ export default async function DashboardPage({
     searchParams: Promise<{ layout?: string }>;
 }) {
     const params = await searchParams;
-    const useTiling = params.layout === 'tiling';
+    const useTiling = params.layout !== 'classic'; // Tiling is default, use ?layout=classic for old view
 
     // Fetch BMKG earthquake data
     let latestQuake: BmkgGempaData | null = null;
