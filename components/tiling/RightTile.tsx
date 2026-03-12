@@ -13,15 +13,13 @@ import type { SegmentedTab } from './SegmentedControl';
 
 const RIGHT_TABS: SegmentedTab[] = [
   { id: 'alerts', label: 'Alerts', icon: AlertTriangle },
-  { id: 'weather', label: 'Weather', icon: Cloud },
-  { id: 'aqi', label: 'AQI', icon: Wind },
+  { id: 'weather', label: 'Cuaca', icon: Cloud },
   { id: 'ai', label: 'AI Chat', icon: Bot },
 ];
 
 const SEE_FULL_ROUTES: Record<string, string> = {
   alerts: '/alerts',
-  weather: '/current-weather',
-  aqi: '/current-weather',
+  weather: '/weather-forecast',
 };
 
 // AQI level mapping (OpenWeatherMap 1-5 scale)
@@ -206,9 +204,10 @@ export function RightTile() {
 
       case 'weather':
         return (
-          <div className="p-3 space-y-3">
+          <div className="p-3 space-y-3 overflow-y-auto">
+            {/* WEATHER SECTION */}
             {weatherLoading ? (
-              <div className="text-center py-6 text-xs text-slate-500">Loading weather...</div>
+              <div className="text-center py-4 text-xs text-slate-500">Loading weather...</div>
             ) : weatherData?.current ? (
               <>
                 <div className="text-center py-2">
@@ -242,53 +241,52 @@ export function RightTile() {
                 </div>
               </>
             ) : (
-              <div className="text-center py-6">
+              <div className="text-center py-4">
                 <p className="text-3xl font-light text-slate-200">--°C</p>
-                <p className="text-xs text-slate-500 mt-1">Select a location to see weather</p>
+                <p className="text-xs text-slate-500 mt-1">Pilih lokasi untuk melihat cuaca</p>
               </div>
             )}
-          </div>
-        );
 
-      case 'aqi':
-        return (
-          <div className="p-3 space-y-3">
+            {/* DIVIDER */}
+            <div className="border-t border-white/5 my-1" />
+
+            {/* AQI SECTION */}
+            <h4 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider">Kualitas Udara (AQI)</h4>
             {aqiLoading ? (
-              <div className="text-center py-6 text-xs text-slate-500">Loading AQI...</div>
+              <div className="text-center py-3 text-xs text-slate-500">Loading AQI...</div>
             ) : aqiInfo ? (
               <>
-                <div className="text-center py-2">
-                  <p className={`text-4xl font-bold ${aqiInfo.color}`}>{aqiValue}</p>
-                  <p className={`text-sm font-medium mt-1 ${aqiInfo.color}`}>{aqiInfo.label}</p>
-                  <p className="text-[10px] text-slate-500 mt-1">{aqiInfo.recommendation}</p>
+                <div className="flex items-center gap-3 bg-white/5 rounded-lg p-2">
+                  <p className={`text-2xl font-bold ${aqiInfo.color}`}>{aqiValue}</p>
+                  <div>
+                    <p className={`text-xs font-medium ${aqiInfo.color}`}>{aqiInfo.label}</p>
+                    <p className="text-[10px] text-slate-500">{aqiInfo.recommendation}</p>
+                  </div>
                 </div>
                 {aqiComponents && (
-                  <div className="space-y-1.5">
-                    <h4 className="text-[10px] font-semibold text-slate-500 uppercase">Pollutants</h4>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      {[
-                        { key: 'pm2_5', label: 'PM2.5', unit: 'µg/m³' },
-                        { key: 'pm10', label: 'PM10', unit: 'µg/m³' },
-                        { key: 'no2', label: 'NO₂', unit: 'µg/m³' },
-                        { key: 'o3', label: 'O₃', unit: 'µg/m³' },
-                        { key: 'so2', label: 'SO₂', unit: 'µg/m³' },
-                        { key: 'co', label: 'CO', unit: 'µg/m³' },
-                      ].map(({ key, label, unit }) => (
-                        <div key={key} className="bg-white/5 rounded p-2">
-                          <p className="text-slate-600 text-[10px]">{label}</p>
-                          <p className="text-slate-400">
-                            {(aqiComponents as any)[key]?.toFixed(1) ?? '--'} {unit}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+                  <div className="grid grid-cols-3 gap-1.5 text-xs">
+                    {[
+                      { key: 'pm2_5', label: 'PM2.5' },
+                      { key: 'pm10', label: 'PM10' },
+                      { key: 'no2', label: 'NO₂' },
+                      { key: 'o3', label: 'O₃' },
+                      { key: 'so2', label: 'SO₂' },
+                      { key: 'co', label: 'CO' },
+                    ].map(({ key, label }) => (
+                      <div key={key} className="bg-white/5 rounded p-1.5 text-center">
+                        <p className="text-slate-600 text-[9px]">{label}</p>
+                        <p className="text-slate-400 text-[11px]">
+                          {(aqiComponents as any)[key]?.toFixed(1) ?? '--'}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 )}
               </>
             ) : (
-              <div className="text-center py-6">
-                <p className="text-4xl font-bold text-slate-600">--</p>
-                <p className="text-xs text-slate-500 mt-1">Select a location to see AQI</p>
+              <div className="flex items-center gap-3 bg-white/5 rounded-lg p-2">
+                <p className="text-2xl font-bold text-slate-600">--</p>
+                <p className="text-xs text-slate-500">Pilih lokasi untuk melihat AQI</p>
               </div>
             )}
           </div>
