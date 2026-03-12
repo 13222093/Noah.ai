@@ -7,6 +7,8 @@ import {
   FunctionDeclaration,
   SchemaType,
   Content,
+  HarmCategory,
+  HarmBlockThreshold,
 } from '@google/generative-ai';
 import {
   WaterLevelPost,
@@ -105,6 +107,12 @@ export async function POST(request: Request) {
     const model = genAI.getGenerativeModel({
       model: 'gemini-2.5-flash',
       tools: tools,
+      safetySettings: [
+        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+      ],
       systemInstruction:
         "Anda adalah asisten noah.ai. Tugas Anda adalah menjawab pertanyaan terkait banjir dan cuaca menggunakan tools yang tersedia. Aturan: 1. Jika nama lokasi disebutkan (misal: 'cuaca di Jakarta'), Anda WAJIB menggunakan tool `geocodeLocation` lalu `fetchWeatherData`. JANGAN PERNAH membalas dengan teks konfirmasi seperti 'Baik, saya akan cek'. Langsung panggil tool-nya. 2. Jika lokasi tidak spesifik ('di sekitar saya'), Anda WAJIB memanggil `requestUserLocation`. 3. Selalu gunakan tools jika memungkinkan.",
     });

@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
+import { checkRateLimit, getClientIP } from '@/lib/simple-rate-limit';
 
 export async function POST(request: Request) {
+  const ip = getClientIP(request.headers);
+  const rl = checkRateLimit(`predict:${ip}`);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+  }
+
   const ML_API_URL = process.env.ML_API_URL || 'http://127.0.0.1:8000';
 
   try {

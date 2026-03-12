@@ -115,10 +115,10 @@ YOLOv8 Detection ┘        (smart-alert)      (0.0–1.0)     (Twilio)
 | **Next.js 16** (App Router) | React framework with server/client components |
 | **TypeScript 5.2** | Type safety across the codebase |
 | **Tailwind CSS 3.3** | Utility-first styling with custom dark theme tokens |
-| **Leaflet + react-leaflet 4** | Interactive flood maps with 5+ toggleable layers |
+| **Leaflet + react-leaflet 4** | Interactive flood maps with 5 toggleable layers (Radar ↔ AQI mutually exclusive) |
 | **Zustand 5** | Global state (map layers, location, UI) |
 | **Framer Motion 11** | Animations (panel transitions, alerts, mobile sheet) |
-| **Radix UI** | Accessible component primitives (16 packages) |
+| **Radix UI** | Accessible component primitives (19 packages) |
 | **Recharts 3** | Data visualization and statistics charts |
 | **React Hook Form + Zod** | Form validation (flood reports, SMS subscription) |
 | **React Query** | Server state management and caching |
@@ -130,7 +130,7 @@ YOLOv8 Detection ┘        (smart-alert)      (0.0–1.0)     (Twilio)
 |---|---|
 | **Next.js API Routes** | 32 server-side endpoints |
 | **Supabase** | PostgreSQL database (flood reports, SMS subscribers, logs) |
-| **Google Gemini 2.5 Flash** | AI chatbot with function calling (7 tools) |
+| **Google Gemini 2.5 Flash** | AI chatbot with function calling (8 tools); safety filters on all AI routes |
 | **Twilio** | SMS flood alerts for rural communities |
 | **Sentry** | Error monitoring and observability |
 
@@ -154,7 +154,7 @@ The default dashboard uses a **CSS Grid tiling window manager** layout:
 - **LeftTile (200px)** — Tabs: AI Forecast, Map Layers (5 toggles), Reports (with emergency contacts), SMS status, Settings
 - **Master Tile** — Full Leaflet FloodMap with radar overlay, AQI bubbles, flood zones, evacuation pins, prediction layer
 - **RightTile (280px)** — Tabs: Alert Feed (severity-filterable), Weather + AQI (OpenWeatherMap), AI Chat (Gemini)
-- **BottomTile (resizable)** — 7 tabs: Evacuation, CCTV AI, Berita Regional, Data Sensor, Statistics, Infrastructure, Earthquake
+- **BottomTile (resizable)** — 7 tabs: Evacuation (with click-to-expand detail modal: services, facilities, phone contact, Google Maps link), CCTV AI, Berita Regional, Data Sensor, Statistics, Infrastructure, Earthquake
 - **DragDivider** — Resize bottom tile height (40–400px, persisted to localStorage)
 - **MobileSheet** — Swipe-up drawer for mobile (<768px) with tabbed content
 
@@ -162,11 +162,12 @@ The default dashboard uses a **CSS Grid tiling window manager** layout:
 
 | Feature | Technology | Description |
 |---|---|---|
-| **Noah AI Chatbot** | Gemini 2.5 Flash | 7 function-calling tools: water levels, pump status, BMKG earthquake, PetaBencana reports, geocoding, weather, notifications |
+| **Noah AI Chatbot** | Gemini 2.5 Flash | 8 function-calling tools: water levels, pump status, BMKG earthquake, PetaBencana reports, geocoding, weather, notifications, user location |
 | **Flood Prediction** | LSTM + Physics | 3 modes: Auto (live data), Manual input, Demo Scenario |
 | **Visual Verification** | YOLOv8 | Upload image → flood probability (0–100%) + detected objects |
 | **Smart Alert** | Cross-validation | LSTM + YOLO → confidence score → auto SMS |
-| **Flood Risk Forecast** | LeftTile widget | Inline prediction in tiling dashboard |
+| **Flood Risk Forecast** | LeftTile widget | Client-side risk scoring: 0.5×LSTM + 0.3×rainfall + 0.2×CCTV. Station rankings with cascade delay estimates (Katulampa→Manggarai ~6h, Depok→Manggarai ~3h). |
+| **AI Safety** | Gemini safety filters | All 3 Gemini endpoints (chatbot, flood-analysis, ai-alerts) enforce `BLOCK_MEDIUM_AND_ABOVE` on harassment, hate speech, sexual, and dangerous content. |
 
 ### 🗺️ Interactive Flood Map
 
@@ -288,6 +289,12 @@ Full i18n with `LanguageContext` — English and Bahasa Indonesia. Language pers
 | `/api/preferences` | User preferences storage |
 | `/api/flood-reports` | Flood report CRUD |
 | `/api/analysis` | General analysis endpoint |
+
+### ML Service Admin
+
+| Endpoint | Description |
+|---|---|
+| `POST /admin/set-demo-mode` | Toggle ML demo mode (requires `ADMIN_SECRET` in request body) |
 
 ---
 
@@ -539,7 +546,7 @@ Noah AI uses a **dark, glassmorphic command center** aesthetic with CSS custom p
 | Infrastructure Data | ⚠️ Mock data | Water levels and pump status generated from mock-data functions |
 | Supabase Data | ✅ With fallback | Falls back to mock data (50 reports) if Supabase has no records |
 | SMS Alerts | ✅ Graceful | Works with Twilio; skips silently if not configured |
-| AI Chatbot | ✅ Rate-limited | IP-based rate limiting to prevent abuse |
+| AI Chatbot | ✅ Rate-limited | IP-based rate limiting (20 req/min) on chatbot, flood-analysis, ai-alerts, and predict endpoints |
 
 ---
 
