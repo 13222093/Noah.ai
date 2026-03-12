@@ -58,12 +58,17 @@ export function TilingStatusBar() {
   return (
     <header className="tiling-status-bar">
       {/* Left: Brand */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2.5">
         <div className="tiling-brand-mark">
           <span className="tiling-brand-letter">N</span>
         </div>
-        <span className="font-heading text-[13px] font-semibold text-white tracking-wider">
-          NOAH.AI
+        <span className="font-heading text-[13px] font-bold tracking-wide bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-500 bg-clip-text text-transparent">
+          Noah AI
+        </span>
+        <div className="w-px h-3.5 bg-white/10" />
+        <span className="flex items-center gap-1 text-[9px] text-emerald-400 font-medium">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          LIVE
         </span>
       </div>
 
@@ -77,7 +82,7 @@ export function TilingStatusBar() {
               'flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-all border',
               btn.active
                 ? btn.activeColor
-                : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300 hover:bg-white/5'
+                : 'bg-transparent text-slate-400 border-transparent hover:text-white hover:bg-white/5'
             )}
             title={btn.label}
           >
@@ -96,7 +101,7 @@ export function TilingStatusBar() {
       {/* Right: Time + Controls */}
       <div className="flex items-center gap-1.5">
         {/* Live clock */}
-        <span className="font-mono text-[11px] text-slate-500 tabular-nums mr-1">
+        <span className="font-mono text-[11px] text-slate-400 tabular-nums mr-1">
           {currentTime}
         </span>
 
@@ -109,7 +114,7 @@ export function TilingStatusBar() {
             const currentIndex = themes.indexOf(theme);
             setTheme(themes[(currentIndex + 1) % themes.length]);
           }}
-          className="p-1 text-slate-500 hover:text-slate-300 transition-colors rounded"
+          className="p-1 text-slate-400 hover:text-white transition-colors rounded"
           title="Toggle theme"
         >
           <ThemeIcon className="w-3.5 h-3.5" />
