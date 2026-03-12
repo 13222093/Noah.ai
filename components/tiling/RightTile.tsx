@@ -7,7 +7,7 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useWeatherData } from '@/hooks/useWeatherData';
 import { useAirPollutionData } from '@/hooks/useAirPollutionData';
 import { useAppStore } from '@/lib/store';
-import { AlertTriangle, Activity, Cloud, Wind, BarChart3, Clock, Bot, Send, Loader2, Droplets, Search } from 'lucide-react';
+import { AlertTriangle, Activity, Cloud, Wind, BarChart3, Clock, Bot, Send, Loader2, Droplets, Search, Info, MapPin, TrendingUp, Navigation, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SegmentedTab } from './SegmentedControl';
 
@@ -138,10 +138,12 @@ export function RightTile() {
   }, [chatLoading]);
 
   const chatSuggestions = [
-    'Status banjir Jakarta',
-    'Cuaca hari ini',
-    'Kondisi pompa',
-    'Info gempa terkini',
+    { text: 'Status banjir wilayah saya', icon: MapPin, color: 'text-cyan-400' },
+    { text: 'Prediksi cuaca hari ini', icon: Cloud, color: 'text-blue-400' },
+    { text: 'Tingkat risiko banjir', icon: AlertTriangle, color: 'text-amber-400' },
+    { text: 'Rekomendasi evakuasi', icon: Navigation, color: 'text-emerald-400' },
+    { text: 'Analisis trend 5 hari', icon: TrendingUp, color: 'text-purple-400' },
+    { text: 'Kondisi stasiun pompa', icon: Droplets, color: 'text-orange-400' },
   ];
 
   const renderContent = () => {
@@ -382,13 +384,37 @@ export function RightTile() {
                       ? 'bg-blue-600 text-white'
                       : 'bg-white/[0.06] border border-white/5 text-slate-300'
                   )}>
-                    {!msg.isUser && (
-                      <div className="flex items-center gap-1 mb-1">
-                        <Bot size={10} className="text-cyan-400" />
-                        <span className="text-[9px] font-semibold text-cyan-400">noah.ai</span>
+                    {!msg.isUser && msg.id === 'welcome' ? (
+                      /* Rich welcome message */
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-1.5">
+                          <Info size={12} className="text-cyan-400" />
+                          <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider">SISTEM INFO</span>
+                        </div>
+                        <p className="text-[12px] font-medium text-slate-200">
+                          👋 Selamat datang di Noah.ai Assistant!
+                        </p>
+                        <div className="space-y-0.5">
+                          <p className="text-[11px] text-slate-300 font-medium">Saya dapat membantu Anda menganalisis:</p>
+                          <ul className="space-y-0.5 pl-0.5">
+                            <li className="text-[11px] text-slate-400">• Status banjir real-time</li>
+                            <li className="text-[11px] text-slate-400">• Prediksi cuaca dan risiko</li>
+                            <li className="text-[11px] text-slate-400">• Rekomendasi tindakan darurat</li>
+                          </ul>
+                        </div>
                       </div>
+                    ) : !msg.isUser ? (
+                      /* Normal bot reply */
+                      <>
+                        <div className="flex items-center gap-1 mb-1">
+                          <Bot size={10} className="text-cyan-400" />
+                          <span className="text-[9px] font-semibold text-cyan-400">noah.ai</span>
+                        </div>
+                        <p className="whitespace-pre-wrap">{msg.text}</p>
+                      </>
+                    ) : (
+                      <p className="whitespace-pre-wrap">{msg.text}</p>
                     )}
-                    <p className="whitespace-pre-wrap">{msg.text}</p>
                   </div>
                 </div>
               ))}
@@ -407,32 +433,39 @@ export function RightTile() {
               <div ref={chatEndRef} />
             </div>
 
-            {/* Suggestions (only show if few messages) */}
+            {/* Quick Action Cards (show only initially) */}
             {chatMessages.length <= 1 && (
-              <div className="px-2 pb-1.5 flex flex-wrap gap-1">
-                {chatSuggestions.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => sendChat(s)}
-                    className="text-[10px] px-2 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 hover:text-cyan-300 hover:border-cyan-500/30 transition-colors"
-                  >
-                    {s}
-                  </button>
-                ))}
+              <div className="px-2 pb-2 space-y-1.5">
+                <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1 px-1">
+                  <Zap size={9} className="text-amber-400" /> AKSI CEPAT
+                </p>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {chatSuggestions.map((s) => (
+                    <button
+                      key={s.text}
+                      onClick={() => sendChat(s.text)}
+                      className="flex items-center gap-2 text-left bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 hover:border-cyan-500/20 rounded-lg px-2.5 py-2 transition-all group"
+                    >
+                      <s.icon size={14} className={cn(s.color, 'shrink-0 opacity-70 group-hover:opacity-100 transition-opacity')} />
+                      <span className="text-[10px] text-slate-400 group-hover:text-slate-200 transition-colors leading-tight">{s.text}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
 
-            {/* Input */}
-            <div className="shrink-0 border-t border-white/5 p-2">
+            {/* Input + Status */}
+            <div className="shrink-0 border-t border-white/5 p-2 space-y-1">
               <div className="flex items-center gap-1.5">
                 <input
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(chatInput); } }}
-                  placeholder="Tanya noah..."
+                  placeholder="Tanyakan tentang kondisi banjir, cuaca..."
                   disabled={chatLoading}
                   className="flex-1 bg-white/5 rounded-lg px-2.5 py-1.5 text-xs text-slate-300 placeholder:text-slate-600 outline-none focus:ring-1 focus:ring-cyan-500/30 disabled:opacity-50"
                 />
+                <Activity size={14} className="text-slate-600 shrink-0" />
                 <button
                   onClick={() => sendChat(chatInput)}
                   disabled={chatLoading || !chatInput.trim()}
@@ -441,6 +474,10 @@ export function RightTile() {
                   {chatLoading ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
                 </button>
               </div>
+              <p className="text-center text-[8px] text-slate-600 flex items-center justify-center gap-1">
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                Terhubung ke sistem Noah.ai
+              </p>
             </div>
           </div>
         );
