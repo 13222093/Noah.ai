@@ -708,10 +708,10 @@ export function BottomTile() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Newspaper size={14} className="text-blue-400" />
-                  <span className="text-xs font-bold text-slate-200">Berita & Laporan Regional</span>
-                  <span className="text-[9px] text-slate-600">— Ringkasan AI dari berbagai sumber</span>
+                  <span className="text-xs font-bold text-white">Berita & Laporan Regional</span>
+                  <span className="text-[9px] text-slate-500">— Ringkasan AI dari berbagai sumber</span>
                 </div>
-                <span className="text-[10px] text-slate-500">{NEWS_ITEMS.length} artikel terbaru</span>
+                <span className="text-[10px] text-slate-400">{NEWS_ITEMS.length} artikel terbaru</span>
               </div>
 
               <div className="flex gap-2.5 overflow-x-auto pb-1" style={{ scrollbarWidth: 'thin' }}>
@@ -722,26 +722,26 @@ export function BottomTile() {
                     <div
                       key={item.id}
                       className={cn(
-                        'rounded-lg border p-3 space-y-2 shrink-0 w-[260px]',
-                        item.severity === 'high' ? 'border-red-500/20 bg-red-500/[0.03]'
-                          : item.severity === 'medium' ? 'border-yellow-500/20 bg-yellow-500/[0.03]'
-                          : 'border-white/5 bg-white/[0.02]',
+                        'rounded-lg border border-l-2 p-3 space-y-2 shrink-0 w-[260px]',
+                        item.severity === 'high' ? 'border-red-500/20 border-l-red-500 bg-red-500/[0.03]'
+                          : item.severity === 'medium' ? 'border-yellow-500/20 border-l-yellow-500 bg-yellow-500/[0.03]'
+                          : 'border-white/5 border-l-emerald-500 bg-white/[0.02]',
                       )}
                     >
                       {/* Source + badge */}
                       <div className="flex items-center justify-between">
                         <span className={cn('text-[9px] font-bold uppercase', item.sourceColor)}>{item.source}</span>
-                        <span className="text-[8px] px-1.5 py-0.5 rounded bg-white/5 text-slate-500">📍 {item.region}</span>
+                        <span className="text-[8px] px-1.5 py-0.5 rounded bg-white/5 text-slate-300">📍 {item.region}</span>
                       </div>
 
                       {/* Headline */}
-                      <p className="text-[11px] text-slate-200 leading-snug font-semibold line-clamp-2">{item.headline}</p>
+                      <p className="text-[11px] text-white leading-snug font-semibold line-clamp-2">{item.headline}</p>
 
                       {/* Time */}
-                      <div className="flex items-center gap-1 text-[9px] text-slate-500">
+                      <div className="flex items-center gap-1 text-[9px] text-slate-400">
                         <Clock size={9} />
                         <span>{item.time} WIB</span>
-                        <span className="text-slate-700">·</span>
+                        <span className="text-slate-500">·</span>
                         <span>{timeLabel}</span>
                       </div>
 
