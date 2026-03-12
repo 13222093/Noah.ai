@@ -36,7 +36,7 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
-  const isTilingMode = pathname === '/dashboard' && searchParams.get('layout') === 'tiling';
+  const isTilingMode = pathname === '/dashboard' && searchParams.get('layout') !== 'classic';
   const isLandingPage = pathname === '/';
   const isContactPage = pathname === '/contact';
 
