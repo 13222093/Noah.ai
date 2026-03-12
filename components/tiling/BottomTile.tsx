@@ -4,6 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { TilePanel } from './TilePanel';
 import { useDashboardData } from './DashboardDataContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useLanguage } from '@/src/context/LanguageContext';
 import { Waves, Activity, Search, ChevronDown, ChevronUp, ChevronRight, Shield, MapPin, Users, ExternalLink, BarChart3, Droplets, AlertCircle, TrendingUp, Gauge, Globe, Wrench, UserCheck, Video, Newspaper, Clock } from 'lucide-react';
 import type { SegmentedTab } from './SegmentedControl';
 import { cn } from '@/lib/utils';
@@ -21,6 +22,7 @@ const BOTTOM_TABS: SegmentedTab[] = [
 
 export function BottomTile() {
   const data = useDashboardData();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useLocalStorage('noah-bottom-tab', 'evacuation');
   const [waterSearch, setWaterSearch] = useState('');
   const [pumpSearch, setPumpSearch] = useState('');
@@ -63,7 +65,7 @@ export function BottomTile() {
     if (!data.pumpStatusData) return [];
     if (!pumpSearch) return data.pumpStatusData;
     return data.pumpStatusData.filter((p: any) =>
-      p.nama?.toLowerCase().includes(pumpSearch.toLowerCase()) ||
+      p.nama_infrastruktur?.toLowerCase().includes(pumpSearch.toLowerCase()) ||
       p.lokasi?.toLowerCase().includes(pumpSearch.toLowerCase()),
     );
   }, [data.pumpStatusData, pumpSearch]);
@@ -90,7 +92,7 @@ export function BottomTile() {
                 >
                   <div className="flex items-center gap-1.5">
                     <Waves size={13} className="text-cyan-400" />
-                    <span className="text-[11px] font-medium text-slate-300">Lihat Status Tinggi Air</span>
+                    <span className="text-[11px] font-medium text-slate-300">{t('infrastructure.viewWaterLevel')}</span>
                   </div>
                   {waterExpanded ? <ChevronUp size={12} className="text-slate-500" /> : <ChevronDown size={12} className="text-slate-500" />}
                 </button>
@@ -103,7 +105,7 @@ export function BottomTile() {
                         <input
                           value={waterSearch}
                           onChange={(e) => setWaterSearch(e.target.value)}
-                          placeholder="Cari pos air..."
+                          placeholder={t('infrastructure.searchWaterPost')}
                           className="w-full bg-white/5 rounded pl-6 pr-2 py-1 text-[11px] text-slate-300 placeholder:text-slate-600 border border-white/5 focus:border-blue-500/50 outline-none"
                         />
                       </div>
@@ -117,19 +119,31 @@ export function BottomTile() {
                     </div>
                     {/* Table body */}
                     <div className="flex-1 overflow-y-auto">
-                      {filteredWaterPosts.map((post: any, i: number) => (
-                        <div
-                          key={post.id || i}
-                          className="grid grid-cols-4 gap-1 px-3 py-1 text-[11px] border-b border-white/[0.03] hover:bg-white/[0.03] transition-colors"
-                        >
-                          <span className="text-slate-300 truncate font-medium">{post.name}</span>
-                          <span className="text-slate-400">{post.tinggi} m</span>
-                          <span className={cn('font-medium', statusColor(post.status))}>
-                            {post.status}
-                          </span>
-                          <span className="text-slate-600 text-[10px]">{post.lastUpdate || '--'}</span>
-                        </div>
-                      ))}
+                      {filteredWaterPosts.map((post: any, i: number) => {
+                        // Relative time helper
+                        const ts = post.timestamp;
+                        let ago = '--';
+                        if (ts) {
+                          const diffMs = Date.now() - new Date(ts).getTime();
+                          const mins = Math.floor(diffMs / 60000);
+                          if (mins < 1) ago = 'Baru saja';
+                          else if (mins < 60) ago = `${mins} menit yang lalu`;
+                          else ago = `${Math.floor(mins / 60)} jam yang lalu`;
+                        }
+                        return (
+                          <div
+                            key={post.id || i}
+                            className="grid grid-cols-4 gap-1 px-3 py-1 text-[11px] border-b border-white/[0.03] hover:bg-white/[0.03] transition-colors"
+                          >
+                            <span className="text-slate-300 truncate font-medium">{post.name}</span>
+                            <span className="text-slate-400 font-semibold">{post.water_level ?? '--'} {post.unit || 'm'}</span>
+                            <span className={cn('font-medium', statusColor(post.status))}>
+                              {post.status}
+                            </span>
+                            <span className="text-slate-600 text-[10px]">{ago}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </>
                 )}
@@ -144,7 +158,7 @@ export function BottomTile() {
                 >
                   <div className="flex items-center gap-1.5">
                     <Activity size={13} className="text-yellow-400" />
-                    <span className="text-[11px] font-medium text-slate-300">Lihat Status Pompa Banjir</span>
+                    <span className="text-[11px] font-medium text-slate-300">{t('infrastructure.viewPumpStatus')}</span>
                   </div>
                   {pumpExpanded ? <ChevronUp size={12} className="text-slate-500" /> : <ChevronDown size={12} className="text-slate-500" />}
                 </button>
@@ -157,7 +171,7 @@ export function BottomTile() {
                         <input
                           value={pumpSearch}
                           onChange={(e) => setPumpSearch(e.target.value)}
-                          placeholder="Cari pompa..."
+                          placeholder={t('infrastructure.searchPump')}
                           className="w-full bg-white/5 rounded pl-6 pr-2 py-1 text-[11px] text-slate-300 placeholder:text-slate-600 border border-white/5 focus:border-blue-500/50 outline-none"
                         />
                       </div>
@@ -175,32 +189,60 @@ export function BottomTile() {
                           key={pump.id || i}
                           className="grid grid-cols-3 gap-1 px-3 py-1 text-[11px] border-b border-white/[0.03] hover:bg-white/[0.03] transition-colors"
                         >
-                          <span className="text-slate-300 truncate font-medium">{pump.nama}</span>
+                          <span className="text-slate-300 truncate font-medium">{pump.nama_infrastruktur || pump.nama}</span>
                           <span className="text-slate-400 truncate">{pump.lokasi}</span>
                           <span>
-                            <span
-                              className={cn(
-                                'inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full',
-                                pump.status === 'Aktif'
-                                  ? 'bg-emerald-500/20 text-emerald-400'
-                                  : pump.status === 'Maintenance'
-                                  ? 'bg-yellow-500/20 text-yellow-400'
-                                  : 'bg-red-500/20 text-red-400',
-                              )}
-                            >
-                              <span className={cn(
-                                'w-1.5 h-1.5 rounded-full',
-                                pump.status === 'Aktif' ? 'bg-emerald-500' :
-                                pump.status === 'Maintenance' ? 'bg-yellow-500' : 'bg-red-500'
-                              )} />
-                              {pump.status}
-                            </span>
+                            {(() => {
+                              const st = pump.kondisi_bangunan || pump.status || 'N/A';
+                              return (
+                                <span
+                                  className={cn(
+                                    'inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded-full',
+                                    st === 'Aktif'
+                                      ? 'bg-emerald-500/20 text-emerald-400'
+                                      : st === 'Maintenance'
+                                      ? 'bg-yellow-500/20 text-yellow-400'
+                                      : 'bg-red-500/20 text-red-400',
+                                  )}
+                                >
+                                  <span className={cn(
+                                    'w-1.5 h-1.5 rounded-full',
+                                    st === 'Aktif' ? 'bg-emerald-500' :
+                                    st === 'Maintenance' ? 'bg-yellow-500' : 'bg-red-500'
+                                  )} />
+                                  {st}
+                                </span>
+                              );
+                            })()}
                           </span>
                         </div>
                       ))}
                     </div>
                   </>
                 )}
+              </div>
+            </div>
+            {/* Summary Stats — matches Floodzy */}
+            <div className="grid grid-cols-4 gap-2 px-3 py-2 border-t border-white/5 shrink-0">
+              <div className="bg-white/[0.03] rounded-lg p-2 text-center border border-white/5">
+                <p className="text-[9px] text-slate-500 uppercase">Pos Air Dipantau</p>
+                <p className="text-lg font-bold text-slate-200">{data.waterLevelPosts?.length || 0}</p>
+              </div>
+              <div className="bg-white/[0.03] rounded-lg p-2 text-center border border-white/5">
+                <p className="text-[9px] text-slate-500 uppercase">Total Pompa</p>
+                <p className="text-lg font-bold text-slate-200">{data.pumpStatusData?.length || 0}</p>
+              </div>
+              <div className="bg-white/[0.03] rounded-lg p-2 text-center border border-white/5">
+                <p className="text-[9px] text-slate-500 uppercase">Pompa Aktif</p>
+                <p className="text-lg font-bold text-emerald-400">
+                  {data.pumpStatusData?.filter((p: any) => (p.kondisi_bangunan || p.status) === 'Aktif').length || 0}
+                </p>
+              </div>
+              <div className="bg-white/[0.03] rounded-lg p-2 text-center border border-white/5">
+                <p className="text-[9px] text-slate-500 uppercase">Zona Rawan</p>
+                <p className="text-lg font-bold text-amber-400">
+                  {data.waterLevelPosts?.filter((p: any) => p.status !== 'Normal').length || 0}
+                </p>
               </div>
             </div>
           </div>
