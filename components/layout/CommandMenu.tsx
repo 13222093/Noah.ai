@@ -7,6 +7,7 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { getCoordsByLocationName } from '@/lib/geocodingService';
 import { useAppStore } from '@/lib/store';
 import { MapPin, Loader2 } from 'lucide-react';
+import { useLanguage } from '@/src/context/LanguageContext';
 import { GeocodingResponse } from '@/types/geocoding';
 import { MapBounds, SelectedLocation } from '@/types';
 
@@ -22,6 +23,7 @@ export function CommandMenu({ isOpen, setIsOpen }: CommandMenuProps) {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const { setSelectedLocation, setMapBounds } = useAppStore();
+  const { t } = useLanguage();
 
   const debouncedSearchQuery = useDebounce(searchQuery, 500);
 
@@ -65,19 +67,19 @@ export function CommandMenu({ isOpen, setIsOpen }: CommandMenuProps) {
   return (
     <CommandDialog open={isOpen} onOpenChange={setIsOpen}>
       <CommandInput
-        placeholder="Ketik nama kota atau provinsi..."
+        placeholder={t('commandMenu.searchPlaceholder')}
         value={searchQuery}
         onValueChange={setSearchQuery}
       />
       <CommandList>
-        <CommandEmpty>{isLoading ? 'Mencari...' : 'Tidak ada hasil ditemukan.'}</CommandEmpty>
+        <CommandEmpty>{isLoading ? t('commandMenu.searching') : t('commandMenu.noResults')}</CommandEmpty>
         {isLoading && (
             <div className="p-4 flex justify-center items-center">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
         )}
         {!isLoading && results.length > 0 && (
-          <CommandGroup heading="Saran Lokasi">
+          <CommandGroup heading={t('commandMenu.suggestions')}>
             {results.map((location) => (
               <CommandItem
                 key={`${location.lat}-${location.lon}`}

@@ -6,6 +6,7 @@ import { Video, AlertTriangle, CheckCircle, WifiOff } from 'lucide-react';
 import { PageShell } from '@/components/layout/PageShell';
 import { CCTV_CHANNELS } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 export default function CCTVSimulationPage() {
   // Sort: flooded first → online → offline
@@ -17,11 +18,12 @@ export default function CCTVSimulationPage() {
 
   const onlineCount = CCTV_CHANNELS.filter(c => c.status === 'online').length;
   const floodedCount = CCTV_CHANNELS.filter(c => c.is_flooded).length;
+  const { t } = useLanguage();
 
   return (
     <PageShell
-      title="CCTV Monitoring"
-      subtitle="Multi-channel YOLOv8 flood detection"
+      title={t('cctvSimulation.title')}
+      subtitle={t('cctvSimulation.subtitle')}
       icon={<Video className="w-4 h-4" />}
     >
       <div className="max-w-6xl mx-auto space-y-6">
@@ -29,15 +31,15 @@ export default function CCTVSimulationPage() {
         <div className="flex gap-4">
           <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20">
             <AlertTriangle size={16} className="text-red-400" />
-            <span className="text-sm font-semibold text-red-400">{floodedCount} Banjir Terdeteksi</span>
+            <span className="text-sm font-semibold text-red-400">{floodedCount} {t('cctvSimulation.floodDetected')}</span>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
             <CheckCircle size={16} className="text-emerald-400" />
-            <span className="text-sm font-semibold text-emerald-400">{onlineCount - floodedCount} Normal</span>
+            <span className="text-sm font-semibold text-emerald-400">{onlineCount - floodedCount} {t('cctvSimulation.normal')}</span>
           </div>
           <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-500/10 border border-slate-500/20">
             <WifiOff size={16} className="text-slate-400" />
-            <span className="text-sm font-semibold text-slate-400">{CCTV_CHANNELS.length - onlineCount} Offline</span>
+            <span className="text-sm font-semibold text-slate-400">{CCTV_CHANNELS.length - onlineCount} {t('cctvSimulation.offline')}</span>
           </div>
         </div>
 
@@ -47,9 +49,9 @@ export default function CCTVSimulationPage() {
             const scanTime = ch.lastScanOffsetMs > 0
               ? (() => {
                   const mins = Math.floor(ch.lastScanOffsetMs / 60000);
-                  return mins < 1 ? 'Baru saja' : `${mins} menit yang lalu`;
+                  return mins < 1 ? t('cctvSimulation.justNow') : `${mins} ${t('cctvSimulation.minutesAgo')}`;
                 })()
-              : 'Tidak tersedia';
+              : t('cctvSimulation.unavailable');
 
             return (
               <Card
@@ -73,7 +75,7 @@ export default function CCTVSimulationPage() {
                             : 'bg-slate-700 text-slate-500',
                       )}
                     >
-                      {ch.is_flooded ? '🔴 BANJIR TERDETEKSI' : ch.status === 'online' ? '🟢 NORMAL' : '⚪ OFFLINE'}
+                      {ch.is_flooded ? `🔴 ${t('cctvSimulation.floodBadge')}` : ch.status === 'online' ? `🟢 ${t('cctvSimulation.normalBadge')}` : `⚪ ${t('cctvSimulation.offlineBadge')}`}
                     </span>
                   </div>
                   <p className="text-xs text-muted-foreground">{ch.location}</p>
@@ -94,7 +96,7 @@ export default function CCTVSimulationPage() {
                   {/* Detection details */}
                   <div className="grid grid-cols-3 gap-3 text-sm">
                     <div>
-                      <p className="text-xs text-muted-foreground">Confidence</p>
+                      <p className="text-xs text-muted-foreground">{t('cctvSimulation.confidence')}</p>
                       <p className={cn(
                         'font-bold text-lg',
                         ch.flood_probability >= 0.7 ? 'text-red-400' :
@@ -105,13 +107,13 @@ export default function CCTVSimulationPage() {
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Objek Terdeteksi</p>
+                      <p className="text-xs text-muted-foreground">{t('cctvSimulation.objectsDetected')}</p>
                       <p className="font-semibold">
-                        {ch.objects_detected.length > 0 ? ch.objects_detected.join(', ') : 'Tidak ada'}
+                        {ch.objects_detected.length > 0 ? ch.objects_detected.join(', ') : t('cctvSimulation.none')}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Terakhir Scan</p>
+                      <p className="text-xs text-muted-foreground">{t('cctvSimulation.lastScan')}</p>
                       <p className="font-semibold">{scanTime}</p>
                     </div>
                   </div>
@@ -120,7 +122,7 @@ export default function CCTVSimulationPage() {
                   {ch.status === 'online' && (
                     <div className="space-y-1">
                       <div className="flex justify-between text-xs">
-                        <span className="text-muted-foreground">Flood Probability</span>
+                        <span className="text-muted-foreground">{t('cctvSimulation.floodProbability')}</span>
                         <span className={cn(
                           'font-bold',
                           ch.flood_probability >= 0.7 ? 'text-red-400' :
@@ -155,7 +157,7 @@ export default function CCTVSimulationPage() {
             <div className="flex items-start gap-2 text-sm text-muted-foreground">
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
               <div>
-                <p className="font-semibold text-foreground">Informasi Sistem CCTV</p>
+                <p className="font-semibold text-foreground">{t('cctvSimulation.systemInfo')}</p>
                 <ul className="mt-1 space-y-0.5 text-xs">
                   <li>• <strong>Model Deteksi:</strong> YOLOv8 untuk identifikasi area banjir</li>
                   <li>• <strong>Format:</strong> MP4 (resolusi optimal: 640×480 / 1280×720)</li>

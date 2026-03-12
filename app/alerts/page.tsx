@@ -52,12 +52,12 @@ const allMockAlerts: AlertItem[] = [
 ];
 
 const NEWS_ITEMS: NewsReport[] = [
-  { id: 'n1', source: 'KOMPAS', sourceColor: 'text-blue-400', title: 'Banjir Bandang Terjang Agam, 3 Jembatan Putus dan Ratusan Rumah Terendam', region: 'Sumatera Barat', offsetMs: 25 * 60_000, url: 'https://kompas.com' },
-  { id: 'n2', source: 'DETIK', sourceColor: 'text-emerald-400', title: 'BPBD: Debit Air Sungai Ciliwung Terus Naik, Warga Diminta Waspada', region: 'DKI Jakarta', offsetMs: 45 * 60_000, url: 'https://detik.com' },
-  { id: 'n3', source: 'CNN ID', sourceColor: 'text-red-400', title: 'Curah Hujan Tinggi, BMKG Keluarkan Peringatan Dini Banjir untuk Jabodetabek', region: 'Nasional', offsetMs: 90 * 60_000, url: 'https://cnnindonesia.com' },
-  { id: 'n4', source: 'TEMPO', sourceColor: 'text-amber-400', title: 'Bendungan Katulampa Siaga 1, Potensi Banjir Kiriman ke Jakarta Malam Ini', region: 'Jawa Barat', offsetMs: 120 * 60_000, url: 'https://tempo.co' },
-  { id: 'n5', source: 'ANTARA', sourceColor: 'text-purple-400', title: 'Pemkot Semarang Siagakan 200 Personel untuk Antisipasi Banjir Rob', region: 'Jawa Tengah', offsetMs: 180 * 60_000, url: 'https://antaranews.com' },
-  { id: 'n6', source: 'REPUBLIKA', sourceColor: 'text-cyan-400', title: 'Tanggul Sungai Citarum Jebol, 5 Desa di Bandung Terendam Banjir', region: 'Jawa Barat', offsetMs: 240 * 60_000, url: 'https://republika.co.id' },
+  { id: 'n1', source: 'KOMPAS', sourceColor: 'text-blue-400', title: 'Banjir Bandang Terjang Agam, 3 Jembatan Putus dan Ratusan Rumah Terendam', region: 'Sumatera Barat', offsetMs: 25 * 60_000, url: 'https://www.kompas.com/tag/banjir' },
+  { id: 'n2', source: 'DETIK', sourceColor: 'text-emerald-400', title: 'BPBD: Debit Air Sungai Ciliwung Terus Naik, Warga Diminta Waspada', region: 'DKI Jakarta', offsetMs: 45 * 60_000, url: 'https://news.detik.com/indeks?tag=banjir' },
+  { id: 'n3', source: 'CNN ID', sourceColor: 'text-red-400', title: 'Curah Hujan Tinggi, BMKG Keluarkan Peringatan Dini Banjir untuk Jabodetabek', region: 'Nasional', offsetMs: 90 * 60_000, url: 'https://www.cnnindonesia.com/tag/banjir' },
+  { id: 'n4', source: 'TEMPO', sourceColor: 'text-amber-400', title: 'Bendungan Katulampa Siaga 1, Potensi Banjir Kiriman ke Jakarta Malam Ini', region: 'Jawa Barat', offsetMs: 120 * 60_000, url: 'https://www.tempo.co/tag/banjir' },
+  { id: 'n5', source: 'ANTARA', sourceColor: 'text-purple-400', title: 'Pemkot Semarang Siagakan 200 Personel untuk Antisipasi Banjir Rob', region: 'Jawa Tengah', offsetMs: 180 * 60_000, url: 'https://www.antaranews.com/tag/banjir' },
+  { id: 'n6', source: 'REPUBLIKA', sourceColor: 'text-cyan-400', title: 'Tanggul Sungai Citarum Jebol, 5 Desa di Bandung Terendam Banjir', region: 'Jawa Barat', offsetMs: 240 * 60_000, url: 'https://republika.co.id/tag/banjir' },
 ];
 
 export default function PeringatanPage() {
@@ -72,9 +72,9 @@ export default function PeringatanPage() {
 
   const getLevelBadge = (level: string) => {
     switch (level) {
-      case 'high': return { label: 'TINGGI', className: 'bg-red-500/20 text-red-400 border-red-500/30' };
-      case 'medium': return { label: 'SEDANG', className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' };
-      case 'low': return { label: 'RENDAH', className: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' };
+      case 'high': return { label: t('warnings.highLevel'), className: 'bg-red-500/20 text-red-400 border-red-500/30' };
+      case 'medium': return { label: t('warnings.mediumLevel'), className: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' };
+      case 'low': return { label: t('warnings.lowLevel'), className: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' };
       default: return { label: 'N/A', className: 'bg-white/5 text-slate-400' };
     }
   };
@@ -88,13 +88,13 @@ export default function PeringatanPage() {
           className="flex items-center gap-1 text-[11px] text-slate-500 hover:text-cyan-400 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span className="font-heading">Kembali</span>
+          <span className="font-heading">{t('alerts.back')}</span>
         </Link>
         <span className="text-white/10">|</span>
         <div className="flex items-center gap-2">
           <AlertTriangle size={14} className="text-cyan-400" />
-          <h1 className="text-sm font-bold text-slate-200 font-heading">Peringatan Bencana Terkini</h1>
-          <span className="text-[11px] text-slate-500 hidden sm:inline">— Monitoring peringatan banjir real-time</span>
+          <h1 className="text-sm font-bold text-slate-200 font-heading">{t('warnings.title')}</h1>
+          <span className="text-[11px] text-slate-500 hidden sm:inline">— {t('warnings.subtitle')}</span>
         </div>
       </div>
 
@@ -102,10 +102,10 @@ export default function PeringatanPage() {
         {/* Summary stat cards — compact, matching dashboard style */}
         <div className="grid grid-cols-4 gap-3">
           {[
-            { label: 'Total Peringatan', value: totalAlerts, color: 'text-blue-400', bg: 'bg-blue-500/10', icon: Bell, sub: 'Aktif' },
-            { label: 'Tingkat Tinggi', value: highAlerts, color: 'text-red-400', bg: 'bg-red-500/10', icon: AlertTriangle, sub: 'Perlu Tindakan' },
-            { label: 'Tingkat Sedang', value: mediumAlerts, color: 'text-yellow-400', bg: 'bg-yellow-500/10', icon: Info, sub: 'Pantau Terus' },
-            { label: 'Tingkat Rendah', value: lowAlerts, color: 'text-emerald-400', bg: 'bg-emerald-500/10', icon: Bell, sub: 'Kondisi Stabil' },
+            { label: t('warnings.totalAlerts'), value: totalAlerts, color: 'text-blue-400', bg: 'bg-blue-500/10', icon: Bell, sub: t('warnings.active') },
+            { label: t('warnings.highLevel'), value: highAlerts, color: 'text-red-400', bg: 'bg-red-500/10', icon: AlertTriangle, sub: t('warnings.immediateAction') },
+            { label: t('warnings.mediumLevel'), value: mediumAlerts, color: 'text-yellow-400', bg: 'bg-yellow-500/10', icon: Info, sub: t('warnings.monitorConstantly') },
+            { label: t('warnings.lowLevel'), value: lowAlerts, color: 'text-emerald-400', bg: 'bg-emerald-500/10', icon: Bell, sub: t('warnings.stableCondition') },
           ].map((stat) => (
             <div key={stat.label} className={cn('rounded-lg border border-white/5 p-3', stat.bg)}>
               <div className="flex items-center justify-between mb-1">
@@ -121,8 +121,8 @@ export default function PeringatanPage() {
         {/* Tab bar — matching dashboard segmented control style */}
         <div className="flex gap-1 p-1 rounded-lg bg-white/[0.03] border border-white/5 w-fit">
           {[
-            { id: 'alerts' as const, label: 'Peringatan', icon: Bell },
-            { id: 'news' as const, label: 'Berita Regional', icon: Newspaper },
+            { id: 'alerts' as const, label: t('warnings.alertsTab'), icon: Bell },
+            { id: 'news' as const, label: t('warnings.newsTab'), icon: Newspaper },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -174,14 +174,14 @@ export default function PeringatanPage() {
                     <div className="bg-white/[0.03] rounded px-2.5 py-1.5">
                       <div className="flex items-center gap-1 mb-0.5">
                         <Users size={10} className="text-blue-400" />
-                        <span className="text-[9px] text-slate-600">Terpengaruh</span>
+                        <span className="text-[9px] text-slate-600">{t('warnings.affected')}</span>
                       </div>
                       <span className="text-xs font-bold text-slate-300">{alert.estimatedPopulation?.toLocaleString('id-ID')}</span>
                     </div>
                     <div className="bg-white/[0.03] rounded px-2.5 py-1.5">
                       <div className="flex items-center gap-1 mb-0.5">
                         <Droplets size={10} className="text-cyan-400" />
-                        <span className="text-[9px] text-slate-600">Keparahan</span>
+                        <span className="text-[9px] text-slate-600">{t('warnings.severity')}</span>
                       </div>
                       <span className="text-xs font-bold text-slate-300">{alert.severity}/10</span>
                     </div>
@@ -189,7 +189,7 @@ export default function PeringatanPage() {
 
                   {/* Affected areas */}
                   <div>
-                    <p className="text-[9px] text-slate-600 mb-1">Wilayah Terdampak:</p>
+                    <p className="text-[9px] text-slate-600 mb-1">{t('warnings.affectedRegions')}</p>
                     <div className="flex flex-wrap gap-1">
                       {alert.affectedAreas?.map((area, i) => (
                         <span key={i} className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 text-slate-500">{area}</span>
@@ -208,14 +208,14 @@ export default function PeringatanPage() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Newspaper size={14} className="text-blue-400" />
-                <span className="text-xs font-bold text-slate-200">Berita Banjir Terkini</span>
+                <span className="text-xs font-bold text-slate-200">{t('alerts.latestFloodNews')}</span>
               </div>
-              <span className="text-[10px] text-slate-500">{NEWS_ITEMS.length} artikel</span>
+              <span className="text-[10px] text-slate-500">{NEWS_ITEMS.length} {t('alerts.articles')}</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {NEWS_ITEMS.map((item) => {
                 const mins = Math.floor(item.offsetMs / 60000);
-                const timeLabel = mins < 60 ? `${mins}m lalu` : `${Math.floor(mins / 60)}j lalu`;
+                const timeLabel = mins < 60 ? `${mins}${t('alerts.minutesAgo')}` : `${Math.floor(mins / 60)}${t('alerts.hoursAgo')}`;
                 return (
                   <a
                     key={item.id}

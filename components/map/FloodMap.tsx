@@ -93,6 +93,10 @@ import { cn } from '@/lib/utils';
 import { OverpassElement } from '@/lib/api';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { useMapLayerStore } from '@/lib/mapLayerStore';
+import { useLocationStore } from '@/lib/locationStore';
+import { RadarLayer } from '@/components/map/RadarLayer';
+import { TimelineScrubber } from '@/components/map/TimelineScrubber';
+import { MockAQILayer } from '@/components/map/MockAQILayer';
 import {
   getCoordsByLocationName,
   getLocationNameByCoords,
@@ -295,6 +299,7 @@ export const FloodMap = React.memo(function FloodMap({
 }: FloodMapProps) {
   const weatherTileLayerUrl = propWeatherTileLayerUrl; // Assign to a local variable
   const [selectedLayer, setSelectedLayer] = useState('street');
+  const [preEvacLayer, setPreEvacLayer] = useState<string | null>(null);
   const [weatherTileUrl, setWeatherTileUrl] = useState<string | null>(null); // NEW: weatherTileUrl state
 
   useEffect(() => {
@@ -306,7 +311,11 @@ export const FloodMap = React.memo(function FloodMap({
     }
   }, [activeLayer]);
 
-  const layerConfig = {
+  const layerConfig: Record<string, { url: string; attribution: string }> = {
+    dark: {
+      url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    },
     street: {
       url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -320,15 +329,74 @@ export const FloodMap = React.memo(function FloodMap({
       attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), and the GIS User Community',
     },
   };
-  const { showFloodZones, showWeatherStations, toggleFloodZones, toggleWeatherStations } = useMapLayerStore();
-  const [showRealtimeAlerts, setShowRealtimeAlerts] = useState(true); // State baru untuk toggle peringatan real-time
-  const [showCrowdsourcedReports, setShowCrowdsourcedReports] = useState(true); // NEW: State for crowdsourced reports visibility
-  const [showOfficialBPBDData, setShowOfficialBPBDData] = useState(true); // NEW: State for official BPBD data visibility
-  const [floodZones] = useState<FloodZone[]>(FLOOD_ZONES_MOCK); // Mock data asli
+  const { showFloodZones, showWeatherStations, showRadar, showAqi, showEvacPins, toggleFloodZones, toggleWeatherStations } = useMapLayerStore();
+
+  // Auto-switch to dark tiles when Evakuasi is active
+  useEffect(() => {
+    if (showEvacPins) {
+      setPreEvacLayer(selectedLayer);
+      setSelectedLayer('dark');
+    } else if (preEvacLayer) {
+      setSelectedLayer(preEvacLayer);
+      setPreEvacLayer(null);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showEvacPins]);
+  const [showRealtimeAlerts, setShowRealtimeAlerts] = useState(true);
+  const [showCrowdsourcedReports, setShowCrowdsourcedReports] = useState(true);
+  const [showOfficialBPBDData, setShowOfficialBPBDData] = useState(true);
+  const [floodZones] = useState<FloodZone[]>(FLOOD_ZONES_MOCK);
   const mapRef = useRef<any | null>(null);
   const mapKey = useRef(`${instanceId ?? 'default'}-${Date.now()}-${Math.random().toString(36).slice(2)}`).current;
 
-  
+  // --- Radar state ---
+  const [radarFrames, setRadarFrames] = useState<any[]>([]);
+  const [radarHost, setRadarHost] = useState('https://tile.rainviewer.com');
+  const [radarIndex, setRadarIndex] = useState(0);
+  const [radarPlaying, setRadarPlaying] = useState(false);
+  const [radarLoaded, setRadarLoaded] = useState(false);
+  const [radarLoading, setRadarLoading] = useState(false);
+
+  // Fetch radar frames on first activation
+  useEffect(() => {
+    if (showRadar && !radarLoaded && !radarLoading) {
+      setRadarLoading(true);
+      fetch(`https://api.rainviewer.com/public/weather-maps.json?_=${Date.now()}`, { cache: 'no-store' })
+        .then(res => res.json())
+        .then((data) => {
+          if (data.radar?.past) {
+            let host = data.host || 'https://tile.rainviewer.com';
+            if (host.startsWith('http:')) host = host.replace('http:', 'https:');
+            setRadarHost(host);
+            const past = data.radar.past.map((f: any) => ({ ...f, isPast: true }));
+            const nowcast = (data.radar.nowcast || []).map((f: any) => ({ ...f, isPast: false }));
+            const all = [...past, ...nowcast];
+            setRadarFrames(all);
+            setRadarIndex(past.length > 0 ? past.length - 1 : 0);
+            setRadarLoaded(true);
+          }
+        })
+        .catch(err => console.error('Radar fetch error:', err))
+        .finally(() => setRadarLoading(false));
+    }
+  }, [showRadar, radarLoaded, radarLoading]);
+
+  // Radar animation loop
+  useEffect(() => {
+    if (!radarPlaying || radarFrames.length === 0) return;
+    const id = setInterval(() => {
+      setRadarIndex(prev => (prev + 1) % radarFrames.length);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [radarPlaying, radarFrames]);
+
+  // --- Region selector auto-pan ---
+  const { latitude: regionLat, longitude: regionLng } = useLocationStore();
+  useEffect(() => {
+    if (regionLat != null && regionLng != null && mapRef.current) {
+      mapRef.current.flyTo([regionLat, regionLng], 13, { duration: 1.2 });
+    }
+  }, [regionLat, regionLng]);
 
   
 
@@ -556,29 +624,6 @@ export const FloodMap = React.memo(function FloodMap({
       )}
       style={{ height: isFullscreen ? '100vh' : height }}
     >
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-xs sm:max-w-sm md:max-w-md px-4">
-        <div className="relative flex items-center">
-          <Input
-            type="text"
-            placeholder="Cari nama kota atau wilayah..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleSearch();
-              }
-            }}
-            className="w-full pl-10 pr-20 py-2 rounded-full bg-slate-900/80 border-slate-700/50 text-xs sm:text-sm text-white placeholder:text-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 shadow-lg backdrop-blur-md transition-colors duration-300"
-          />
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-          <Button
-            onClick={handleSearch}
-            className="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 h-8 rounded-full bg-cyan-600 hover:bg-cyan-700 text-white text-xs sm:text-sm"
-          >
-            Cari
-          </Button>
-        </div>
-      </div>
       <MapContainer
         key={mapKey}
         center={center}
@@ -607,6 +652,22 @@ export const FloodMap = React.memo(function FloodMap({
           onReverseGeocode={handleMapClick}
         />
         {onMapBoundsChange && <MapBoundsUpdater onMapBoundsChange={onMapBoundsChange} />}
+
+        {/* Radar Layer */}
+        {showRadar && radarFrames.length > 0 && (
+          <RadarLayer
+            frames={radarFrames}
+            currentIndex={radarIndex}
+            host={radarHost}
+            opacity={radarFrames[radarIndex]?.isPast === false ? 0.6 : 0.75}
+            visible={true}
+          />
+        )}
+
+        {/* AQI Layer */}
+        {showAqi && (
+          <MockAQILayer visible={true} />
+        )}
 
         {/* NEW: Conditional Weather TileLayer */}
         {weatherTileUrl && (
@@ -1156,7 +1217,25 @@ export const FloodMap = React.memo(function FloodMap({
       {/* Map Legend */}
       <MapLegend />
 
-      
+      {/* Radar Timeline Scrubber — floating overlay */}
+      {showRadar && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[400] flex justify-center pointer-events-none">
+          <div className="pointer-events-auto shadow-2xl">
+            <TimelineScrubber
+              frames={radarFrames}
+              currentIndex={radarIndex}
+              isPlaying={radarPlaying}
+              onTogglePlay={() => setRadarPlaying(!radarPlaying)}
+              onScrub={(index) => {
+                setRadarPlaying(false);
+                setRadarIndex(index);
+              }}
+              isLoading={radarLoading}
+            />
+          </div>
+        </div>
+      )}
+
     </motion.div>
   );
 });

@@ -1,44 +1,55 @@
 import { GeocodingResponse, ReverseGeocodingResponse } from '../types/geocoding';
 import { AirPollutionData } from '../types/airPollution';
 
+const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHERMAP_API_KEY || process.env.OPENWEATHER_API_KEY || '';
+
 export async function getCurrentWeather(latitude: number, longitude: number) {
-  // Ini adalah placeholder. Anda perlu mengganti ini dengan panggilan API cuaca yang sebenarnya.
-  // Contoh menggunakan OpenWeatherMap API (Anda perlu mendapatkan API key sendiri)
-  const API_KEY = 'YOUR_OPENWEATHERMAP_API_KEY'; // Ganti dengan API key Anda
+  if (!API_KEY) {
+    throw new Error('OpenWeatherMap API key not configured');
+  }
   const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric&lang=id`;
 
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error('Gagal mengambil data cuaca.');
   }
-  const data = await response.json();
-  return data;
+  return response.json();
 }
 
-export async function getCoordsByLocationName(locationName: string, limit?: number): Promise<GeocodingResponse[] | null> {
-  console.warn(`Placeholder: getCoordsByLocationName called with ${locationName} and limit ${limit}`);
-  // Implement actual geocoding logic here (e.g., using a geocoding API)
-  // For now, return a dummy GeocodingResponse array
-  if (locationName) {
-    return [{ name: locationName, lat: -6.2088, lon: 106.8456, country: "ID" }];
+export async function getCoordsByLocationName(locationName: string, limit: number = 5): Promise<GeocodingResponse[] | null> {
+  if (!API_KEY) return [];
+  const url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(locationName)}&limit=${limit}&appid=${API_KEY}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return [];
+    return response.json();
+  } catch {
+    return [];
   }
-  return [];
 }
 
 export async function getLocationNameByCoords(lat: number, lng: number): Promise<ReverseGeocodingResponse | null> {
-  console.warn(`Placeholder: getLocationNameByCoords called with lat: ${lat}, lng: ${lng}`);
-  // Implement actual reverse geocoding logic here
-  return { name: "Dummy Location", lat: lat, lon: lng, country: "ID" };
+  if (!API_KEY) return null;
+  const url = `https://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lng}&limit=1&appid=${API_KEY}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data[0] || null;
+  } catch {
+    return null;
+  }
 }
 
 export async function getAirPollutionData(latitude: number, longitude: number): Promise<AirPollutionData | null> {
-  console.warn(`Placeholder: getAirPollutionData called with lat: ${latitude}, lng: ${longitude}`);
-  // Implement actual air pollution data fetching logic here
-  return {
-    dt: Math.floor(Date.now() / 1000),
-    main: { aqi: 1 },
-    components: {
-      co: 0, no: 0, no2: 0, o3: 0, so2: 0, pm2_5: 0, pm10: 0, nh3: 0
-    }
-  };
+  if (!API_KEY) return null;
+  const url = `https://api.openweathermap.org/data/2.5/air_pollution?lat=${latitude}&lon=${longitude}&appid=${API_KEY}`;
+  try {
+    const response = await fetch(url);
+    if (!response.ok) return null;
+    const data = await response.json();
+    return data.list?.[0] || null;
+  } catch {
+    return null;
+  }
 }

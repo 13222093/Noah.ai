@@ -18,6 +18,7 @@ import { FloodAlert as FloodAlertType } from '@/types';
 import { ALERT_LEVELS } from '@/lib/constants';
 import { getTimeAgo } from '@/lib/utils';
 import { cn } from '@/lib/utils';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 interface FloodAlertProps {
   alert: FloodAlertType;
@@ -35,6 +36,7 @@ const alertIcons = {
 export function FloodAlert({ alert, onDismiss, className }: FloodAlertProps) {
   const AlertIcon = alertIcons[alert.level];
   const alertConfig = ALERT_LEVELS[alert.level];
+  const { t } = useLanguage();
 
   return (
     <motion.div
@@ -123,7 +125,7 @@ export function FloodAlert({ alert, onDismiss, className }: FloodAlertProps) {
                 <div className="flex items-center space-x-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">
-                    Wilayah Terdampak:
+                    {t('floodAlert.affectedAreas')}
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -142,7 +144,7 @@ export function FloodAlert({ alert, onDismiss, className }: FloodAlertProps) {
                 <div className="flex items-center space-x-2">
                   <Users className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium">
-                    Tindakan yang Disarankan:
+                    {t('floodAlert.recommendedActions')}
                   </span>
                 </div>
                 <ul className="space-y-1">
@@ -163,7 +165,7 @@ export function FloodAlert({ alert, onDismiss, className }: FloodAlertProps) {
             {alert.estimatedDuration && (
               <div className="mt-3 p-3 bg-muted/50 rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  Estimasi durasi: {alert.estimatedDuration} jam
+                  {t('floodAlert.estimatedDuration')}: {alert.estimatedDuration} {t('floodAlert.hours')}
                 </p>
               </div>
             )}
@@ -186,6 +188,7 @@ export function FloodAlertList({
   onDismiss,
   className,
 }: FloodAlertListProps) {
+  const { t } = useLanguage();
   const activeAlerts = alerts.filter((alert) => alert.isActive);
   const sortedAlerts = activeAlerts.sort((a, b) => {
     const levelOrder = { critical: 4, danger: 3, warning: 2, info: 1 };
@@ -199,7 +202,7 @@ export function FloodAlertList({
           <CardContent>
             <div className="text-muted-foreground">
               <Info className="h-12 w-12 mx-auto mb-4" />
-              <p>Tidak ada peringatan aktif saat ini</p>
+              <p>{t('floodAlert.noActiveAlerts')}</p>
             </div>
           </CardContent>
         </Card>

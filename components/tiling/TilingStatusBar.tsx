@@ -1,24 +1,28 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun, Monitor, Shield, Globe } from 'lucide-react';
+import { Moon, Sun, Monitor, Shield, CloudRain, Wind, Layers, MapPin } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import { useLanguage } from '@/src/context/LanguageContext';
+import { useMapLayerStore } from '@/lib/mapLayerStore';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
+import { RegionSelector } from './RegionSelector';
 import { cn } from '@/lib/utils';
 
 /**
  * Minimal status bar for Tiling Layout.
  * - NOAH.AI branding (left)
- * - Live clock (right)
- * - Theme toggle (right)
- * - Language switcher (right)
- *
- * No stat chips, no search (search lives on the map tile).
+ * - Map layer toggles (center)
+ * - Live clock + Theme toggle + Language switcher (right)
  */
 export function TilingStatusBar() {
   const { theme, setTheme } = useTheme();
+  const { t } = useLanguage();
   const [currentTime, setCurrentTime] = useState('');
+  const {
+    showRadar, showAqi, showFloodZones, showEvacPins,
+    toggleRadar, toggleAqi, toggleFloodZones, toggleEvacPins,
+  } = useMapLayerStore();
 
   useEffect(() => {
     const updateTime = () => {
@@ -44,6 +48,13 @@ export function TilingStatusBar() {
   };
   const ThemeIcon = themeIcons[theme];
 
+  const mapButtons = [
+    { id: 'radar', label: t('mapLayers.radar'), icon: CloudRain, active: showRadar, toggle: toggleRadar, activeColor: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' },
+    { id: 'aqi', label: t('mapLayers.aqi'), icon: Wind, active: showAqi, toggle: toggleAqi, activeColor: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
+    { id: 'floods', label: t('mapLayers.floodZones'), icon: Layers, active: showFloodZones, toggle: toggleFloodZones, activeColor: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
+    { id: 'evac', label: t('mapLayers.evacPins'), icon: MapPin, active: showEvacPins, toggle: toggleEvacPins, activeColor: 'bg-red-500/20 text-red-400 border-red-500/30' },
+  ];
+
   return (
     <header className="tiling-status-bar">
       {/* Left: Brand */}
@@ -54,6 +65,32 @@ export function TilingStatusBar() {
         <span className="font-heading text-[13px] font-semibold text-white tracking-wider">
           NOAH.AI
         </span>
+      </div>
+
+      {/* Center: Map Layer Toggles */}
+      <div className="flex items-center gap-1">
+        {mapButtons.map((btn) => (
+          <button
+            key={btn.id}
+            onClick={btn.toggle}
+            className={cn(
+              'flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-all border',
+              btn.active
+                ? btn.activeColor
+                : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300 hover:bg-white/5'
+            )}
+            title={btn.label}
+          >
+            <btn.icon size={10} />
+            <span className="hidden sm:inline">{btn.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Center-Right: Region Selector */}
+      <div className="hidden md:flex items-center gap-1">
+        <div className="w-px h-3.5 bg-white/10" />
+        <RegionSelector />
       </div>
 
       {/* Right: Time + Controls */}

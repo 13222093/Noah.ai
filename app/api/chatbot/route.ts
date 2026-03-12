@@ -28,6 +28,7 @@ import {
   fetchWeatherData,
   geocodeLocation,
 } from '@/lib/api.client';
+import { checkRateLimit, getClientIP } from '@/lib/simple-rate-limit';
 
 // Inisialisasi Gemini API
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -35,7 +36,7 @@ const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
 
 // API Key untuk OpenWeatherMap
 const OPEN_WEATHER_API_KEY =
-  process.env.OPEN_WEATHER_API_KEY || 'b48e2782f52bd9c6783ef14a35856abc';
+  process.env.OPEN_WEATHER_API_KEY || process.env.OPENWEATHER_API_KEY || '';
 
 // ===============================================
 // DEFINISI FUNGSI/TOOLS
@@ -84,6 +85,13 @@ export const runtime = 'nodejs';
 export async function POST(request: Request) {
   if (!genAI) {
     return NextResponse.json({ error: 'GEMINI_API_KEY is missing' }, { status: 500 });
+  }
+
+  // Rate limit check
+  const ip = getClientIP(request.headers);
+  const rl = checkRateLimit(`chatbot:${ip}`);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
   }
 
   try {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
 
 interface DashboardStats {
   activeAlerts: number;
@@ -23,8 +23,10 @@ export function StatsProvider({ children }: { children: ReactNode }) {
     setStatsState(newStats);
   }, []);
 
+  const value = useMemo(() => ({ stats, setStats }), [stats, setStats]);
+
   return (
-    <StatsContext.Provider value={{ stats, setStats }}>
+    <StatsContext.Provider value={value}>
       {children}
     </StatsContext.Provider>
   );

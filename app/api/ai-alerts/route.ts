@@ -1,6 +1,7 @@
 // mattyudha/noah.ai/noah.ai-04cbe0509e23f883f290033cafa7f880e929fe65/app/api/gemini-alerts/route.ts
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from '@google/generative-ai';
+import { checkRateLimit, getClientIP } from '@/lib/simple-rate-limit';
 
 // Load API key from .env
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -22,6 +23,13 @@ export async function POST(request: Request) {
       { error: 'GEMINI_API_KEY is missing in environment.' },
       { status: 500 },
     );
+  }
+
+  // Rate limit check
+  const ip = getClientIP(request.headers);
+  const rl = checkRateLimit(`ai-alerts:${ip}`);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Too many requests.' }, { status: 429 });
   }
 
   try {
@@ -221,6 +229,12 @@ PENTING:
         topP: 0.95,
         maxOutputTokens: 2048,
       },
+      safetySettings: [
+        { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+        { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE },
+      ],
     });
 
     const result = await model.generateContent(prompt);
@@ -347,7 +361,6 @@ PENTING:
       {
         error: 'Failed to generate explanation.',
         message: error?.message || 'Unknown error',
-        stack: error?.stack || null,
       },
       { status: 500 },
     );

@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 const REGIONS = [
     { id: 'MANGGARAI_01', name: 'Pintu Air Manggarai', desc: 'Pusat monitoring utama Jakarta' },
@@ -36,6 +37,7 @@ export default function SmsSubscribePage() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
+    const { t } = useLanguage();
 
     const handleSubscribe = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -82,9 +84,9 @@ export default function SmsSubscribePage() {
                     <div>
                         <h1 className="text-xl font-bold text-white flex items-center gap-2">
                             <MessageSquare className="h-5 w-5 text-cyan-400" />
-                            SMS Peringatan Banjir
+                            {t('smsSubscribe.title')}
                         </h1>
-                        <p className="text-sm text-slate-400">Terima peringatan langsung ke HP Anda</p>
+                        <p className="text-sm text-slate-400">{t('smsSubscribe.subtitle')}</p>
                     </div>
                 </div>
             </div>
@@ -103,21 +105,19 @@ export default function SmsSubscribePage() {
                                     <Signal className="h-8 w-8 text-cyan-400" />
                                 </div>
                                 <div className="space-y-2">
-                                    <h3 className="text-lg font-semibold text-white">Mengapa SMS?</h3>
+                                    <h3 className="text-lg font-semibold text-white">{t('smsSubscribe.whySms')}</h3>
                                     <p className="text-slate-300 text-sm leading-relaxed">
-                                        SMS bekerja di <strong className="text-cyan-300">semua jenis HP</strong> — tidak perlu smartphone atau internet.
-                                        Cocok untuk daerah pedesaan dan komunitas yang belum terjangkau internet cepat.
-                                        Peringatan dikirim otomatis saat AI mendeteksi risiko banjir.
+                                        {t('smsSubscribe.whySmsDesc')}
                                     </p>
                                     <div className="flex flex-wrap gap-2 pt-1">
                                         <Badge variant="outline" className="border-cyan-700 text-cyan-300 text-xs">
-                                            <Smartphone className="h-3 w-3 mr-1" /> Semua HP
+                                            <Smartphone className="h-3 w-3 mr-1" /> {t('smsSubscribe.allPhones')}
                                         </Badge>
                                         <Badge variant="outline" className="border-cyan-700 text-cyan-300 text-xs">
-                                            <Signal className="h-3 w-3 mr-1" /> Tanpa Internet
+                                            <Signal className="h-3 w-3 mr-1" /> {t('smsSubscribe.noInternet')}
                                         </Badge>
                                         <Badge variant="outline" className="border-cyan-700 text-cyan-300 text-xs">
-                                            <Bell className="h-3 w-3 mr-1" /> Otomatis AI
+                                            <Bell className="h-3 w-3 mr-1" /> {t('smsSubscribe.autoAi')}
                                         </Badge>
                                     </div>
                                 </div>
@@ -140,7 +140,7 @@ export default function SmsSubscribePage() {
                                     <div className="inline-flex p-4 bg-emerald-500/20 rounded-full">
                                         <CheckCircle2 className="h-12 w-12 text-emerald-400" />
                                     </div>
-                                    <h2 className="text-2xl font-bold text-white">Berhasil Terdaftar!</h2>
+                                    <h2 className="text-2xl font-bold text-white">{t('smsSubscribe.registered')}</h2>
                                     <p className="text-slate-300">
                                         Nomor <strong className="text-emerald-300">{phone}</strong> akan menerima
                                         peringatan banjir untuk wilayah <strong className="text-emerald-300">{REGIONS.find(r => r.id === region)?.name}</strong>.
@@ -155,11 +155,11 @@ export default function SmsSubscribePage() {
                                             variant="outline"
                                             className="border-emerald-700 text-emerald-300 hover:bg-emerald-900/30"
                                         >
-                                            Daftar Nomor Lain
+                                            {t('smsSubscribe.registerAnother')}
                                         </Button>
                                         <Link href="/dashboard">
                                             <Button className="bg-cyan-600 hover:bg-cyan-700 text-white">
-                                                Kembali ke Dashboard
+                                                {t('smsSubscribe.backToDashboard')}
                                             </Button>
                                         </Link>
                                     </div>
@@ -177,10 +177,10 @@ export default function SmsSubscribePage() {
                                 <CardHeader>
                                     <CardTitle className="text-white flex items-center gap-2">
                                         <Phone className="h-5 w-5 text-cyan-400" />
-                                        Daftar SMS Peringatan
+                                        {t('smsSubscribe.formTitle')}
                                     </CardTitle>
                                     <CardDescription className="text-slate-400">
-                                        Masukkan data Anda untuk menerima peringatan banjir via SMS
+                                        {t('smsSubscribe.formDesc')}
                                     </CardDescription>
                                 </CardHeader>
                                 <CardContent>
@@ -189,7 +189,7 @@ export default function SmsSubscribePage() {
                                         <div className="space-y-2">
                                             <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
                                                 <Phone className="h-4 w-4 text-cyan-400" />
-                                                Nomor Telepon
+                                                {t('smsSubscribe.phoneNumber')}
                                             </label>
                                             <input
                                                 type="tel"
@@ -206,7 +206,7 @@ export default function SmsSubscribePage() {
                                         <div className="space-y-2">
                                             <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
                                                 <User className="h-4 w-4 text-cyan-400" />
-                                                Nama (opsional)
+                                                {t('smsSubscribe.nameOptional')}
                                             </label>
                                             <input
                                                 type="text"
@@ -221,7 +221,7 @@ export default function SmsSubscribePage() {
                                         <div className="space-y-2">
                                             <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
                                                 <MapPin className="h-4 w-4 text-cyan-400" />
-                                                Wilayah Monitoring
+                                                {t('smsSubscribe.monitoringRegion')}
                                             </label>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                                 {REGIONS.map((r) => (
@@ -247,7 +247,7 @@ export default function SmsSubscribePage() {
                                         <div className="space-y-2">
                                             <label className="text-sm font-medium text-slate-300 flex items-center gap-2">
                                                 <Globe className="h-4 w-4 text-cyan-400" />
-                                                Bahasa SMS
+                                                {t('smsSubscribe.smsLanguage')}
                                             </label>
                                             <div className="flex gap-3">
                                                 <button
@@ -275,7 +275,7 @@ export default function SmsSubscribePage() {
 
                                         {/* SMS Preview */}
                                         <div className="space-y-2">
-                                            <label className="text-sm font-medium text-slate-300">📱 Contoh SMS yang akan diterima:</label>
+                                            <label className="text-sm font-medium text-slate-300">📱 {t('smsSubscribe.smsPreview')}</label>
                                             <div className="bg-black/40 rounded-lg p-4 font-mono text-sm text-green-400 border border-slate-700/50">
                                                 {language === 'id' ? (
                                                     <>
@@ -314,12 +314,12 @@ export default function SmsSubscribePage() {
                                             {loading ? (
                                                 <span className="flex items-center gap-2">
                                                     <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                                    Mendaftar...
+                                                    {t('smsSubscribe.registering')}
                                                 </span>
                                             ) : (
                                                 <span className="flex items-center gap-2">
                                                     <Bell className="h-5 w-5" />
-                                                    Daftar Peringatan SMS
+                                                    {t('smsSubscribe.submitButton')}
                                                 </span>
                                             )}
                                         </Button>
@@ -328,8 +328,7 @@ export default function SmsSubscribePage() {
                                         <div className="flex items-start gap-2 text-xs text-slate-500">
                                             <Shield className="h-4 w-4 flex-shrink-0 mt-0.5" />
                                             <p>
-                                                Nomor telepon Anda hanya digunakan untuk peringatan banjir dan tidak akan dibagikan ke pihak ketiga.
-                                                Anda bisa berhenti kapan saja dengan membalas STOP.
+                                                {t('smsSubscribe.privacyNote')}
                                             </p>
                                         </div>
                                     </form>
@@ -347,7 +346,7 @@ export default function SmsSubscribePage() {
                 >
                     <Card className="bg-slate-900/40 border-slate-700/20 backdrop-blur-sm">
                         <CardHeader>
-                            <CardTitle className="text-white text-lg">Bagaimana Cara Kerjanya?</CardTitle>
+                            <CardTitle className="text-white text-lg">{t('smsSubscribe.howItWorks')}</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -355,22 +354,22 @@ export default function SmsSubscribePage() {
                                     <div className="inline-flex p-3 bg-cyan-500/10 rounded-xl">
                                         <Phone className="h-8 w-8 text-cyan-400" />
                                     </div>
-                                    <h4 className="font-semibold text-white">1. Daftar</h4>
-                                    <p className="text-sm text-slate-400">Masukkan nomor HP dan pilih wilayah yang ingin dipantau</p>
+                                    <h4 className="font-semibold text-white">{t('smsSubscribe.step1Title')}</h4>
+                                    <p className="text-sm text-slate-400">{t('smsSubscribe.step1Desc')}</p>
                                 </div>
                                 <div className="text-center space-y-3">
                                     <div className="inline-flex p-3 bg-amber-500/10 rounded-xl">
                                         <Bell className="h-8 w-8 text-amber-400" />
                                     </div>
-                                    <h4 className="font-semibold text-white">2. AI Memantau</h4>
-                                    <p className="text-sm text-slate-400">LSTM & YOLO AI terus menganalisis data curah hujan dan ketinggian air</p>
+                                    <h4 className="font-semibold text-white">{t('smsSubscribe.step2Title')}</h4>
+                                    <p className="text-sm text-slate-400">{t('smsSubscribe.step2Desc')}</p>
                                 </div>
                                 <div className="text-center space-y-3">
                                     <div className="inline-flex p-3 bg-emerald-500/10 rounded-xl">
                                         <MessageSquare className="h-8 w-8 text-emerald-400" />
                                     </div>
-                                    <h4 className="font-semibold text-white">3. SMS Otomatis</h4>
-                                    <p className="text-sm text-slate-400">Saat risiko tinggi terdeteksi, SMS peringatan langsung terkirim</p>
+                                    <h4 className="font-semibold text-white">{t('smsSubscribe.step3Title')}</h4>
+                                    <p className="text-sm text-slate-400">{t('smsSubscribe.step3Desc')}</p>
                                 </div>
                             </div>
                         </CardContent>

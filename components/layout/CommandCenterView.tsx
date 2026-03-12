@@ -306,7 +306,7 @@ function AIChatbot({ selectedLocation }: { selectedLocation: any }) {
         method: 'POST',
         body: JSON.stringify({
           question: message,
-          history,
+          history: newHistory,
           location: chatLocation,
         }),
       });
@@ -616,7 +616,7 @@ export function CommandCenterView({ initialData }: { initialData: any }) {
       <div className="w-[280px] flex-shrink-0 border-l border-cc-border bg-cc-surface flex flex-col">
         {/* Always-visible summary */}
         <SidebarSummary
-          weatherData={weatherData?.current ? {
+          weatherData={weatherData?.current?.main ? {
             temperature: weatherData.current.main.temp,
             condition: weatherData.current.weather?.[0]?.description,
             icon: weatherData.current.weather?.[0]?.icon,

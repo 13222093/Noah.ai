@@ -115,7 +115,7 @@ export async function fetchWaterLevelData(
   districtName?: string,
 ): Promise<WaterLevelPost[]> {
   const baseUrl = getBaseUrl(); // ADDED
-  let apiUrl = `${baseUrl}/api/water-level-proxy`; // MODIFIED
+  let apiUrl = `${baseUrl}/api/water-level`;
   const trimmedDistrictName = districtName?.trim();
   if (trimmedDistrictName) {
     apiUrl += `?districtName=${encodeURIComponent(trimmedDistrictName)}`;
@@ -133,7 +133,7 @@ export async function fetchPumpStatusData(
   districtName?: string,
 ): Promise<PumpData[]> {
   const baseUrl = getBaseUrl(); // ADDED
-  let apiUrl = `${baseUrl}/api/pump-status-proxy`; // MODIFIED
+  let apiUrl = `${baseUrl}/api/pump-status`;
   const trimmedDistrictName = districtName?.trim();
   if (trimmedDistrictName) {
     apiUrl += `?districtName=${encodeURIComponent(trimmedDistrictName)}`;
@@ -197,7 +197,7 @@ export async function geocodeLocation(
       url,
       {
         headers: {
-          'User-Agent': 'noah.aiApp/1.0 (devarahmat12334@gmail.com)', // Ganti dengan email Anda
+          'User-Agent': 'noah.ai/1.0',
         },
       },
       'Gagal mengidentifikasi lokasi. Silakan coba lagi.'

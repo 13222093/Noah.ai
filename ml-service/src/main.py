@@ -94,13 +94,24 @@ def health_check():
         }
     }
 
-# 1. GOD MODE TOGGLE
+# 1. GOD MODE TOGGLE (AUTH-GATED)
 @app.post("/admin/set-demo-mode")
 async def set_demo_mode(request: dict = Body(default={})):
     """
-    MASTER SWITCH for Pitch Demo.
+    MASTER SWITCH for Pitch Demo. Requires X-Admin-Secret header.
     Accepts {"enable": true, "scenario": "CRITICAL"}
     """
+    from fastapi import Request as FastAPIRequest
+    # Auth gate: require ADMIN_SECRET env var
+    admin_secret = os.getenv("ADMIN_SECRET", "")
+    if not admin_secret:
+        raise HTTPException(403, "ADMIN_SECRET not configured")
+    
+    # Check header (passed via middleware or direct call)
+    provided_secret = request.get("_admin_secret", "")
+    if provided_secret != admin_secret:
+        raise HTTPException(403, "Unauthorized: invalid admin secret")
+    
     enable = request.get("enable", False)
     scenario = request.get("scenario", "CRITICAL")
     

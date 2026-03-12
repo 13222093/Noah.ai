@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { TilePanel } from './TilePanel';
+import { FloodRiskForecast } from './FloodRiskForecast';
 import { useDashboardData } from './DashboardDataContext';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { useMapLayerStore } from '@/lib/mapLayerStore';
@@ -9,7 +10,7 @@ import { Brain, Map, ClipboardList, Mail, Settings } from 'lucide-react';
 import type { SegmentedTab } from './SegmentedControl';
 
 const LEFT_TABS: SegmentedTab[] = [
-  { id: 'ai-tools', label: 'AI Tools', icon: Brain },
+  { id: 'ai-tools', label: 'Forecast', icon: Brain },
   { id: 'map-layers', label: 'Map Layers', icon: Map },
   { id: 'reports', label: 'Reports', icon: ClipboardList },
   { id: 'sms', label: 'SMS', icon: Mail },
@@ -30,96 +31,80 @@ interface LeftTileProps {
 export function LeftTile({ collapsed = false }: LeftTileProps) {
   const [activeTab, setActiveTab] = useLocalStorage('noah-left-tab', 'ai-tools');
   const data = useDashboardData();
-  const { showFloodZones, showWeatherStations, toggleFloodZones, toggleWeatherStations } = useMapLayerStore();
-  const mlHealth = data.stats.mlHealth;
+  const {
+    showFloodZones, showWeatherStations, showRadar, showAqi, showEvacPins,
+    toggleFloodZones, toggleWeatherStations, toggleRadar, toggleAqi, toggleEvacPins,
+  } = useMapLayerStore();
 
   const renderContent = () => {
     switch (activeTab) {
       case 'ai-tools':
-        return (
-          <div className="p-3 space-y-3">
-            <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">AI Models</h3>
-            <div className="space-y-2">
-              <button className="w-full flex items-center gap-2 px-3 py-2 rounded-md bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 text-xs font-medium transition-colors">
-                <Brain size={14} />
-                LSTM Predict
-              </button>
-              <button className="w-full flex items-center gap-2 px-3 py-2 rounded-md bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 text-xs font-medium transition-colors">
-                <span className="text-sm">👁</span>
-                YOLO Verify
-              </button>
-            </div>
-            <div className="pt-2 border-t border-white/5">
-              <h4 className="text-[10px] font-semibold text-slate-500 uppercase mb-2">Model Status</h4>
-              <div className="space-y-1.5 text-xs">
-                <div className="flex items-center justify-between text-slate-400">
-                  <span>LSTM</span>
-                  <span className="flex items-center gap-1">
-                    <span className={`w-1.5 h-1.5 rounded-full ${mlHealth.lstmReady ? 'bg-emerald-500' : 'bg-yellow-500'}`} />
-                    {mlHealth.lstmReady ? 'Ready' : 'Offline'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-slate-400">
-                  <span>Vision</span>
-                  <span className="flex items-center gap-1">
-                    <span className={`w-1.5 h-1.5 rounded-full ${mlHealth.visionReady ? 'bg-emerald-500' : 'bg-yellow-500'}`} />
-                    {mlHealth.visionReady ? 'Ready' : 'Offline'}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
+        return <FloodRiskForecast />;
       case 'map-layers':
         return (
           <div className="p-3 space-y-3">
             <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Layers</h3>
             <div className="space-y-2 text-xs text-slate-400">
               <label className="flex items-center justify-between cursor-pointer">
+                <span className="flex items-center gap-1.5">🌧 Radar Overlay</span>
+                <input type="checkbox" checked={showRadar} onChange={toggleRadar} className="accent-cyan-500" />
+              </label>
+              <label className="flex items-center justify-between cursor-pointer">
+                <span className="flex items-center gap-1.5">💨 AQI Bubbles</span>
+                <input type="checkbox" checked={showAqi} onChange={toggleAqi} className="accent-emerald-500" />
+              </label>
+              <label className="flex items-center justify-between cursor-pointer">
                 <span>Flood Zones</span>
-                <input type="checkbox" checked={showFloodZones} onChange={toggleFloodZones} className="accent-blue-500" />
+                <input type="checkbox" checked={showFloodZones} onChange={toggleFloodZones} className="accent-amber-500" />
               </label>
               <label className="flex items-center justify-between cursor-pointer">
                 <span>Weather Stations</span>
                 <input type="checkbox" checked={showWeatherStations} onChange={toggleWeatherStations} className="accent-blue-500" />
               </label>
               <label className="flex items-center justify-between cursor-pointer">
-                <span>Evacuation Routes</span>
-                <input type="checkbox" className="accent-blue-500" />
-              </label>
-              <label className="flex items-center justify-between cursor-pointer">
-                <span>Sensors</span>
-                <input type="checkbox" defaultChecked className="accent-blue-500" />
+                <span className="flex items-center gap-1.5">📍 Evacuation Pins</span>
+                <input type="checkbox" checked={showEvacPins} onChange={toggleEvacPins} className="accent-red-500" />
               </label>
             </div>
-            <button className="w-full flex items-center gap-2 px-3 py-2 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 text-xs transition-colors mt-3">
-              📍 Set Location
-            </button>
           </div>
         );
       case 'reports':
         return (
-          <div className="p-3 space-y-3">
-            <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">Quick Report</h3>
-            <div className="space-y-2">
-              <input
-                placeholder="Location..."
-                className="w-full bg-white/5 rounded px-2 py-1.5 text-xs text-slate-300 placeholder:text-slate-600 border border-white/5 focus:border-blue-500/50 outline-none"
-              />
-              <div className="flex gap-1">
-                {['Ringan', 'Sedang', 'Parah'].map((sev) => (
-                  <button
-                    key={sev}
-                    className="flex-1 text-[10px] py-1.5 rounded bg-white/5 hover:bg-white/10 text-slate-400 transition-colors"
-                  >
-                    {sev}
-                  </button>
-                ))}
-              </div>
-              <button className="w-full py-1.5 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition-colors">
-                Submit Report
-              </button>
+          <div className="p-3 space-y-2.5 text-[11px]">
+            {/* Current Time */}
+            <div className="rounded-md bg-white/[0.03] border border-white/5 p-2.5">
+              <p className="text-[9px] text-slate-500 uppercase tracking-wider flex items-center gap-1 mb-1">🕐 Waktu Saat Ini</p>
+              <p className="text-cyan-400 font-bold text-sm tabular-nums">{new Date().toLocaleString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+              <p className="text-[9px] text-slate-600 mt-0.5">WIB - Zona Waktu Indonesia</p>
             </div>
+
+            {/* Guidelines */}
+            <div className="rounded-md bg-white/[0.03] border border-white/5 p-2.5">
+              <p className="text-[10px] font-semibold text-slate-300 mb-1.5">Panduan Pelaporan</p>
+              <ul className="space-y-1 text-[10px] text-slate-400">
+                <li>• Pastikan lokasi yang dilaporkan akurat</li>
+                <li>• Pilih tinggi air sesuai kondisi</li>
+                <li>• Sertakan foto untuk validasi</li>
+              </ul>
+            </div>
+
+            {/* Emergency Contacts */}
+            <div className="rounded-md bg-amber-500/5 border border-amber-500/10 p-2.5">
+              <p className="text-[10px] font-semibold text-slate-300 flex items-center gap-1 mb-1.5">⚠️ Kontak Darurat</p>
+              <div className="space-y-0.5 text-[10px]">
+                <div className="flex justify-between"><span className="text-slate-500">BPBD:</span><span className="text-slate-300 font-medium">164</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">Damkar:</span><span className="text-slate-300 font-medium">113</span></div>
+                <div className="flex justify-between"><span className="text-slate-500">Polri:</span><span className="text-slate-300 font-medium">110</span></div>
+              </div>
+            </div>
+
+            {/* Redirect Button */}
+            <a
+              href="/flood-report"
+              className="flex items-center justify-center gap-1.5 w-full py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium transition-colors"
+            >
+              <ClipboardList size={12} /> Buat Laporan Banjir
+            </a>
           </div>
         );
       case 'sms':

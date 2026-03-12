@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/Button';
 import { Loader2, Upload, ImageIcon, AlertTriangle, CheckCircle, Camera } from 'lucide-react';
 import { PageShell } from '@/components/layout/PageShell';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 interface VerifyResult {
   is_flooded?: boolean;
@@ -21,6 +22,7 @@ export default function VisualVerifyPage() {
   const [result, setResult] = useState<VerifyResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
+  const { t } = useLanguage();
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -92,13 +94,13 @@ export default function VisualVerifyPage() {
   };
 
   return (
-    <PageShell title="Visual Verification (YOLO)" subtitle="Upload images to detect flooding" icon={<Camera className="w-4 h-4" />}>
+    <PageShell title={t('visualVerify.title')} subtitle={t('visualVerify.subtitle')} icon={<Camera className="w-4 h-4" />}>
       <div className="max-w-4xl mx-auto">
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Upload Image</CardTitle>
+            <CardTitle>{t('visualVerify.uploadImage')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div
@@ -128,7 +130,7 @@ export default function VisualVerifyPage() {
                 ) : (
                   <div className="flex flex-col items-center gap-2 text-slate-500">
                     <ImageIcon className="w-12 h-12" />
-                    <span>Drag and drop or click to select</span>
+                    <span>{t('visualVerify.dragDrop')}</span>
                   </div>
                 )}
               </label>
@@ -141,10 +143,10 @@ export default function VisualVerifyPage() {
                 ) : (
                   <Upload className="w-4 h-4 mr-2" />
                 )}
-                {loading ? 'Analyzing...' : 'Verify'}
+                {loading ? t('visualVerify.analyzing') : t('visualVerify.verify')}
               </Button>
               <Button variant="outline" onClick={handleReset} disabled={!file}>
-                Reset
+                {t('visualVerify.reset')}
               </Button>
             </div>
           </CardContent>
@@ -152,7 +154,7 @@ export default function VisualVerifyPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Detection Result</CardTitle>
+            <CardTitle>{t('visualVerify.detectionResult')}</CardTitle>
           </CardHeader>
           <CardContent>
             {error && (
@@ -166,17 +168,17 @@ export default function VisualVerifyPage() {
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   {result.is_flooded ? (
-                    <CheckCircle className="w-5 h-5 text-red-500" />
+                    <AlertTriangle className="w-5 h-5 text-red-500" />
                   ) : (
                     <CheckCircle className="w-5 h-5 text-emerald-500" />
                   )}
                   <span className="font-medium">
-                    {result.is_flooded ? 'Flood detected' : 'No flood detected'}
+                    {result.is_flooded ? t('visualVerify.floodDetected') : t('visualVerify.noFlood')}
                   </span>
                 </div>
                 {result.flood_probability !== undefined && (
                   <div>
-                    <span className="text-sm text-slate-500">Flood probability</span>
+                    <span className="text-sm text-slate-500">{t('visualVerify.floodProbability')}</span>
                     <div className="mt-1 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                       <div
                         className="h-full bg-cyan-500 transition-all"
@@ -190,7 +192,7 @@ export default function VisualVerifyPage() {
                 )}
                 {result.objects_detected && result.objects_detected.length > 0 && (
                   <div>
-                    <span className="text-sm text-slate-500">Objects detected</span>
+                    <span className="text-sm text-slate-500">{t('visualVerify.objectsDetected')}</span>
                     <div className="flex flex-wrap gap-2 mt-1">
                       {result.objects_detected.map((obj) => (
                         <span
@@ -208,7 +210,7 @@ export default function VisualVerifyPage() {
 
             {!result && !error && (
               <p className="text-slate-500 dark:text-slate-400 text-sm">
-                Upload an image and click Verify to analyze.
+                {t('visualVerify.emptyState')}
               </p>
             )}
           </CardContent>

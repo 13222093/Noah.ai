@@ -4,6 +4,7 @@ import {
   HarmCategory,
   HarmBlockThreshold,
 } from '@google/generative-ai';
+import { checkRateLimit, getClientIP } from '@/lib/simple-rate-limit';
 
 // Define TypeScript interfaces for input data validation and clarity
 interface FloodEvent {
@@ -74,6 +75,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Rate limit check
+  const ip = getClientIP(req.headers);
+  const rl = checkRateLimit(`flood-analysis:${ip}`);
+  if (!rl.allowed) {
+    return NextResponse.json({ error: 'Too many requests.' }, { status: 429 });
+  }
+
   try {
     const body: AnalysisPayload = await req.json();
     const { floodEvents, weatherData, infrastructureData, userPrompt } = body;
@@ -117,12 +125,15 @@ export async function POST(req: NextRequest) {
       },
     ];
 
+    // Sanitize user prompt to prevent injection
+    const sanitizedPrompt = userPrompt.replace(/`/g, "'").replace(/\$/g, '').slice(0, 500);
+
     // --- PERBAIKAN UTAMA ADA DI SINI ---
     // Pastikan seluruh string ini dibungkus oleh satu pasang backtick (`).
     const prompt = `You are an expert flood data analyst for Indonesia. Your task is to perform a comprehensive historical analysis based on the provided data and a specific user request.
 
 **User's Request:**
-"${userPrompt}"
+<user_request>${sanitizedPrompt}</user_request>
 
 **Provided Data:**
 

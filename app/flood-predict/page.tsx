@@ -146,7 +146,7 @@ export default function FloodPredictPage() {
   const riskColor = RISK_COLORS[riskLevel] || RISK_COLORS.UNKNOWN;
 
   return (
-    <PageShell title="Flood Prediction (LSTM)" subtitle="Rainfall-based water level prediction" icon={<BrainCircuit className="w-4 h-4" />}>
+    <PageShell title={t('floodPredict.title')} subtitle={t('floodPredict.subtitle')} icon={<BrainCircuit className="w-4 h-4" />}>
       <div className="max-w-4xl mx-auto">
 
       {mlHealth && (
@@ -155,13 +155,13 @@ export default function FloodPredictPage() {
             className={`text-xs px-2 py-1 rounded ${mlHealth.lstm_ready ? 'bg-emerald-500/20 text-emerald-600' : 'bg-amber-500/20 text-amber-600'
               }`}
           >
-            LSTM: {mlHealth.lstm_ready ? 'Ready' : 'Offline'}
+            LSTM: {mlHealth.lstm_ready ? t('floodPredict.ready') : t('floodPredict.offline')}
           </span>
           <span
             className={`text-xs px-2 py-1 rounded ${mlHealth.vision_ready ? 'bg-emerald-500/20 text-emerald-600' : 'bg-amber-500/20 text-amber-600'
               }`}
           >
-            YOLO: {mlHealth.vision_ready ? 'Ready' : 'Offline'}
+            YOLO: {mlHealth.vision_ready ? t('floodPredict.ready') : t('floodPredict.offline')}
           </span>
         </div>
       )}
@@ -169,7 +169,7 @@ export default function FloodPredictPage() {
       <div className="grid gap-6 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Input Data</CardTitle>
+            <CardTitle>{t('floodPredict.inputData')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex gap-2 mb-4 flex-wrap">
@@ -179,21 +179,21 @@ export default function FloodPredictPage() {
                 onClick={() => setMode('auto')}
               >
                 <Zap className="w-3 h-3 mr-1" />
-                Auto (Live)
+                {t('floodPredict.autoLive')}
               </Button>
               <Button
                 variant={mode === 'manual' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setMode('manual')}
               >
-                Manual
+                {t('floodPredict.manual')}
               </Button>
               <Button
                 variant={mode === 'scenario' ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => setMode('scenario')}
               >
-                Demo Scenario
+                {t('floodPredict.demoScenario')}
               </Button>
             </div>
 
@@ -202,29 +202,28 @@ export default function FloodPredictPage() {
                 <div className="p-4 bg-cyan-50 dark:bg-cyan-500/10 rounded-lg border border-cyan-200 dark:border-cyan-500/20">
                   <div className="flex items-center gap-2 text-cyan-700 dark:text-cyan-400 font-medium mb-2">
                     <Zap className="w-4 h-4" />
-                    Auto Predict Mode
+                    {t('floodPredict.autoMode')}
                   </div>
                   <p className="text-sm text-cyan-600 dark:text-cyan-400/80">
-                    Automatically fetches live water level data (historical replay from Manggarai) and
-                    real-time rainfall from OpenWeatherMap for Bogor &amp; Jakarta, then feeds it to the LSTM model.
+                    {t('floodPredict.autoDesc')}
                   </p>
                 </div>
                 {result?.input_data && (
                   <div className="p-3 bg-slate-50 dark:bg-slate-800 rounded-lg text-sm space-y-1">
-                    <p className="font-medium text-slate-700 dark:text-slate-300">Data Used:</p>
-                    <p className="text-slate-500">Water Level: <span className="font-mono">{result.input_data.water_level_cm} cm</span></p>
-                    <p className="text-slate-500">Rainfall Bogor: <span className="font-mono">{result.input_data.rainfall_bogor} mm</span></p>
-                    <p className="text-slate-500">Rainfall Jakarta: <span className="font-mono">{result.input_data.rainfall_jakarta} mm</span></p>
+                    <p className="font-medium text-slate-700 dark:text-slate-300">{t('floodPredict.dataUsed')}</p>
+                    <p className="text-slate-500">{t('floodPredict.waterLevel')}: <span className="font-mono">{result.input_data.water_level_cm} cm</span></p>
+                    <p className="text-slate-500">{t('floodPredict.rainfallBogor')}: <span className="font-mono">{result.input_data.rainfall_bogor} mm</span></p>
+                    <p className="text-slate-500">{t('floodPredict.rainfallJakarta')}: <span className="font-mono">{result.input_data.rainfall_jakarta} mm</span></p>
                   </div>
                 )}
               </div>
             ) : mode === 'scenario' ? (
               <div className="space-y-4">
                 <div>
-                  <Label>Scenario</Label>
+                  <Label>{t('floodPredict.scenario')}</Label>
                   <Select value={selectedScenarioId} onValueChange={handleScenarioChange}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select scenario" />
+                      <SelectValue placeholder={t('floodPredict.selectScenario')} />
                     </SelectTrigger>
                     <SelectContent>
                       {scenarios.map((s) => (
@@ -245,7 +244,7 @@ export default function FloodPredictPage() {
               <div className="space-y-4">
                 <div>
                   <Label className="flex items-center gap-2">
-                    <CloudRain className="w-4 h-4" /> Rainfall Bogor (mm)
+                    <CloudRain className="w-4 h-4" /> {t('floodPredict.rainfallBogor')} (mm)
                   </Label>
                   <Input
                     type="number"
@@ -256,7 +255,7 @@ export default function FloodPredictPage() {
                 </div>
                 <div>
                   <Label className="flex items-center gap-2">
-                    <CloudRain className="w-4 h-4" /> Rainfall Jakarta (mm)
+                    <CloudRain className="w-4 h-4" /> {t('floodPredict.rainfallJakarta')} (mm)
                   </Label>
                   <Input
                     type="number"
@@ -267,7 +266,7 @@ export default function FloodPredictPage() {
                 </div>
                 <div>
                   <Label className="flex items-center gap-2">
-                    <Droplets className="w-4 h-4" /> Current Water Level (cm)
+                    <Droplets className="w-4 h-4" /> {t('floodPredict.currentWaterLevel')} (cm)
                   </Label>
                   <Input
                     type="number"
@@ -291,14 +290,14 @@ export default function FloodPredictPage() {
               ) : (
                 <Activity className="w-4 h-4 mr-2" />
               )}
-              {loading ? 'Predicting...' : mode === 'auto' ? 'Auto Predict (Live Data)' : 'Get Prediction'}
+              {loading ? t('floodPredict.predicting') : mode === 'auto' ? t('floodPredict.autoPredictBtn') : t('floodPredict.getPrediction')}
             </Button>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Prediction Result</CardTitle>
+            <CardTitle>{t('floodPredict.result')}</CardTitle>
           </CardHeader>
           <CardContent>
             {error && (
@@ -316,16 +315,16 @@ export default function FloodPredictPage() {
                         ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-400'
                         : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400'
                       }`}>
-                      {result.mode_used === 'auto' ? '⚡ Auto (Live Data)' : '✏️ Manual Input'}
+                      {result.mode_used === 'auto' ? `⚡ ${t('floodPredict.autoLive')}` : `✏️ ${t('floodPredict.manualInput')}`}
                     </span>
                   </div>
                 )}
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-500">Predicted Water Level</span>
+                  <span className="text-sm text-slate-500">{t('floodPredict.predictedWaterLevel')}</span>
                   <span className="text-xl font-bold">{result.prediction_cm} cm</span>
                 </div>
                 <div>
-                  <span className="text-sm text-slate-500">Risk Level</span>
+                  <span className="text-sm text-slate-500">{t('floodPredict.riskLevel')}</span>
                   <div
                     className={`mt-1 rounded-lg px-3 py-2 text-white font-medium ${riskColor}`}
                   >
@@ -333,7 +332,7 @@ export default function FloodPredictPage() {
                   </div>
                 </div>
                 <div>
-                  <span className="text-sm text-slate-500">Recommendation</span>
+                  <span className="text-sm text-slate-500">{t('floodPredict.recommendation')}</span>
                   <p className="mt-1 text-sm text-slate-700 dark:text-slate-300">
                     {result.alert_message}
                   </p>
@@ -344,8 +343,8 @@ export default function FloodPredictPage() {
             {!result && !error && !loading && (
               <p className="text-slate-500 dark:text-slate-400 text-sm">
                 {mode === 'auto'
-                  ? 'Click "Auto Predict" to fetch live data and run the LSTM model.'
-                  : 'Enter data and click "Get Prediction" to see results.'}
+                  ? t('floodPredict.autoEmptyState')
+                  : t('floodPredict.manualEmptyState')}
               </p>
             )}
           </CardContent>

@@ -11,6 +11,13 @@ export async function GET(
   }
 
   const tilePath = tile.join('/');
+
+  // Validate tile path to prevent SSRF — only allow valid tile patterns
+  const validTilePattern = /^[a-z_]+\/\d+\/\d+\/\d+\.png$/;
+  if (!validTilePattern.test(tilePath)) {
+    return new Response('Invalid tile path', { status: 400 });
+  }
+
   const externalUrl = `https://tile.openweathermap.org/map/${tilePath}?appid=${apiKey}`;
 
   try {

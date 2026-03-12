@@ -95,7 +95,10 @@ export function AlertCountProvider({ children }: AlertCountProviderProps) {
     return () => clearInterval(intervalId); // Bersihkan interval saat komponen di-unmount
   }, []); // Array dependensi kosong agar hanya berjalan sekali saat mount
 
-  const value = { alertCount, highAlertCount, loadingAlerts, errorAlerts };
+  const value = React.useMemo(
+    () => ({ alertCount, highAlertCount, loadingAlerts, errorAlerts }),
+    [alertCount, highAlertCount, loadingAlerts, errorAlerts]
+  );
 
   return (
     <AlertCountContext.Provider value={value}>

@@ -11,6 +11,7 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import { id } from 'date-fns/locale';
 import clsx from 'clsx';
+import { useLanguage } from '@/src/context/LanguageContext';
 
 interface FloodReportCardProps {
   id: string;
@@ -29,23 +30,7 @@ const severityIcons = {
   high: <Ship className="w-5 h-5 sm:w-6 sm:h-6 text-red-500" />,
 };
 
-const trendInfo = {
-  rising: {
-    icon: <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />,
-    text: "Naik",
-    className: "text-red-500",
-  },
-  falling: {
-    icon: <ArrowDown className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />,
-    text: "Turun",
-    className: "text-green-500",
-  },
-  stable: {
-    icon: <Minus className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />,
-    text: "Stabil",
-    className: "text-gray-500",
-  },
-};
+
 
 const FloodReportCard: React.FC<FloodReportCardProps> = ({
   locationName,
@@ -56,6 +41,25 @@ const FloodReportCard: React.FC<FloodReportCardProps> = ({
   isSelected,
   onClick,
 }) => {
+  const { t } = useLanguage();
+
+  const trendInfo = {
+    rising: {
+      icon: <ArrowUp className="w-4 h-4 sm:w-5 sm:h-5 text-red-500" />,
+      text: t('floodReport.rising'),
+      className: 'text-red-500',
+    },
+    falling: {
+      icon: <ArrowDown className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />,
+      text: t('floodReport.falling'),
+      className: 'text-green-500',
+    },
+    stable: {
+      icon: <Minus className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />,
+      text: t('floodReport.stable'),
+      className: 'text-gray-500',
+    },
+  };
   const trendData = trendInfo[trend];
 
   return (
@@ -71,7 +75,7 @@ const FloodReportCard: React.FC<FloodReportCardProps> = ({
         <div className="flex items-start justify-between mb-1">
           <div className="flex items-center gap-3">
             {severityIcons[severity]}
-            <h3 className="font-semibold text-[0.6rem] sm:text-xs md:text-sm leading-tight min-w-0">{locationName}</h3>
+            <h3 className="font-semibold text-xs md:text-sm leading-tight min-w-0">{locationName}</h3>
           </div>
         </div>
 
@@ -81,14 +85,14 @@ const FloodReportCard: React.FC<FloodReportCardProps> = ({
             <span className="text-base sm:text-xl md:text-2xl font-bold">{waterLevel}</span>
             <span className="text-xs sm:text-base font-medium ml-1">cm</span>
           </div>
-          <div className={`flex items-center gap-1 font-semibold text-[0.6rem] sm:text-base ${trendData.className}`}>
+          <div className={`flex items-center gap-1 font-semibold text-xs sm:text-base ${trendData.className}`}>
             {trendData.icon}
             <span>{trendData.text}</span>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="text-[0.55rem] sm:text-xs text-muted-foreground mt-1 text-left w-full">
+        <div className="text-xs text-muted-foreground mt-1 text-left w-full">
           {formatDistanceToNow(new Date(timestamp), { addSuffix: true, locale: id })}
         </div>
       </CardContent>
