@@ -711,19 +711,6 @@ Noah AI uses a **dark, glassmorphic command center** aesthetic with CSS custom p
 
 ---
 
-## Known Limitations
-
-| Area | Status | Detail |
-|---|---|---|
-| LSTM Prediction | ⚠️ Falls back to physics | Model needs 62-feature preprocessing — currently simplified 3-feature input |
-| CCTV Monitoring | ⚠️ Simulated | No live CCTV sources configured; uses demo channels |
-| Infrastructure Data | ⚠️ Mock data | Water levels and pump status generated from mock-data functions |
-| Supabase Data | ✅ With fallback | Falls back to mock data (50 reports) if Supabase has no records |
-| SMS Alerts | ✅ Graceful | Works with Twilio; skips silently if not configured |
-| AI Chatbot | ✅ Rate-limited | IP-based rate limiting (20 req/min) on chatbot, flood-analysis, ai-alerts, and predict endpoints |
-
----
-
 ## UN SDG Alignment
 
 Noah AI directly supports the **ASEAN Capacity Building Roadmap 2025–2030** and targets:
