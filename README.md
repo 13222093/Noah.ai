@@ -15,6 +15,10 @@ Real-time flood monitoring, hybrid LSTM + physics prediction, YOLOv8 visual veri
 [![Gemini](https://img.shields.io/badge/Gemini-2.5_Flash-4285F4?logo=google)](https://ai.google.dev/)
 [![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
+### 👥 Team
+
+**Moh Ari Alexander Aziz** · **Tiffany Viriya Chu** · **Jason Edward Salim** · **Putri Dzakiyah** · **Naufarrel Zhafif**
+
 </div>
 
 ---
@@ -27,11 +31,11 @@ Real-time flood monitoring, hybrid LSTM + physics prediction, YOLOv8 visual veri
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
 - [Features](#features)
-- [Pages](#pages)
-- [API Routes](#api-routes)
 - [Getting Started](#getting-started)
 - [Environment Variables](#environment-variables)
 - [Scripts](#scripts)
+- [Pages](#pages)
+- [API Routes](#api-routes)
 - [Project Structure](#project-structure)
 - [Design System](#design-system)
 - [Known Limitations](#known-limitations)
@@ -187,38 +191,20 @@ graph LR
   class ACTION action
 ```
 
-### Gemini AI Chatbot — Function-Calling Architecture
+### Gemini AI Chatbot — Function-Calling Tools
 
-```mermaid
-graph TD
-  USER["👤 User Query"] --> CHATBOT["/api/chatbot<br/>Gemini 2.5 Flash"]
+> 🤖 Multi-turn function calling loop (up to 5 turns) with rate limiting (20 req/min) + safety filters.
 
-  CHATBOT -->|"Multi-turn loop<br/>(up to 5 turns)"| TOOLS
-
-  subgraph TOOLS["🛠️ 8 Function-Calling Tools"]
-    T1["fetchWaterLevelData<br/>Hydrology post levels"]
-    T2["fetchPumpStatusData<br/>Pump operations"]
-    T3["fetchBmkgLatestQuake<br/>BMKG earthquake data"]
-    T4["fetchPetabencanaReports<br/>Crowd-sourced disasters"]
-    T5["geocodeLocation<br/>Name → Coordinates"]
-    T6["fetchWeatherData<br/>OpenWeatherMap"]
-    T7["requestUserLocation<br/>Browser geolocation"]
-    T8["displayNotification<br/>Toast popup"]
-  end
-
-  TOOLS -->|"Tool results"| CHATBOT
-  CHATBOT -->|"Natural language"| RESPONSE["💬 AI Response<br/>with rate limiting (20 req/min)<br/>+ safety filters"]
-
-  classDef user fill:#0d1117,stroke:#00e5ff,stroke-width:2px,color:#e6edf3
-  classDef bot fill:#111827,stroke:#7c3aed,stroke-width:2px,color:#e6edf3
-  classDef tools fill:#1a1a2e,stroke:#f59e0b,stroke-width:2px,color:#e6edf3
-  classDef response fill:#0f172a,stroke:#00e676,stroke-width:2px,color:#e6edf3
-
-  class USER user
-  class CHATBOT bot
-  class TOOLS tools
-  class RESPONSE response
-```
+| # | Tool | Description |
+|---|---|---|
+| 1 | `fetchWaterLevelData` | Hydrology post water levels |
+| 2 | `fetchPumpStatusData` | Pump station operations |
+| 3 | `fetchBmkgLatestQuake` | BMKG earthquake data |
+| 4 | `fetchPetabencanaReports` | Crowd-sourced disaster reports |
+| 5 | `geocodeLocation` | Location name → coordinates |
+| 6 | `fetchWeatherData` | OpenWeatherMap current conditions |
+| 7 | `requestUserLocation` | Browser geolocation trigger |
+| 8 | `displayNotification` | Client-side toast popup |
 
 ### Tiling Dashboard Layout
 
@@ -400,92 +386,6 @@ Full i18n with `LanguageContext` — English and Bahasa Indonesia. Language pers
 
 ---
 
-## Pages
-
-| Route | Description |
-|---|---|
-| `/` | Redirect → `/dashboard` |
-| `/dashboard` | **Tiling Command Center** (default) or Classic view (`?layout=classic`) |
-| `/alerts` | Full alert feed with severity categories |
-| `/sensor-data` | Flood reports from Supabase + Statistics Dashboard |
-| `/flood-predict` | LSTM prediction — Auto, Manual, and Demo Scenario modes |
-| `/visual-verify` | YOLOv8 image upload for flood detection |
-| `/flood-report` | Citizen flood report submission form |
-| `/flood-map` | Standalone interactive flood map |
-| `/evacuation` | Evacuation locations with routing |
-| `/cctv-simulation` | CCTV AI monitoring (simulated feeds) |
-| `/sms-subscribe` | SMS alert phone registration |
-| `/current-weather` | Current weather conditions |
-| `/weather-forecast` | Weather forecast |
-| `/statistics` | Platform analytics and flood statistics |
-| `/education` | 4 educational articles on flood preparedness |
-| `/settings` | User preferences (theme, language, notifications) |
-| `/contact` | Contact information |
-| `/privacy` | Privacy policy |
-| `/data-source` | Data source attribution and documentation |
-
----
-
-## API Routes
-
-### Core AI Pipeline (6 routes)
-
-| Endpoint | Method | Description |
-|---|---|---|
-| `/api/predict` | POST | LSTM prediction proxy → ML service; Auto mode fetches live data |
-| `/api/verify-visual` | POST | Image upload → YOLOv8 flood detection |
-| `/api/smart-alert` | POST | Cross-validates LSTM + YOLO → confidence score → triggers SMS |
-| `/api/cctv-scan` | POST | CCTV frame analysis |
-| `/api/chatbot` | POST | Gemini 2.5 Flash with 7 function-calling tools |
-| `/api/flood-analysis` | POST | AI flood situation analysis |
-
-### Data & Monitoring (11 routes)
-
-| Endpoint | Description |
-|---|---|
-| `/api/water-level` | Water level data (Manggarai historical replay) |
-| `/api/rainfall-dual` | Dual-location rainfall (Jakarta + Bogor) |
-| `/api/weather` | OpenWeatherMap current conditions proxy |
-| `/api/weather-history` | Historical weather data |
-| `/api/air-quality` | Air Quality Index data |
-| `/api/sensor-simulator` | Simulated sensor data stream |
-| `/api/disaster-proxy` | PetaBencana.id report proxy |
-| `/api/disaster-reports` | Disaster report aggregation |
-| `/api/evacuation` | Evacuation point data |
-| `/api/regions` | Region metadata |
-| `/api/statistics` | Dashboard statistics |
-
-### Alerts & Communication (5 routes)
-
-| Endpoint | Description |
-|---|---|
-| `/api/sms-alert` | Sends Twilio SMS to subscribers per region |
-| `/api/sms-subscribe` | Phone subscription CRUD |
-| `/api/alerts` | Active alerts feed |
-| `/api/ai-alerts` | AI-generated alert summaries |
-| `/api/news-summary` | Regional news aggregation |
-
-### System (8 routes)
-
-| Endpoint | Description |
-|---|---|
-| `/api/health` | System health check |
-| `/api/ml-health` | ML service status (LSTM + YOLO readiness) |
-| `/api/dashboard` | Dashboard aggregate data |
-| `/api/scenarios` | Demo scenario list |
-| `/api/scenarios/[id]` | Run specific demo scenario |
-| `/api/preferences` | User preferences storage |
-| `/api/flood-reports` | Flood report CRUD |
-| `/api/analysis` | General analysis endpoint |
-
-### ML Service Admin
-
-| Endpoint | Description |
-|---|---|
-| `POST /admin/set-demo-mode` | Toggle ML demo mode (requires `ADMIN_SECRET` in request body) |
-
----
-
 ## Getting Started
 
 ### Prerequisites
@@ -589,6 +489,92 @@ Copy `.env.example` to `.env.local` and configure:
 | `npm run typecheck` | Run TypeScript type checking |
 | `npm run lint` | Run ESLint |
 | `npm run test` | Run Vitest tests |
+
+---
+
+## Pages
+
+| Route | Description |
+|---|---|
+| `/` | Redirect → `/dashboard` |
+| `/dashboard` | **Tiling Command Center** (default) or Classic view (`?layout=classic`) |
+| `/alerts` | Full alert feed with severity categories |
+| `/sensor-data` | Flood reports from Supabase + Statistics Dashboard |
+| `/flood-predict` | LSTM prediction — Auto, Manual, and Demo Scenario modes |
+| `/visual-verify` | YOLOv8 image upload for flood detection |
+| `/flood-report` | Citizen flood report submission form |
+| `/flood-map` | Standalone interactive flood map |
+| `/evacuation` | Evacuation locations with routing |
+| `/cctv-simulation` | CCTV AI monitoring (simulated feeds) |
+| `/sms-subscribe` | SMS alert phone registration |
+| `/current-weather` | Current weather conditions |
+| `/weather-forecast` | Weather forecast |
+| `/statistics` | Platform analytics and flood statistics |
+| `/education` | 4 educational articles on flood preparedness |
+| `/settings` | User preferences (theme, language, notifications) |
+| `/contact` | Contact information |
+| `/privacy` | Privacy policy |
+| `/data-source` | Data source attribution and documentation |
+
+---
+
+## API Routes
+
+### Core AI Pipeline (6 routes)
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/predict` | POST | LSTM prediction proxy → ML service; Auto mode fetches live data |
+| `/api/verify-visual` | POST | Image upload → YOLOv8 flood detection |
+| `/api/smart-alert` | POST | Cross-validates LSTM + YOLO → confidence score → triggers SMS |
+| `/api/cctv-scan` | POST | CCTV frame analysis |
+| `/api/chatbot` | POST | Gemini 2.5 Flash with 7 function-calling tools |
+| `/api/flood-analysis` | POST | AI flood situation analysis |
+
+### Data & Monitoring (11 routes)
+
+| Endpoint | Description |
+|---|---|
+| `/api/water-level` | Water level data (Manggarai historical replay) |
+| `/api/rainfall-dual` | Dual-location rainfall (Jakarta + Bogor) |
+| `/api/weather` | OpenWeatherMap current conditions proxy |
+| `/api/weather-history` | Historical weather data |
+| `/api/air-quality` | Air Quality Index data |
+| `/api/sensor-simulator` | Simulated sensor data stream |
+| `/api/disaster-proxy` | PetaBencana.id report proxy |
+| `/api/disaster-reports` | Disaster report aggregation |
+| `/api/evacuation` | Evacuation point data |
+| `/api/regions` | Region metadata |
+| `/api/statistics` | Dashboard statistics |
+
+### Alerts & Communication (5 routes)
+
+| Endpoint | Description |
+|---|---|
+| `/api/sms-alert` | Sends Twilio SMS to subscribers per region |
+| `/api/sms-subscribe` | Phone subscription CRUD |
+| `/api/alerts` | Active alerts feed |
+| `/api/ai-alerts` | AI-generated alert summaries |
+| `/api/news-summary` | Regional news aggregation |
+
+### System (8 routes)
+
+| Endpoint | Description |
+|---|---|
+| `/api/health` | System health check |
+| `/api/ml-health` | ML service status (LSTM + YOLO readiness) |
+| `/api/dashboard` | Dashboard aggregate data |
+| `/api/scenarios` | Demo scenario list |
+| `/api/scenarios/[id]` | Run specific demo scenario |
+| `/api/preferences` | User preferences storage |
+| `/api/flood-reports` | Flood report CRUD |
+| `/api/analysis` | General analysis endpoint |
+
+### ML Service Admin
+
+| Endpoint | Description |
+|---|---|
+| `POST /admin/set-demo-mode` | Toggle ML demo mode (requires `ADMIN_SECRET` in request body) |
 
 ---
 
