@@ -6,7 +6,7 @@
 
 Real-time flood monitoring, hybrid LSTM + physics prediction, YOLOv8 visual verification, Gemini-powered AI chatbot, and Twilio SMS alerts — unified in a Hyprland-inspired tiling command center.
 
-📄 <a href="https://drive.google.com/drive/folders/1Wkn_Pt7N3k_vM1OzjFqGrQAOia3LisJr?usp=sharing">Full Report</a> · 🌐 <a href="https://noah-pi-umber.vercel.app/dashboard">Deployed Website</a> · 🎬 <a href="https://drive.google.com/drive/folders/1Wkn_Pt7N3k_vM1OzjFqGrQAOia3LisJr?usp=sharing">Demo Video</a>
+📄 <a href="https://drive.google.com/drive/folders/1Wkn_Pt7N3k_vM1OzjFqGrQAOia3LisJr?usp=sharing">Full Report</a> · 🌐 <a href="https://noah-pi-umber.vercel.app/dashboard">Deployed Website</a> · 🎬 <a href="https://youtu.be/ZSLqQ2QtJgY">Demo Video</a>
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.2-blue?logo=typescript)](https://www.typescriptlang.org/)
