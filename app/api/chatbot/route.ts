@@ -141,16 +141,35 @@ export async function POST(request: Request) {
       );
     }
 
-    const calls = response.functionCalls();
-    const call = calls ? calls[0] : undefined;
+    // ---- Multi-turn function call loop ----
+    // Gemini may chain function calls (e.g. geocodeLocation → fetchWeatherData).
+    // We loop up to MAX_TOOL_TURNS until Gemini returns text instead of a function call.
+    const MAX_TOOL_TURNS = 5;
+    let currentContents: Content[] = [...contents];
+    let currentResponse = response;
 
-    if (call) {
-      console.log(`[Chatbot API] 🛠️ Gemini Suggested Function: ${call.name} with args:`, call.args);
+    for (let turn = 0; turn < MAX_TOOL_TURNS; turn++) {
+      const calls = currentResponse.functionCalls();
+      const call = calls ? calls[0] : undefined;
 
+      if (!call) {
+        // No more function calls — return the text
+        const text = currentResponse.text();
+        return NextResponse.json({ answer: text || 'Maaf, saya tidak bisa memproses permintaan ini saat ini.' }, { status: 200 });
+      }
+
+      console.log(`[Chatbot API] 🛠️ Turn ${turn + 1}: Function '${call.name}' with args:`, call.args);
+
+      // Special actions that return to the client
       if (call.name === 'requestUserLocation') {
         return NextResponse.json({ action: 'REQUEST_LOCATION', originalCall: call }, { status: 200 });
       }
+      if (call.name === 'displayNotification') {
+        const args = call.args as DisplayNotificationArgs;
+        return NextResponse.json({ notification: { message: args.message, type: args.type, duration: args.duration } }, { status: 200 });
+      }
 
+      // Execute the tool
       let toolResponseData: any;
       try {
         if (call.name === 'fetchWaterLevelData') toolResponseData = await fetchWaterLevelData();
@@ -178,35 +197,31 @@ export async function POST(request: Request) {
           }
           toolResponseData = await fetchWeatherData(lat, lon, OPEN_WEATHER_API_KEY);
           if (args.locationName) toolResponseData.locationName = args.locationName;
-        } else if (call.name === 'displayNotification') {
-            const args = call.args as DisplayNotificationArgs;
-            return NextResponse.json({ notification: { message: args.message, type: args.type, duration: args.duration } }, { status: 200 });
         } else {
-          throw new Error(`Fungsi tidak dikenal: ${call.name}`);
+          toolResponseData = { error: `Fungsi tidak dikenal: ${call.name}` };
         }
-
-        const toolContents: Content[] = [
-          ...contents,
-          { role: 'model', parts: [{ functionCall: call }] },
-          { role: 'function', parts: [{ functionResponse: { name: call.name, response: toolResponseData } }] },
-        ];
-
-        const finalResult = await model.generateContent({ contents: toolContents });
-        return NextResponse.json({ answer: finalResult.response.text() }, { status: 200 });
-
-      } catch (toolExecutionError: any) {
-        console.error(`[Chatbot API] ❌ Error executing tool '${call.name}':`, toolExecutionError);
-        const errorContents: Content[] = [
-          ...contents,
-          { role: 'model', parts: [{ functionCall: call }] },
-          { role: 'function', parts: [{ functionResponse: { name: call.name, response: { error: toolExecutionError.message } } }] },
-        ];
-        const errorResult = await model.generateContent({ contents: errorContents });
-        return NextResponse.json({ answer: errorResult.response.text() }, { status: 200 });
+      } catch (toolErr: any) {
+        console.error(`[Chatbot API] ❌ Error executing tool '${call.name}':`, toolErr);
+        toolResponseData = { error: toolErr.message };
       }
-    } else {
-      return NextResponse.json({ answer: response.text() }, { status: 200 });
+
+      // Append the function call + response to conversation
+      currentContents = [
+        ...currentContents,
+        { role: 'model', parts: [{ functionCall: call }] },
+        { role: 'function', parts: [{ functionResponse: { name: call.name, response: toolResponseData } }] },
+      ];
+
+      // Ask Gemini again with the tool results
+      const nextResult = await retry(() => model.generateContent({ contents: currentContents }));
+      currentResponse = nextResult.response;
     }
+
+    // Exhausted turns — return whatever text we have
+    const finalText = currentResponse.text();
+    return NextResponse.json({
+      answer: finalText || 'Data berhasil diambil. Silakan coba pertanyaan yang lebih spesifik.',
+    }, { status: 200 });
   } catch (error: any) {
     console.error('[Chatbot API] Fatal Error in POST handler:', error);
     const errorMessage = 'Terjadi kesalahan internal server yang tidak terduga. Mohon coba lagi nanti.';

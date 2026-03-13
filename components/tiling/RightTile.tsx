@@ -116,15 +116,71 @@ export function RightTile() {
     setChatInput('');
     setChatLoading(true);
     try {
+      // Try to get user location for context
+      let location: { latitude: number; longitude: number } | undefined;
+      try {
+        if (navigator.geolocation) {
+          const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 3000 })
+          );
+          location = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+        }
+      } catch { /* location not available, that's fine */ }
+
       const res = await fetch('/api/chatbot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: text }),
+        body: JSON.stringify({ question: text, location }),
       });
       const data = await res.json();
+
+      // Handle REQUEST_LOCATION action: re-send with location
+      if (data.action === 'REQUEST_LOCATION') {
+        if (location) {
+          // Retry with explicit location context
+          const retryRes = await fetch('/api/chatbot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              question: text,
+              location,
+              history: [
+                { role: 'user', parts: [{ text }] },
+                { role: 'model', parts: [{ text: `Lokasi pengguna: lat=${location.latitude}, lon=${location.longitude}` }] },
+              ],
+            }),
+          });
+          const retryData = await retryRes.json();
+          setChatMessages(prev => [...prev, {
+            id: (Date.now() + 1).toString(),
+            text: retryData.answer || retryData.error || 'Mohon coba lagi dengan menyebutkan nama kota (misal: "cuaca Jakarta").',
+            isUser: false,
+          }]);
+        } else {
+          setChatMessages(prev => [...prev, {
+            id: (Date.now() + 1).toString(),
+            text: '📍 Saya memerlukan lokasi Anda. Mohon izinkan akses lokasi browser, atau sebutkan nama kota secara spesifik (misal: "cuaca Jakarta").',
+            isUser: false,
+          }]);
+        }
+        return;
+      }
+
+      // Handle notification action
+      if (data.notification) {
+        setChatMessages(prev => [...prev, {
+          id: (Date.now() + 1).toString(),
+          text: data.notification.message || 'Notifikasi ditampilkan.',
+          isUser: false,
+        }]);
+        return;
+      }
+
+      // Normal response — guard against empty string
+      const answer = (data.answer && data.answer.trim()) || data.error || data.message;
       setChatMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
-        text: data.answer || data.error || 'Tidak ada respons.',
+        text: answer || 'Maaf, saya tidak bisa memproses permintaan ini. Coba tanyakan dengan cara lain.',
         isUser: false,
       }]);
     } catch {
