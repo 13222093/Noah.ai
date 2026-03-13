@@ -17,6 +17,8 @@ Real-time flood monitoring, hybrid LSTM + physics prediction, YOLOv8 visual veri
 
 ---
 
+<img width="2879" height="1522" alt="Screenshot 2026-03-13 205440" src="https://github.com/user-attachments/assets/f3a6cd10-1a2c-4dc3-a203-35094f9dc12b" />
+
 ## Table of Contents
 
 - [Overview](#overview)
