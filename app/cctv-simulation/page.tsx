@@ -81,13 +81,26 @@ export default function CCTVSimulationPage() {
                   <p className="text-xs text-muted-foreground">{ch.location}</p>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {/* Video placeholder */}
-                  <div className="aspect-video bg-slate-900 dark:bg-slate-950 rounded-lg flex items-center justify-center relative">
-                    <div className="text-center text-slate-500">
-                      <Video className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                      <p className="text-sm">CCTV Feed — {ch.name}</p>
-                      <p className="text-xs mt-1 text-slate-600">{ch.location}</p>
-                    </div>
+                  {/* Video feed */}
+                  <div className="aspect-video bg-slate-900 dark:bg-slate-950 rounded-lg relative overflow-hidden">
+                    {ch.videoSrc ? (
+                      <video
+                        src={ch.videoSrc}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-center text-slate-500">
+                        <div>
+                          <Video className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">CCTV Feed — {ch.name}</p>
+                          <p className="text-xs mt-1 text-slate-600">{ch.location}</p>
+                        </div>
+                      </div>
+                    )}
                     {ch.is_flooded && (
                       <div className="absolute inset-0 border-2 border-red-500/60 rounded-lg pointer-events-none" />
                     )}

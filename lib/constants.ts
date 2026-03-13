@@ -920,6 +920,7 @@ export const CCTV_CHANNELS = [
     flood_probability: 0.95,
     objects_detected: ['flood', 'water', 'debris'],
     lastScanOffsetMs: 60_000, // 1 minute ago at render time
+    videoSrc: '/videos/cctv/cctv_manggarai.mp4',
   },
   {
     id: 'katulampa',
@@ -931,6 +932,7 @@ export const CCTV_CHANNELS = [
     flood_probability: 0.82,
     objects_detected: ['flood', 'water'],
     lastScanOffsetMs: 180_000, // 3 minutes ago
+    videoSrc: '/videos/cctv/cctv_katulampa.mp4',
   },
   {
     id: 'karet',
@@ -942,6 +944,7 @@ export const CCTV_CHANNELS = [
     flood_probability: 0.12,
     objects_detected: [],
     lastScanOffsetMs: 300_000, // 5 minutes ago
+    videoSrc: '/videos/cctv/cctv_karet.mp4',
   },
   {
     id: 'sunter',
@@ -953,5 +956,6 @@ export const CCTV_CHANNELS = [
     flood_probability: 0,
     objects_detected: [],
     lastScanOffsetMs: 0, // no scan
+    videoSrc: '/videos/cctv/cctv_sunter.mp4',
   },
 ];

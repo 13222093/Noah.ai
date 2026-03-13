@@ -548,12 +548,25 @@ export function BottomTile() {
                           ch.is_flooded && 'data-pulse',
                         )}
                       >
-                        {/* Camera placeholder */}
-                        <div className="aspect-video bg-slate-900 rounded flex items-center justify-center relative overflow-hidden">
-                          <Video size={16} className={cn(
-                            'opacity-40',
-                            ch.status === 'offline' ? 'text-slate-700' : 'text-slate-500',
-                          )} />
+                        {/* Camera video feed */}
+                        <div className="aspect-video bg-slate-900 rounded relative overflow-hidden">
+                          {ch.videoSrc ? (
+                            <video
+                              src={ch.videoSrc}
+                              autoPlay
+                              loop
+                              muted
+                              playsInline
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Video size={16} className={cn(
+                                'opacity-40',
+                                ch.status === 'offline' ? 'text-slate-700' : 'text-slate-500',
+                              )} />
+                            </div>
+                          )}
                           {/* Status badge overlay */}
                           <span className={cn(
                             'absolute top-1 right-1 text-[7px] font-bold px-1 py-0.5 rounded',
