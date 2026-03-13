@@ -18,7 +18,6 @@ const LEFT_TABS: SegmentedTab[] = [
 ];
 
 const SEE_FULL_ROUTES: Record<string, string> = {
-  'ai-tools': '/flood-predict',
   'reports': '/flood-report',
   'sms': '/sms-subscribe',
   'settings': '/settings',
