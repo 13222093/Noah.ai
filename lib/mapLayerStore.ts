@@ -20,7 +20,7 @@ export const useMapLayerStore = create<MapLayerState>((set) => ({
   showWeatherStations: true,
   showRadar: false,
   showAqi: false,
-  showEvacPins: false,
+  showEvacPins: true,
   toggleFloodZones: () =>
     set((s) => ({ showFloodZones: !s.showFloodZones })),
   toggleWeatherStations: () =>

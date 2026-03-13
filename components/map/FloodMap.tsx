@@ -302,7 +302,7 @@ export const FloodMap = React.memo(function FloodMap({
 }: FloodMapProps) {
   const weatherTileLayerUrl = propWeatherTileLayerUrl; // Assign to a local variable
   const [selectedLayer, setSelectedLayer] = useState('dark');
-  const [preEvacLayer, setPreEvacLayer] = useState<string | null>(null);
+  const [preEvacLayer, setPreEvacLayer] = useState<string | null>('street');
   const [weatherTileUrl, setWeatherTileUrl] = useState<string | null>(null); // NEW: weatherTileUrl state
 
   useEffect(() => {
