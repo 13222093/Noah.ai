@@ -63,49 +63,233 @@ All of this is presented in a **Hyprland-inspired tiling window manager** dashbo
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                     NOAH AI — TILING DASHBOARD                  │
-│  ┌────────┐ ┌─────────────────────────┐ ┌────────────────────┐  │
-│  │  Left  │ │      Master Tile        │ │    Right Tile      │  │
-│  │  Tile  │ │    (Leaflet FloodMap    │ │  (Alerts/Weather/  │  │
-│  │(Forecast│ │   + Radar + AQI +      │ │   AI Chatbot)     │  │
-│  │ Layers │ │   Flood Zones +         │ │                    │  │
-│  │Reports)│ │   Evacuation Pins)      │ │                    │  │
-│  ├────────┴─┴─────────────────────────┴─┴────────────────────┤  │
-│  │ Bottom Tile (Evacuation|CCTV|News|Sensor|Stats|Infra|EQ)  │  │
-│  └───────────────────────────────────────────────────────────┘  │
-│                            │                                     │
-│  ┌─────────────────────────▼─────────────────────────────────┐  │
-│  │             Next.js API Routes (32 endpoints)              │  │
-│  │  predict · chatbot · smart-alert · sms-alert · weather     │  │
-│  │  verify-visual · water-level · rainfall-dual · evacuation  │  │
-│  └─────┬──────────────┬───────────────────────┬──────────────┘  │
-└────────┼──────────────┼───────────────────────┼─────────────────┘
-         │              │                       │
-    ┌────▼────┐   ┌─────▼──────┐         ┌─────▼──────────┐
-    │Supabase │   │ ML Service │         │  External APIs  │
-    │(Postgres)│   │ (FastAPI)  │         │                 │
-    │         │   │            │         │ • Google Gemini  │
-    │ • Reports│   │ • LSTM     │         │ • OpenWeatherMap│
-    │ • SMS   │   │ • YOLOv8   │         │ • BMKG          │
-    │   Subs  │   │ • Physics  │         │ • PetaBencana.id│
-    │ • Logs  │   │   Engine   │         │ • Twilio        │
-    └─────────┘   └────────────┘         └─────────────────┘
+### System Overview
+
+```mermaid
+graph TB
+  subgraph CLIENT["🖥️ Tiling Command Center — Next.js 16"]
+    direction LR
+    UI["Dashboard UI<br/>Hyprland Tiling WM"]
+    MAP["Leaflet FloodMap<br/>7 Toggleable Layers"]
+    CHAT["Noah AI Chatbot<br/>Gemini 2.5 Flash"]
+    PANELS["Panel System<br/>Alerts · Weather · CCTV<br/>Sensor · Stats · Evacuation"]
+  end
+
+  subgraph API["⚡ Next.js API Layer — 30 Routes"]
+    direction LR
+    PREDICT["/api/predict"]
+    SMART["/api/smart-alert"]
+    VERIFY["/api/verify-visual"]
+    CHATBOT["/api/chatbot<br/>8 Function-Calling Tools"]
+    DATA["Data Routes<br/>water-level · rainfall-dual<br/>weather · air-quality<br/>evacuation · statistics"]
+    SMS["/api/sms-alert<br/>/api/sms-subscribe"]
+  end
+
+  subgraph ML["🧠 ML Microservice — FastAPI (Python)"]
+    LSTM["LSTM Neural Network<br/>Flood Level Forecasting<br/>Trained on Manggarai 2020"]
+    YOLO["YOLOv8<br/>Visual Flood Detection<br/>Boundary Segmentation"]
+    PHYSICS["Physics Engine<br/>Hybrid Fallback<br/>Dynamic AI/Physics Weighting"]
+  end
+
+  subgraph DB["🗄️ Supabase (PostgreSQL)"]
+    direction LR
+    REPORTS["Flood Reports"]
+    SUBS["SMS Subscribers"]
+    LOGS["Alert Logs"]
+  end
+
+  subgraph EXT["🌐 External Services"]
+    direction LR
+    GEMINI["Google Gemini<br/>2.5 Flash"]
+    OWM["OpenWeatherMap<br/>Weather + AQI"]
+    BMKG["BMKG<br/>Earthquake Data"]
+    PB["PetaBencana.id<br/>Crowd-Sourced Reports"]
+    TWILIO["Twilio<br/>SMS Gateway"]
+  end
+
+  CLIENT -->|REST API| API
+  PREDICT -->|Water Level + Rainfall| LSTM
+  PREDICT -->|Fallback| PHYSICS
+  VERIFY -->|Image Upload| YOLO
+  SMART -->|Step 1: Predict| PREDICT
+  SMART -->|Step 2: Visual Scan| VERIFY
+  SMART -->|Step 4: Auto SMS| SMS
+  CHATBOT <-->|Function Calling| GEMINI
+  DATA <-->|Query/Write| DB
+  SMS -->|Bilingual SMS| TWILIO
+  DATA <-->|Proxy| OWM
+  DATA <-->|Proxy| BMKG
+  DATA <-->|Proxy| PB
+  SMS -->|Log| DB
+
+  classDef client fill:#0d1117,stroke:#00e5ff,stroke-width:2px,color:#e6edf3
+  classDef api fill:#111827,stroke:#7c3aed,stroke-width:2px,color:#e6edf3
+  classDef ml fill:#1a1a2e,stroke:#ff6b35,stroke-width:2px,color:#e6edf3
+  classDef db fill:#0f172a,stroke:#00e676,stroke-width:2px,color:#e6edf3
+  classDef ext fill:#1e1e2e,stroke:#f59e0b,stroke-width:2px,color:#e6edf3
+
+  class CLIENT client
+  class API api
+  class ML ml
+  class DB db
+  class EXT ext
 ```
 
 ### Closed-Loop AI Pipeline
 
-```
-LSTM Prediction ─┐
-                  ├── Cross-Validation ── Confidence Score ── SMS Alerts
-YOLOv8 Detection ┘        (smart-alert)      (0.0–1.0)     (Twilio)
+The **Smart Alert Engine** cross-validates two independent AI signals to produce high-confidence flood alerts:
+
+```mermaid
+graph LR
+  subgraph INPUT["📡 Data Ingestion"]
+    WL["Water Level API<br/>Historical Replay"]
+    RF["Dual-Location Rainfall<br/>Jakarta + Bogor"]
+    CCTV["CCTV Source<br/>Image/Video Feed"]
+  end
+
+  subgraph PREDICT_STAGE["🧠 Stage 1 — Prediction"]
+    LSTM["LSTM Model<br/>+0.50 CRITICAL<br/>+0.40 BAHAYA<br/>+0.25 WASPADA<br/>+0.05 AMAN"]
+  end
+
+  subgraph DETECT_STAGE["👁️ Stage 2 — Visual Verification"]
+    YOLO["YOLOv8 Detection<br/>+0.40 × flood_probability<br/>(only if risk elevated)"]
+  end
+
+  subgraph SCORE_STAGE["⚖️ Stage 3 — Cross-Validation"]
+    SCORE["Confidence Score<br/>━━━━━━━━━━━━━<br/>≥ 0.70 → CRITICAL<br/>≥ 0.50 → BAHAYA<br/>≥ 0.30 → WASPADA<br/>< 0.30 → AMAN"]
+  end
+
+  subgraph ACTION["📲 Stage 4 — Response"]
+    ALERT["Auto SMS Alert<br/>Twilio Bilingual<br/>Indonesian + English"]
+    LOG["Supabase Logging<br/>SID · Status · Errors"]
+  end
+
+  WL --> LSTM
+  RF --> LSTM
+  LSTM --> SCORE
+  CCTV --> YOLO
+  YOLO --> SCORE
+  SCORE -->|"confidence ≥ 0.3"| ALERT
+  ALERT --> LOG
+
+  classDef input fill:#0d1117,stroke:#38bdf8,stroke-width:2px,color:#e6edf3
+  classDef predict fill:#1a1a2e,stroke:#ff6b35,stroke-width:2px,color:#e6edf3
+  classDef detect fill:#1a1a2e,stroke:#a855f7,stroke-width:2px,color:#e6edf3
+  classDef score fill:#111827,stroke:#facc15,stroke-width:2px,color:#e6edf3
+  classDef action fill:#0f172a,stroke:#ef4444,stroke-width:2px,color:#e6edf3
+
+  class INPUT input
+  class PREDICT_STAGE predict
+  class DETECT_STAGE detect
+  class SCORE_STAGE score
+  class ACTION action
 ```
 
+### Gemini AI Chatbot — Function-Calling Architecture
+
+```mermaid
+graph TD
+  USER["👤 User Query"] --> CHATBOT["/api/chatbot<br/>Gemini 2.5 Flash"]
+
+  CHATBOT -->|"Multi-turn loop<br/>(up to 5 turns)"| TOOLS
+
+  subgraph TOOLS["🛠️ 8 Function-Calling Tools"]
+    T1["fetchWaterLevelData<br/>Hydrology post levels"]
+    T2["fetchPumpStatusData<br/>Pump operations"]
+    T3["fetchBmkgLatestQuake<br/>BMKG earthquake data"]
+    T4["fetchPetabencanaReports<br/>Crowd-sourced disasters"]
+    T5["geocodeLocation<br/>Name → Coordinates"]
+    T6["fetchWeatherData<br/>OpenWeatherMap"]
+    T7["requestUserLocation<br/>Browser geolocation"]
+    T8["displayNotification<br/>Toast popup"]
+  end
+
+  TOOLS -->|"Tool results"| CHATBOT
+  CHATBOT -->|"Natural language"| RESPONSE["💬 AI Response<br/>with rate limiting (20 req/min)<br/>+ safety filters"]
+
+  classDef user fill:#0d1117,stroke:#00e5ff,stroke-width:2px,color:#e6edf3
+  classDef bot fill:#111827,stroke:#7c3aed,stroke-width:2px,color:#e6edf3
+  classDef tools fill:#1a1a2e,stroke:#f59e0b,stroke-width:2px,color:#e6edf3
+  classDef response fill:#0f172a,stroke:#00e676,stroke-width:2px,color:#e6edf3
+
+  class USER user
+  class CHATBOT bot
+  class TOOLS tools
+  class RESPONSE response
+```
+
+### Tiling Dashboard Layout
+
+```mermaid
+graph TD
+  subgraph DASHBOARD["Noah AI — Tiling Command Center"]
+    direction TB
+
+    subgraph TOP["TilingStatusBar"]
+      BRAND["🌊 Noah AI Gradient Branding"]
+      LIVE["● LIVE Indicator"]
+      LAYERS["Layer Toggles (5)"]
+      REGION["Region Selector"]
+      CLOCK["Clock · Theme · Language"]
+    end
+
+    subgraph MAIN["Main Grid"]
+      direction LR
+      subgraph LEFT["LeftTile (200px)"]
+        L1["AI Forecast"]
+        L2["Map Layers"]
+        L3["Reports + Emergency"]
+        L4["SMS Status"]
+        L5["Settings"]
+      end
+
+      subgraph MASTER["MasterTile (flex)"]
+        M1["Leaflet FloodMap"]
+        M2["Radar Overlay"]
+        M3["AQI Bubbles"]
+        M4["Flood Zones"]
+        M5["Evacuation Pins"]
+        M6["Prediction Layer"]
+      end
+
+      subgraph RIGHT["RightTile (280px)"]
+        R1["Alert Feed<br/>Severity Filterable"]
+        R2["Weather + AQI"]
+        R3["AI Chatbot<br/>Gemini 2.5 Flash"]
+      end
+    end
+
+    subgraph BOTTOM["BottomTile (resizable 40–400px via DragDivider)"]
+      direction LR
+      B1["Evacuation"]
+      B2["CCTV AI"]
+      B3["Berita Regional"]
+      B4["Data Sensor"]
+      B5["Statistics"]
+      B6["Infrastructure"]
+      B7["Earthquake"]
+    end
+  end
+
+  classDef top fill:#0d1117,stroke:#00e5ff,stroke-width:1px,color:#e6edf3
+  classDef left fill:#111827,stroke:#38bdf8,stroke-width:1px,color:#e6edf3
+  classDef master fill:#0f172a,stroke:#00e676,stroke-width:1px,color:#e6edf3
+  classDef right fill:#1a1a2e,stroke:#a855f7,stroke-width:1px,color:#e6edf3
+  classDef bottom fill:#111827,stroke:#f59e0b,stroke-width:1px,color:#e6edf3
+
+  class TOP top
+  class LEFT left
+  class MASTER master
+  class RIGHT right
+  class BOTTOM bottom
+```
+
+### Pipeline Flow Summary
+
 1. `/api/predict` fetches live water-level + dual-location rainfall → forwards to ML LSTM
-2. `/api/smart-alert` runs LSTM prediction; if risk is elevated, runs CCTV scan via YOLO
-3. Confidence scoring: LSTM CRITICAL (+0.5) + YOLO flooded (+0.4 × probability)
-4. If confidence ≥ 0.3 → auto-fires `/api/sms-alert` → Twilio sends bilingual SMS to subscribers
+2. `/api/smart-alert` runs LSTM prediction; if risk is elevated, triggers CCTV scan via YOLOv8
+3. Cross-validation scoring: LSTM CRITICAL (+0.5) + YOLO flooded (+0.4 × flood probability)
+4. If confidence ≥ 0.3 → auto-fires `/api/sms-alert` → Twilio sends bilingual SMS to all regional subscribers
 
 ---
 
