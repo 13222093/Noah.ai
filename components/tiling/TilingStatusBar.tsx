@@ -1,42 +1,24 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun, Monitor, Shield, CloudRain, Wind, Layers, MapPin } from 'lucide-react';
+import { Moon, Sun, Monitor, Shield } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
-import { useLanguage } from '@/src/context/LanguageContext';
-import { useMapLayerStore } from '@/lib/mapLayerStore';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
-import { RegionSelector } from './RegionSelector';
-import { cn } from '@/lib/utils';
+import { formatWibTime } from '@/lib/time';
 
 /**
- * Minimal status bar for Tiling Layout.
- * - NOAH.AI branding (left)
- * - Map layer toggles (center)
- * - Live clock + Theme toggle + Language switcher (right)
+ * Top bar of the operator frame: brand, current WIB clock, theme and language.
+ * It shows no data status: the connector health strip (UI-048) lands in W2
+ * once /api/v1/health reports per-connector freshness.
  */
 export function TilingStatusBar() {
   const { theme, setTheme } = useTheme();
-  const { t } = useLanguage();
   const [currentTime, setCurrentTime] = useState('');
-  const {
-    showRadar, showAqi, showFloodZones, showEvacPins,
-    toggleRadar, toggleAqi, toggleFloodZones, toggleEvacPins,
-  } = useMapLayerStore();
 
   useEffect(() => {
-    const updateTime = () => {
-      setCurrentTime(
-        new Date().toLocaleTimeString('id-ID', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-        }),
-      );
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
+    const update = () => setCurrentTime(formatWibTime(Date.now(), { seconds: true }));
+    update();
+    const interval = setInterval(update, 1000);
     return () => clearInterval(interval);
   }, []);
 
@@ -48,16 +30,8 @@ export function TilingStatusBar() {
   };
   const ThemeIcon = themeIcons[theme];
 
-  const mapButtons = [
-    { id: 'radar', label: t('mapLayers.radar'), icon: CloudRain, active: showRadar, toggle: toggleRadar, activeColor: 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' },
-    { id: 'aqi', label: t('mapLayers.aqi'), icon: Wind, active: showAqi, toggle: toggleAqi, activeColor: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
-    { id: 'floods', label: t('mapLayers.floodZones'), icon: Layers, active: showFloodZones, toggle: toggleFloodZones, activeColor: 'bg-amber-500/20 text-amber-400 border-amber-500/30' },
-    { id: 'evac', label: t('mapLayers.evacPins'), icon: MapPin, active: showEvacPins, toggle: toggleEvacPins, activeColor: 'bg-red-500/20 text-red-400 border-red-500/30' },
-  ];
-
   return (
     <header className="tiling-status-bar">
-      {/* Left: Brand */}
       <div className="flex items-center gap-2.5">
         <div className="tiling-brand-mark">
           <span className="tiling-brand-letter">N</span>
@@ -66,61 +40,25 @@ export function TilingStatusBar() {
           Noah AI
         </span>
         <div className="w-px h-3.5 bg-white/10" />
-        <span className="flex items-center gap-1 text-[9px] text-emerald-400 font-medium">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          LIVE
-        </span>
+        <span className="hidden sm:inline text-[11px] text-slate-400">Pendukung Keputusan Pengendalian Banjir</span>
       </div>
 
-      {/* Center: Map Layer Toggles */}
-      <div className="flex items-center gap-1">
-        {mapButtons.map((btn) => (
-          <button
-            key={btn.id}
-            onClick={btn.toggle}
-            className={cn(
-              'flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium transition-all border',
-              btn.active
-                ? btn.activeColor
-                : 'bg-transparent text-slate-400 border-transparent hover:text-white hover:bg-white/5'
-            )}
-            title={btn.label}
-          >
-            <btn.icon size={10} />
-            <span className="hidden sm:inline">{btn.label}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* Center-Right: Region Selector */}
-      <div className="hidden md:flex items-center gap-1">
-        <div className="w-px h-3.5 bg-white/10" />
-        <RegionSelector />
-      </div>
-
-      {/* Right: Time + Controls */}
       <div className="flex items-center gap-1.5">
-        {/* Live clock */}
-        <span className="font-mono text-[11px] text-slate-400 tabular-nums mr-1">
+        <span className="font-mono text-[11px] text-slate-400 tabular-nums mr-1" title="Waktu sekarang (WIB)">
           {currentTime}
         </span>
-
         <div className="w-px h-3.5 bg-white/10" />
-
-        {/* Theme toggle */}
         <button
           onClick={() => {
             const themes: Array<typeof theme> = ['light', 'dark', 'system', 'high-contrast'];
-            const currentIndex = themes.indexOf(theme);
-            setTheme(themes[(currentIndex + 1) % themes.length]);
+            setTheme(themes[(themes.indexOf(theme) + 1) % themes.length]);
           }}
           className="p-1 text-slate-400 hover:text-white transition-colors rounded"
-          title="Toggle theme"
+          title="Ganti tema"
+          aria-label="Ganti tema"
         >
           <ThemeIcon className="w-3.5 h-3.5" />
         </button>
-
-        {/* Language */}
         <LanguageSwitcher />
       </div>
     </header>

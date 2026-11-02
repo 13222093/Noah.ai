@@ -47,3 +47,29 @@ ml-service/venv/
 
 # OS
 Thumbs.db
+
+# supabase CLI cache (project ref, pooler host) - never commit
+supabase/.temp/
+supabase/.branches/
+
+# secrets and local scratch (never commit)
+.env.*
+!.env.example
+*.key
+*.p12
+deploy/*.env
+!deploy/*.env.example
+Untitled-*.txt
+
+# python
+.venv/
+ml-service/.venv/
+.pytest_cache/
+.ruff_cache/
+
+# generated reports
+sbom*.json
+
+# original plan bundle (already copied into docs/plan/); never commit
+/files/
+/files.zip

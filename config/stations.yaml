@@ -1,0 +1,1080 @@
+# Noah AI station configuration (B-034, decision D12).
+#
+# Single source of truth for station metadata, datum notes and Siaga
+# thresholds. Code reads thresholds only from here (noah.store.stations);
+# no threshold literal belongs anywhere else. Validate with:
+#     python -m noah.store.stations
+# Load into the database (stations + station_identifiers) with:
+#     python -m noah.store.stations --apply      # needs NOAH_DATABASE_URL
+#
+# Coverage: the 37 posts on the Posko Banjir DSDA page (S1) as saved on
+# 2026-11-02 (ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html),
+# plus PS. Cipinang Hulu, which is in the S2 archive but no longer on the page.
+#
+# Identities: the home identity of an S1 post is (s1_posko_banjir, ID_PINTU_AIR),
+# e.g. Manggarai "122", as emitted by the S1 connector. The S2 archive label
+# (ml-service/data/tma_2020.xlsx.csv, whitespace trimmed) is an alias, so both
+# feeds resolve to the same station. Labels were matched by name, river and
+# coordinates (S2 "P.A. Marina Ancol", lokasi Laut, has the exact coordinates
+# of S1 203 "P.A. Marina Ancol 1 (Laut)").
+#
+# Units: water level in cm relative to the station's gauge zero. The S1 page
+# publishes raw levels and Siaga values in mm (Manggarai 5340 raw vs 534 cm in
+# the table; Siaga 9500/8500/7500 mm = 950/850/750 cm); evidence.s1_page_mm
+# keeps them verbatim and the *_cm values are those divided by 10.
+#
+# siaga_thresholds.source:
+#   dsda_official           DSDA's official table (plan 04). Manggarai.
+#   dsda_posko_banjir_page  values DSDA publishes on the Posko Banjir page
+#                           (2026-11-02). Published by DSDA but not formally
+#                           confirmed, so needs_DSDA_confirmation: true.
+#   derived_from_S2_2020    inferred from the S2 status_siaga labels
+#                           (noah.importers.s2_tma_2020.derive_siaga_thresholds);
+#                           kept as evidence.s2_2020, currently not used as the
+#                           value of any post.
+#   null                    unknown, never guessed. Includes the newer posts
+#                           whose page values are a 5000/5000/5000 mm placeholder.
+# A null level means "unknown", not "no such level".
+#
+# evidence.s2_2020 is the 2020 picture: per level, the highest level seen with
+# a lower status, the lowest level seen at this status (cm), and the value the
+# derivation rule pins down, if any. It agrees with the page at 13 posts and
+# differs at Cibalok (Siaga 3: 140 in 2020, 90 now) and Jembatan Merah (Siaga
+# 2/1: 150/200 in 2020, 200/250 now). Thresholds therefore change over time:
+# a 2020 backtest must use the 2020 values, not these.
+#
+# comparison ">=": the S2 labels show exactly 750 cm at Manggarai as Siaga 3,
+# so DSDA applies "level >= threshold". Plan 04 words it as "above"; DSDA to
+# confirm. It only matters at exactly the threshold value.
+
+version: 1
+
+# Range checks that set quality_flag (flag, never drop). Not hydrology.
+qc:
+  spike_cm: 100            # isolated reading >= 100 cm away from both neighbours
+  spike_max_gap_minutes: 180
+
+stations:
+  - code: cibalok_gadog
+    name: "Bendung. Cibalok - Gadog 1"
+    kind: tma
+    river: "Ciliwung"
+    source: s1_posko_banjir
+    external_id: "155"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "PA. Cibalok - Gadog", confirmed: true}
+    location: {lat: -6.653375, lon: 106.869567, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+      S2 has 218 negative readings here; they are flagged suspect until the
+      datum is confirmed.
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "differs from S2 2020 at siaga_3 (thresholds changed since 2020, or the gauge did)"
+      comparison: ">="
+      siaga_3_cm: 90
+      siaga_2_cm: 160
+      siaga_1_cm: 210
+      evidence:
+        s1_page_mm: {siaga_3: 900, siaga_2: 1600, siaga_1: 2100}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 136, min_at_cm: 144, value_cm: 140, result: "unambiguous"}
+          siaga_2: {max_below_cm: 147, min_at_cm: 159, value_cm: null, result: "bracket wider than 10 cm"}
+          siaga_1: {max_below_cm: 159, min_at_cm: null, value_cm: null, result: "level not observed"}
+
+  - code: katulampa
+    name: "Bendung. Katulampa 2"
+    kind: tma
+    river: "Ciliwung"
+    source: s1_posko_banjir
+    external_id: "116"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "PS. Katulampa (Hulu)", confirmed: true}
+    location: {lat: -6.633167, lon: 106.836806, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "consistent with S2 2020 labels"
+      comparison: ">="
+      siaga_3_cm: 80
+      siaga_2_cm: 150
+      siaga_1_cm: 200
+      evidence:
+        s1_page_mm: {siaga_3: 800, siaga_2: 1500, siaga_1: 2000}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 78, min_at_cm: 80, value_cm: 80, result: "unambiguous"}
+          siaga_2: {max_below_cm: 141, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_1: {max_below_cm: 141, min_at_cm: null, value_cm: null, result: "level not observed"}
+
+  - code: depok
+    name: "P.S. Depok 2"
+    kind: tma
+    river: "Ciliwung"
+    source: s1_posko_banjir
+    external_id: "118"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "PS. Depok", confirmed: true}
+    location: {lat: -6.400514, lon: 106.832143, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "consistent with S2 2020 labels"
+      comparison: ">="
+      siaga_3_cm: 200
+      siaga_2_cm: 270
+      siaga_1_cm: 350
+      evidence:
+        s1_page_mm: {siaga_3: 2000, siaga_2: 2700, siaga_1: 3500}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 196, min_at_cm: 200, value_cm: 200, result: "unambiguous"}
+          siaga_2: {max_below_cm: 253, min_at_cm: 270, value_cm: null, result: "bracket wider than 10 cm"}
+          siaga_1: {max_below_cm: 347, min_at_cm: 369, value_cm: null, result: "bracket wider than 10 cm"}
+
+  - code: kampung_rambutan
+    name: "Waduk Kampung Rambutan 1"
+    kind: tma
+    river: "Cipinang"
+    source: s1_posko_banjir
+    external_id: "176"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.308509, lon: 106.880899, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      comparison: ">="
+      siaga_3_cm: 200
+      siaga_2_cm: 250
+      siaga_1_cm: 300
+      evidence:
+        s1_page_mm: {siaga_3: 2000, siaga_2: 2500, siaga_1: 3000}
+
+  - code: manggarai
+    name: "P.A. Manggarai 2"
+    kind: tma
+    river: "Ciliwung"
+    source: s1_posko_banjir
+    external_id: "122"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "PA. Manggarai", confirmed: true}
+    location: {lat: -6.207825, lon: 106.848458, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_official
+      reference: docs/plan/04_DATA_SOURCES.md (Rules for connectors)
+      needs_DSDA_confirmation: false
+      note: "S1 page and S2 labels agree"
+      comparison: ">="
+      siaga_3_cm: 750
+      siaga_2_cm: 850
+      siaga_1_cm: 950
+      evidence:
+        s1_page_mm: {siaga_3: 7500, siaga_2: 8500, siaga_1: 9500}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 748, min_at_cm: 750, value_cm: 750, result: "unambiguous"}
+          siaga_2: {max_below_cm: 845, min_at_cm: 851, value_cm: 850, result: "unambiguous"}
+          siaga_1: {max_below_cm: 946, min_at_cm: 952, value_cm: 950, result: "unambiguous"}
+
+  - code: krukut_hulu
+    name: "P.S. Krukut Hulu 2"
+    kind: tma
+    river: "Krukut"
+    source: s1_posko_banjir
+    external_id: "114"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "PS. Krukut Hulu", confirmed: true}
+    location: {lat: -6.3439, lon: 106.798874, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "consistent with S2 2020 labels"
+      comparison: ">="
+      siaga_3_cm: 150
+      siaga_2_cm: 250
+      siaga_1_cm: 300
+      evidence:
+        s1_page_mm: {siaga_3: 1500, siaga_2: 2500, siaga_1: 3000}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 147, min_at_cm: 150, value_cm: 150, result: "unambiguous"}
+          siaga_2: {max_below_cm: 240, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_1: {max_below_cm: 240, min_at_cm: null, value_cm: null, result: "level not observed"}
+
+  - code: cideng
+    name: "Pompa Cideng 1"
+    kind: tma
+    river: "Cideng Siantar"
+    source: s1_posko_banjir
+    external_id: "165"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "Pompa Cideng", confirmed: true}
+    location: {lat: -6.173587, lon: 106.806736, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+      S2 has 482 negative readings here; they are flagged suspect until the
+      datum is confirmed.
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      comparison: ">="
+      siaga_3_cm: 150
+      siaga_2_cm: 250
+      siaga_1_cm: 300
+      evidence:
+        s1_page_mm: {siaga_3: 1500, siaga_2: 2500, siaga_1: 3000}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 132, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_2: {max_below_cm: 132, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_1: {max_below_cm: 132, min_at_cm: null, value_cm: null, result: "level not observed"}
+
+  - code: karet
+    name: "P.A. Karet 1"
+    kind: tma
+    river: "Banjir Kanal Barat"
+    source: s1_posko_banjir
+    external_id: "163"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "P.A. Karet", confirmed: true}
+    location: {lat: -6.198023, lon: 106.810169, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "consistent with S2 2020 labels"
+      comparison: ">="
+      siaga_3_cm: 450
+      siaga_2_cm: 550
+      siaga_1_cm: 600
+      evidence:
+        s1_page_mm: {siaga_3: 4500, siaga_2: 5500, siaga_1: 6000}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 435, min_at_cm: 450, value_cm: null, result: "bracket wider than 10 cm"}
+          siaga_2: {max_below_cm: 545, min_at_cm: 552, value_cm: 550, result: "unambiguous"}
+          siaga_1: {max_below_cm: 585, min_at_cm: 602, value_cm: null, result: "bracket wider than 10 cm"}
+
+  - code: marina_ancol_laut
+    name: "P.A. Marina Ancol 1 (Laut)"
+    kind: tma
+    river: "Laut"
+    source: s1_posko_banjir
+    external_id: "203"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "P.A. Marina Ancol", confirmed: true}
+    location: {lat: -6.125585, lon: 106.830154, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "consistent with S2 2020 labels"
+      comparison: ">="
+      siaga_3_cm: 170
+      siaga_2_cm: 200
+      siaga_1_cm: 250
+      evidence:
+        s1_page_mm: {siaga_3: 1700, siaga_2: 2000, siaga_1: 2500}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 169, min_at_cm: 170, value_cm: 170, result: "unambiguous"}
+          siaga_2: {max_below_cm: 199, min_at_cm: 200, value_cm: 200, result: "unambiguous"}
+          siaga_1: {max_below_cm: 230, min_at_cm: null, value_cm: null, result: "level not observed"}
+
+  - code: marina_ancol_kali
+    name: "P.A. Marina Ancol 1 (Kali)"
+    kind: tma
+    river: "Kali"
+    source: s1_posko_banjir
+    external_id: "166"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.12648, lon: 106.830006, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      comparison: ">="
+      siaga_3_cm: 170
+      siaga_2_cm: 200
+      siaga_1_cm: 250
+      evidence:
+        s1_page_mm: {siaga_3: 1700, siaga_2: 2000, siaga_1: 2500}
+
+  - code: pasar_ikan
+    name: "Pompa Pasar Ikan 1"
+    kind: tma
+    river: "Laut"
+    source: s1_posko_banjir
+    external_id: "162"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "Pompa Pasar Ikan", confirmed: true}
+    location: {lat: -6.126264, lon: 106.809638, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "consistent with S2 2020 labels"
+      comparison: ">="
+      siaga_3_cm: 170
+      siaga_2_cm: 200
+      siaga_1_cm: 250
+      evidence:
+        s1_page_mm: {siaga_3: 1700, siaga_2: 2000, siaga_1: 2500}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 169, min_at_cm: 170, value_cm: 170, result: "unambiguous"}
+          siaga_2: {max_below_cm: 199, min_at_cm: 200, value_cm: 200, result: "unambiguous"}
+          siaga_1: {max_below_cm: 233, min_at_cm: null, value_cm: null, result: "level not observed"}
+
+  - code: pluit
+    name: "Rumah Pompa Pluit 1"
+    kind: tma
+    river: "Waduk Pluit"
+    source: s1_posko_banjir
+    external_id: "167"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "P.A. Pluit", confirmed: true}
+    location: {lat: -6.109552, lon: 106.797342, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+      Reservoir level is normally below gauge zero (S2: -209 to +24 cm; S1 page
+      2026-11-02: -172 cm) and DSDA's own Siaga 3 is -50 cm, so negative levels
+      are expected here.
+    allows_negative: true
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "consistent with S2 2020 labels"
+      comparison: ">="
+      siaga_3_cm: -50
+      siaga_2_cm: 0
+      siaga_1_cm: 45
+      evidence:
+        s1_page_mm: {siaga_3: -500, siaga_2: 0, siaga_1: 450}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: -51, min_at_cm: -49, value_cm: -50, result: "unambiguous"}
+          siaga_2: {max_below_cm: -1, min_at_cm: 1, value_cm: 0, result: "unambiguous"}
+          siaga_1: {max_below_cm: 24, min_at_cm: null, value_cm: null, result: "level not observed"}
+
+  - code: pesanggrahan
+    name: "P.S. Pesanggrahan 1"
+    kind: tma
+    river: "Pesanggrahan"
+    source: s1_posko_banjir
+    external_id: "160"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "PS. Pesanggrahan", confirmed: true}
+    location: {lat: -6.397147, lon: 106.771833, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "consistent with S2 2020 labels"
+      comparison: ">="
+      siaga_3_cm: 150
+      siaga_2_cm: 250
+      siaga_1_cm: 350
+      evidence:
+        s1_page_mm: {siaga_3: 1500, siaga_2: 2500, siaga_1: 3500}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 149, min_at_cm: 152, value_cm: 150, result: "unambiguous"}
+          siaga_2: {max_below_cm: 246, min_at_cm: 259, value_cm: null, result: "bracket wider than 10 cm"}
+          siaga_1: {max_below_cm: 342, min_at_cm: 350, value_cm: 350, result: "unambiguous"}
+
+  - code: angke_hulu
+    name: "P.S. Angke Hulu 1"
+    kind: tma
+    river: "Angke"
+    source: s1_posko_banjir
+    external_id: "158"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "PS. Angke Hulu", confirmed: true}
+    location: {lat: -6.218026, lon: 106.694077, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "consistent with S2 2020 labels"
+      comparison: ">="
+      siaga_3_cm: 150
+      siaga_2_cm: 250
+      siaga_1_cm: 300
+      evidence:
+        s1_page_mm: {siaga_3: 1500, siaga_2: 2500, siaga_1: 3000}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 149, min_at_cm: 150, value_cm: 150, result: "unambiguous"}
+          siaga_2: {max_below_cm: 240, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_1: {max_below_cm: 240, min_at_cm: 310, value_cm: null, result: "siaga_2 not observed"}
+
+  - code: sunter_hulu
+    name: "P.S. Sunter Hulu"
+    kind: tma
+    river: "Sunter"
+    source: s1_posko_banjir
+    external_id: "150"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "PS. Sunter Hulu", confirmed: true}
+    location: {lat: -6.31792, lon: 106.920901, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "consistent with S2 2020 labels"
+      comparison: ">="
+      siaga_3_cm: 140
+      siaga_2_cm: 200
+      siaga_1_cm: 250
+      evidence:
+        s1_page_mm: {siaga_3: 1400, siaga_2: 2000, siaga_1: 2500}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 138, min_at_cm: 143, value_cm: 140, result: "unambiguous"}
+          siaga_2: {max_below_cm: 191, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_1: {max_below_cm: 191, min_at_cm: null, value_cm: null, result: "level not observed"}
+
+  - code: pulo_gadung
+    name: "P.A. Pulo Gadung 2"
+    kind: tma
+    river: "Sunter"
+    source: s1_posko_banjir
+    external_id: "126"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "PA. Pulo Gadung", confirmed: true}
+    location: {lat: -6.191, lon: 106.904194, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+      S2 has 1 negative readings here; they are flagged suspect until the
+      datum is confirmed.
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      comparison: ">="
+      siaga_3_cm: 550
+      siaga_2_cm: 700
+      siaga_1_cm: 770
+      evidence:
+        s1_page_mm: {siaga_3: 5500, siaga_2: 7000, siaga_1: 7700}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 344, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_2: {max_below_cm: 344, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_1: {max_below_cm: 344, min_at_cm: null, value_cm: null, result: "level not observed"}
+
+  - code: yos_sudarso_1
+    name: "Pompa Yos Sudarso 1"
+    kind: tma
+    river: "Sunter Timur"
+    source: s1_posko_banjir
+    external_id: "164"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "Pompa Yos Sudarso 1", confirmed: true}
+    location: {lat: -6.154855, lon: 106.886326, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      comparison: ">="
+      siaga_3_cm: 500
+      siaga_2_cm: 550
+      siaga_1_cm: 600
+      evidence:
+        s1_page_mm: {siaga_3: 5000, siaga_2: 5500, siaga_1: 6000}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 84, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_2: {max_below_cm: 84, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_1: {max_below_cm: 84, min_at_cm: null, value_cm: null, result: "level not observed"}
+
+  - code: kali_duri
+    name: "P.A. Kaliduri 1"
+    kind: tma
+    river: "Kali Duri"
+    source: s1_posko_banjir
+    external_id: "169"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "Pompa Kali Duri (Kalijodo)", confirmed: true}
+    location: {lat: -6.142445, lon: 106.790185, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "consistent with S2 2020 labels"
+      comparison: ">="
+      siaga_3_cm: 220
+      siaga_2_cm: 270
+      siaga_1_cm: 320
+      evidence:
+        s1_page_mm: {siaga_3: 2200, siaga_2: 2700, siaga_1: 3200}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 219, min_at_cm: 220, value_cm: 220, result: "unambiguous"}
+          siaga_2: {max_below_cm: 269, min_at_cm: 270, value_cm: 270, result: "unambiguous"}
+          siaga_1: {max_below_cm: 293, min_at_cm: null, value_cm: null, result: "level not observed"}
+
+  - code: istiqlal
+    name: "P.A. Istiqlal 1"
+    kind: tma
+    river: "Ciliwung"
+    source: s1_posko_banjir
+    external_id: "172"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "P.A. Istiqlal", confirmed: true}
+    location: {lat: -6.168284, lon: 106.831393, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "consistent with S2 2020 labels"
+      comparison: ">="
+      siaga_3_cm: 250
+      siaga_2_cm: 300
+      siaga_1_cm: 350
+      evidence:
+        s1_page_mm: {siaga_3: 2500, siaga_2: 3000, siaga_1: 3500}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 249, min_at_cm: 250, value_cm: 250, result: "unambiguous"}
+          siaga_2: {max_below_cm: 299, min_at_cm: 300, value_cm: 300, result: "unambiguous"}
+          siaga_1: {max_below_cm: 348, min_at_cm: 350, value_cm: 350, result: "unambiguous"}
+
+  - code: jembatan_merah
+    name: "P.A. Jembatan Merah 1"
+    kind: tma
+    river: "Ciliwung"
+    source: s1_posko_banjir
+    external_id: "171"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "P.A. Jembatan Merah", confirmed: true}
+    location: {lat: -6.148949, lon: 106.834232, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      note: "differs from S2 2020 at siaga_2, siaga_1 (thresholds changed since 2020, or the gauge did)"
+      comparison: ">="
+      siaga_3_cm: 150
+      siaga_2_cm: 200
+      siaga_1_cm: 250
+      evidence:
+        s1_page_mm: {siaga_3: 1500, siaga_2: 2000, siaga_1: 2500}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: null, min_at_cm: 120, value_cm: null, result: "normal not observed"}
+          siaga_2: {max_below_cm: 148, min_at_cm: 150, value_cm: 150, result: "unambiguous"}
+          siaga_1: {max_below_cm: 199, min_at_cm: 200, value_cm: 200, result: "unambiguous"}
+
+  - code: ancol_flushing
+    name: "P.A. Ancol Flushing 1"
+    kind: tma
+    river: "Ciliwung"
+    source: s1_posko_banjir
+    external_id: "170"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "P.A. Ancol Flusing", confirmed: true}
+    location: {lat: -6.130054, lon: 106.831272, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      comparison: ">="
+      siaga_3_cm: 180
+      siaga_2_cm: 190
+      siaga_1_cm: 220
+      evidence:
+        s1_page_mm: {siaga_3: 1800, siaga_2: 1900, siaga_1: 2200}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 237, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_2: {max_below_cm: 237, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_1: {max_below_cm: 237, min_at_cm: null, value_cm: null, result: "level not observed"}
+
+  - code: hek
+    name: "P.A. Hek Kramat Jati 1"
+    kind: tma
+    river: "Kali Baru Timur"
+    source: s1_posko_banjir
+    external_id: "178"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    aliases:
+      - {source: s2_opendata, external_id: "P.A. Hek", confirmed: true}
+    location: {lat: -6.28783, lon: 106.870729, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      comparison: ">="
+      siaga_3_cm: 200
+      siaga_2_cm: 250
+      siaga_1_cm: 300
+      evidence:
+        s1_page_mm: {siaga_3: 2000, siaga_2: 2500, siaga_1: 3000}
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 164, min_at_cm: 115, value_cm: null, result: "status labels overlap at this post"}
+          siaga_2: {max_below_cm: 194, min_at_cm: 200, value_cm: null, result: "status labels overlap at this post"}
+          siaga_1: {max_below_cm: 292, min_at_cm: null, value_cm: null, result: "status labels overlap at this post"}
+
+  - code: cengkareng_drain
+    name: "P.A. Cengkareng Drain"
+    kind: tma
+    river: "Cengkareng"
+    source: s1_posko_banjir
+    external_id: "107"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.165576979919189, lon: 106.74858453075363, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      comparison: ">="
+      siaga_3_cm: 190
+      siaga_2_cm: 270
+      siaga_1_cm: 310
+      evidence:
+        s1_page_mm: {siaga_3: 1900, siaga_2: 2700, siaga_1: 3100}
+
+  - code: kamal_muara
+    name: "Pompa Kamal Muara (Bubble)"
+    kind: tma
+    river: "Kali Kamal"
+    source: s1_posko_banjir
+    external_id: "179"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.093938, lon: 106.721842, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      comparison: ">="
+      siaga_3_cm: 200
+      siaga_2_cm: 250
+      siaga_1_cm: 300
+      evidence:
+        s1_page_mm: {siaga_3: 2000, siaga_2: 2500, siaga_1: 3000}
+
+  - code: lagoa
+    name: "Pompa Lagoa (Bubble)"
+    kind: tma
+    river: "Kali Sunter"
+    source: s1_posko_banjir
+    external_id: "184"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.110317, lon: 106.906947, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: dsda_posko_banjir_page
+      reference: ml-service/tests/connectors/fixtures/s1_posko_banjir_20261102T1342Z.html
+      needs_DSDA_confirmation: true
+      comparison: ">="
+      siaga_3_cm: 200
+      siaga_2_cm: 250
+      siaga_1_cm: 300
+      evidence:
+        s1_page_mm: {siaga_3: 2000, siaga_2: 2500, siaga_1: 3000}
+
+  - code: pasir_jambu
+    name: "Jembatan Pasir Jambu"
+    kind: tma
+    river: "Ciliwung"
+    source: s1_posko_banjir
+    external_id: "189"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.529392, lon: 106.803944, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: null
+      needs_DSDA_confirmation: true
+      note: "S1 page shows 5000/5000/5000 mm for all three levels, a placeholder"
+      comparison: ">="
+      siaga_3_cm: null
+      siaga_2_cm: null
+      siaga_1_cm: null
+      evidence:
+        s1_page_mm: {siaga_3: 5000, siaga_2: 5000, siaga_1: 5000}
+
+  - code: cikambangan
+    name: "Jembatan Kuning Cikambangan"
+    kind: tma
+    river: "Ciliwung"
+    source: s1_posko_banjir
+    external_id: "191"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.427713, lon: 106.814505, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: null
+      needs_DSDA_confirmation: true
+      note: "S1 page shows 5000/5000/5000 mm for all three levels, a placeholder"
+      comparison: ">="
+      siaga_3_cm: null
+      siaga_2_cm: null
+      siaga_1_cm: null
+      evidence:
+        s1_page_mm: {siaga_3: 5000, siaga_2: 5000, siaga_1: 5000}
+
+  - code: tapos
+    name: "Jembatan Jalan Raya Tapos"
+    kind: tma
+    river: "Kali Sunter"
+    source: s1_posko_banjir
+    external_id: "192"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.404388, lon: 106.888737, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: null
+      needs_DSDA_confirmation: true
+      note: "S1 page shows 5000/5000/5000 mm for all three levels, a placeholder"
+      comparison: ">="
+      siaga_3_cm: null
+      siaga_2_cm: null
+      siaga_1_cm: null
+      evidence:
+        s1_page_mm: {siaga_3: 5000, siaga_2: 5000, siaga_1: 5000}
+
+  - code: mt_haryono
+    name: "Jembatan MT. Haryono"
+    kind: tma
+    river: "Ciliwung"
+    source: s1_posko_banjir
+    external_id: "193"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.24379, lon: 106.86265, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: null
+      needs_DSDA_confirmation: true
+      note: "S1 page shows 5000/5000/5000 mm for all three levels, a placeholder"
+      comparison: ">="
+      siaga_3_cm: null
+      siaga_2_cm: null
+      siaga_1_cm: null
+      evidence:
+        s1_page_mm: {siaga_3: 5000, siaga_2: 5000, siaga_1: 5000}
+
+  - code: tipala
+    name: "Rumah Pompa Tipala"
+    kind: tma
+    river: "Cipinang"
+    source: s1_posko_banjir
+    external_id: "194"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.27708, lon: 106.87985, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: null
+      needs_DSDA_confirmation: true
+      note: "S1 page shows 5000/5000/5000 mm for all three levels, a placeholder"
+      comparison: ">="
+      siaga_3_cm: null
+      siaga_2_cm: null
+      siaga_1_cm: null
+      evidence:
+        s1_page_mm: {siaga_3: 5000, siaga_2: 5000, siaga_1: 5000}
+
+  - code: cimel
+    name: "Taman Jati Cimel"
+    kind: tma
+    river: "Sunter"
+    source: s1_posko_banjir
+    external_id: "195"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.256839, lon: 106.9050277, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: null
+      needs_DSDA_confirmation: true
+      note: "S1 page shows 5000/5000/5000 mm for all three levels, a placeholder"
+      comparison: ">="
+      siaga_3_cm: null
+      siaga_2_cm: null
+      siaga_1_cm: null
+      evidence:
+        s1_page_mm: {siaga_3: 5000, siaga_2: 5000, siaga_1: 5000}
+
+  - code: malahayati
+    name: "Jembatan Jl. L. Malahayati"
+    kind: tma
+    river: "Ciliwung"
+    source: s1_posko_banjir
+    external_id: "197"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.23959, lon: 106.87893, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: null
+      needs_DSDA_confirmation: true
+      note: "S1 page shows 5000/5000/5000 mm for all three levels, a placeholder"
+      comparison: ">="
+      siaga_3_cm: null
+      siaga_2_cm: null
+      siaga_1_cm: null
+      evidence:
+        s1_page_mm: {siaga_3: 5000, siaga_2: 5000, siaga_1: 5000}
+
+  - code: kaja_ciracas
+    name: "Waduk Kaja Ciracas"
+    kind: tma
+    river: "Cipinang"
+    source: s1_posko_banjir
+    external_id: "196"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.32847, lon: 106.88053, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: null
+      needs_DSDA_confirmation: true
+      note: "S1 page shows 5000/5000/5000 mm for all three levels, a placeholder"
+      comparison: ">="
+      siaga_3_cm: null
+      siaga_2_cm: null
+      siaga_1_cm: null
+      evidence:
+        s1_page_mm: {siaga_3: 5000, siaga_2: 5000, siaga_1: 5000}
+
+  - code: jembatan_kali_krukut
+    name: "Jembatan Kali Krukut"
+    kind: tma
+    river: "Kali Krukut"
+    source: s1_posko_banjir
+    external_id: "198"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.36624, lon: 106.79441, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: null
+      needs_DSDA_confirmation: true
+      note: "S1 page shows 5000/5000/5000 mm for all three levels, a placeholder"
+      comparison: ">="
+      siaga_3_cm: null
+      siaga_2_cm: null
+      siaga_1_cm: null
+      evidence:
+        s1_page_mm: {siaga_3: 5000, siaga_2: 5000, siaga_1: 5000}
+
+  - code: kemang_2
+    name: "Rumah Pompa Kemang 2"
+    kind: tma
+    river: "Kali Krukut"
+    source: s1_posko_banjir
+    external_id: "199"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.25517, lon: 106.808577, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: null
+      needs_DSDA_confirmation: true
+      note: "S1 page shows 5000/5000/5000 mm for all three levels, a placeholder"
+      comparison: ">="
+      siaga_3_cm: null
+      siaga_2_cm: null
+      siaga_1_cm: null
+      evidence:
+        s1_page_mm: {siaga_3: 5000, siaga_2: 5000, siaga_1: 5000}
+
+  - code: atma_jaya
+    name: "Rumah Pompa Atma Jaya"
+    kind: tma
+    river: "Kali Krukut"
+    source: s1_posko_banjir
+    external_id: "200"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.216418, lon: 106.816838, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: null
+      needs_DSDA_confirmation: true
+      note: "S1 page shows 5000/5000/5000 mm for all three levels, a placeholder"
+      comparison: ">="
+      siaga_3_cm: null
+      siaga_2_cm: null
+      siaga_1_cm: null
+      evidence:
+        s1_page_mm: {siaga_3: 5000, siaga_2: 5000, siaga_1: 5000}
+
+  - code: palmerah
+    name: "Posko SDA Palmerah"
+    kind: tma
+    river: "Kali Grogol"
+    source: s1_posko_banjir
+    external_id: "201"  # ID_PINTU_AIR on the Posko Banjir page
+    external_id_confirmed: true
+    location: {lat: -6.19685, lon: 106.79354, source: s1_posko_banjir_page_2026-11-02, needs_verification: true}
+    unit: cm
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: null
+      needs_DSDA_confirmation: true
+      note: "S1 page shows 5000/5000/5000 mm for all three levels, a placeholder"
+      comparison: ">="
+      siaga_3_cm: null
+      siaga_2_cm: null
+      siaga_1_cm: null
+      evidence:
+        s1_page_mm: {siaga_3: 5000, siaga_2: 5000, siaga_1: 5000}
+
+  - code: cipinang_hulu
+    name: "PS. Cipinang Hulu"
+    kind: tma
+    river: "Cipinang Hulu"
+    source: s2_opendata
+    external_id: "PS. Cipinang Hulu"
+    external_id_confirmed: true
+    location: {lat: -6.374264, lon: 106.883862, source: s2_tma_2020, needs_verification: true}
+    unit: cm
+    active: false
+    note: "In S2 (2020) but not on the Posko Banjir page of 2026-11-02; no S1 id."
+    datum_note: >-
+      Gauge zero of the post; vertical datum not documented (DSDA Q2).
+    allows_negative: false
+    siaga_thresholds:
+      source: null
+      needs_DSDA_confirmation: true
+      note: "not derivable from S2: level not observed"
+      comparison: ">="
+      siaga_3_cm: null
+      siaga_2_cm: null
+      siaga_1_cm: null
+      evidence:
+        s2_2020:  # derived from status_siaga labels, cm
+          siaga_3: {max_below_cm: 140, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_2: {max_below_cm: 140, min_at_cm: null, value_cm: null, result: "level not observed"}
+          siaga_1: {max_below_cm: 140, min_at_cm: null, value_cm: null, result: "level not observed"}
+

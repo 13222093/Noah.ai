@@ -1,0 +1,232 @@
+# Polder readiness scorecard, machine-readable (B-042, G-056).
+# Human-readable version and reasoning: docs/readiness/polder_scorecard.md
+# Status: DRAFT v0.1. The lighthouse choice is made with DSDA in Week 1; this file only informs it.
+# Rules: a score is an integer 0..3 or null. null means "unknown - ask DSDA/BPBD"; it is never guessed.
+# Every non-null score cites at least one entry in `sources` (or `plan` / `repo` evidence).
+# Coordinates are approximate reference points from OpenStreetMap Nominatim (ODbL), not polder
+# boundaries; they are used only to measure distance to S1/S2 posts. Replace with S8 polygons.
+
+version: "0.1.0"
+status: draft
+computed_on: "2026-11-02"
+author: hydro-ml-engineer (agent), for review by Ari and DSDA
+decision_owner: "Ari + DSDA, Week 1 (see 01_PRODUCT_BRIEF.md Scope)"
+
+scoring:
+  scale: "0..3 per criterion; null = unknown"
+  formula: "score = sum(weight_i * s_i / 3) over criteria with s_i not null  (0..100)"
+  potential_max: "score + sum(weight_i) over criteria with s_i null  (upper bound if every unknown turns out best)"
+  confidence: "known_weight / 100; high >= 0.8, medium 0.6..0.8, low < 0.6"
+  ranking: "sort by score desc; tie-break 1: SCADA (c2) desc; tie-break 2: potential_max desc"
+  ranking_confidence: "low - top three are within 2 points while 25 of 100 weight (incl. operator willingness) is unknown for all"
+  gates:
+    - id: g1
+      rule: "DSDA confirms an operator contact willing to take shadow-mode recommendations (c8 >= 2)"
+    - id: g2
+      rule: "At least one usable water-level signal: SCADA sump level (c2 >= 2) or a relevant S1 post (c3 >= 2)"
+    - id: g3
+      rule: "Polder boundary obtainable by end of W2: S8 polygon or documented manual digitizing (c6 >= 1)"
+  portfolio_rule: >
+    Choose 2 to 3 polders. At least one must have confirmed SCADA (needed for M3 calibration).
+    Prefer polders whose nearest S1 posts differ, so the evaluation is not driven by one gauge.
+
+criteria:
+  - id: c1
+    name: Flood frequency and impact history
+    source_ref: [S4, S15]
+    weight: 20
+    levels:
+      3: "BPBD S4 archive shows flooded RTs in the polder in at least 3 of the last 5 wet seasons"
+      2: "Official or press reports of recurring flooding in at least 2 different years since 2020 (proxy until S4 archive)"
+      1: "A single dated report since 2020, or recurring flooding reported only before an intervention"
+      0: "No flood reports in S4 archive 2020-2026"
+  - id: c2
+    name: SCADA presence and access prospect
+    source_ref: [S6]
+    weight: 20
+    levels:
+      3: "SCADA confirmed by DSDA, at least one wet season of logs, read-only access agreed"
+      2: "SCADA at the pump house confirmed by an official or press source"
+      1: "Listed as a SCADA example in plan 04 S6 only, not publicly confirmed"
+      0: "DSDA confirms no SCADA"
+  - id: c3
+    name: TMA water-level post coverage (S1/S2)
+    source_ref: [S1, S2]
+    weight: 15
+    levels:
+      3: "S1 post at the polder's own pump house or outfall"
+      2: "S1 post within 3 km on a channel the polder is documented to drain to"
+      1: "S1 post within 6 km, hydraulic link not confirmed"
+      0: "No S1 post within 6 km"
+  - id: c4
+    name: Rain gauge (ARR) coverage
+    source_ref: [S3]
+    weight: 5
+    levels:
+      3: "ARR inside the polder with 5-min archive"
+      2: "ARR within 3 km"
+      1: "ARR within 6 km"
+      0: "None within 6 km"
+  - id: c5
+    name: CCTV with visible staff gauge or fixed reference
+    source_ref: [S12]
+    weight: 5
+    levels:
+      3: "Camera at pump house or flood hotspot with staff gauge visible, day and night"
+      2: "Camera at hotspot with a fixed reference (wall, kerb) but no gauge"
+      1: "Camera nearby, no usable reference"
+      0: "No camera"
+  - id: c6
+    name: Polder boundary data
+    source_ref: [S8]
+    weight: 10
+    levels:
+      3: "Official polygon (SIGA/MAPID) delivered"
+      2: "DSDA confirms an official polygon exists and will be shared"
+      1: "Published catchment description (area, inflow channels, kelurahan) good enough for documented manual digitizing"
+      0: "Nothing"
+  - id: c7
+    name: Pump inventory per pump house
+    source_ref: [S7]
+    weight: 10
+    levels:
+      3: "Official per-house inventory (count, capacity m3/s, status) from DSDA"
+      2: "Public per-unit capacities dated within 3 years and internally consistent"
+      1: "Public figures that are older, planned, partial or inconsistent"
+      0: "Nothing"
+  - id: c8
+    name: DSDA and pump-house operator willingness
+    source_ref: [DSDA]
+    weight: 10
+    levels:
+      3: "Named operator and Sudin SDA contact agreed to shadow mode and weekly feedback"
+      2: "DSDA nominates the polder"
+      1: "DSDA neutral"
+      0: "DSDA declines"
+  - id: c9
+    name: Exposure (population, critical facilities)
+    source_ref: [S14]
+    weight: 5
+    levels:
+      3: "Top tercile of DKI kelurahan by population in flood-prone area"
+      2: "Middle tercile"
+      1: "Bottom tercile"
+      0: "Negligible"
+    note: "Computable in W2 from S14 (B-059); null until then for all candidates"
+
+candidates:
+  - id: pulomas
+    name: Polder Pulomas (Rumah Pompa Pulomas / Pulomas 2, Waduk Ria Rio)
+    in_plan: true
+    admin: "Kayu Putih, Pulo Gadung, Jakarta Timur (pump station on the Kelapa Gading Barat side of Jl. Perintis Kemerdekaan)"
+    ref_point: {lat: -6.16683, lon: 106.88097, source: osm_nominatim, label: "Stasiun Pompa Waduk Pulo Mas"}
+    nearest_posts_km:
+      - {post: "Pompa Yos Sudarso 1", river: "Sunter Timur", km: 1.4}
+      - {post: "PA. Pulo Gadung", river: "Sunter", km: 3.7}
+    scores: {c1: 1, c2: 2, c3: 1, c4: null, c5: null, c6: 1, c7: 1, c8: null, c9: null}
+    evidence:
+      c1: "R1: RW 09 Kayu Putih flooding fell from 50-100 cm to about 20 cm and RT 02/06 stopped flooding after the pump house; recurrence is pre-intervention, so fewer events to score"
+      c2: "R1 (Feb 2024): SCADA operational at Pulomas 2, pumps run from computer or phone, error reporting; plan 04 S6 lists Pulomas 2"
+      c3: "Repo S2: Yos Sudarso 1 at 1.4 km (hydraulic link unconfirmed); R1: polder discharges to Kali Sunter, PA. Pulo Gadung on Sunter at 3.7 km"
+      c6: "R1: inflow from IKIP, Pulo Nangka Barat and Pulomas Barat channels"
+      c7: "R5 (Sep 2022): planned 5.5 m3/s total; R1 (Feb 2024): 3 pumps, figures internally inconsistent"
+    score: 31.7
+    potential_max: 56.7
+    known_weight: 75
+    confidence: medium
+  - id: sunter_selatan
+    name: Polder Sunter Selatan (Waduk Sunter Selatan, plus Rumah Pompa Sunter C since 2025)
+    in_plan: true
+    admin: "Sunter Jaya / Sunter Agung / Sungai Bambu, Tanjung Priok, Jakarta Utara"
+    ref_point: {lat: -6.14416, lon: 106.88560, source: osm_nominatim, label: "Jl. Danau Sunter Selatan (bus stop; reservoir edge)"}
+    nearest_posts_km:
+      - {post: "Pompa Yos Sudarso 1", river: "Sunter Timur", km: 1.3}
+      - {post: "PA. Pulo Gadung", river: "Sunter", km: 5.6}
+    scores: {c1: 2, c2: 1, c3: 1, c4: null, c5: null, c6: 1, c7: 1, c8: null, c9: null}
+    evidence:
+      c1: "R3: recurring 20-50 cm inundation 2020-2023 at Jl. Danau Sunter Utara (Sunter Agung) and Jl. Gaya Motor (Sungai Bambu); Sunter C (May 2025) may reduce future events"
+      c2: "Plan 04 S6 lists Sunter Selatan; R3: Sunter C has a digital system to monitor each pump in real time (not named SCADA)"
+      c3: "Repo S2: Yos Sudarso 1 at 1.3 km (hydraulic link unconfirmed)"
+      c6: "R3: served kelurahan named (Sunter Agung, Sungai Bambu)"
+      c7: "R3: Sunter C 3 x 2.0 m3/s + 0.25 m3/s sludge pump (2025); Sunter Selatan's own pumps unknown"
+    score: 31.7
+    potential_max: 56.7
+    known_weight: 75
+    confidence: medium
+  - id: setiabudi_timur
+    name: Polder Setiabudi Timur (Waduk Setiabudi Timur)
+    in_plan: true
+    admin: "Guntur / Setiabudi, Jakarta Selatan"
+    ref_point: {lat: -6.20517, lon: 106.82936, source: osm_nominatim, label: "Waduk Setia Budi Timur"}
+    nearest_posts_km:
+      - {post: "PA. Manggarai", river: "Ciliwung", km: 2.1}
+      - {post: "P.A. Karet", river: "Banjir Kanal Barat", km: 2.3}
+    scores: {c1: 1, c2: 1, c3: 2, c4: null, c5: null, c6: 1, c7: 1, c8: null, c9: null}
+    evidence:
+      c1: "R4 (2018): called a vulnerable point; R8: 40 cm on Jl. HR Rasuna Said, Kuningan, 7 Jul 2025 (inside the catchment per R4, not confirmed as polder failure)"
+      c2: "Plan 04 S6 lists Setiabudi Timur; no public confirmation found"
+      c3: "R4: pumps discharge to Banjir Kanal Barat; repo S2: P.A. Karet (BKB) at 2.3 km with Siaga history in Jan 2020; Manggarai 2.1 km upstream of the BKB split"
+      c6: "R4: about 134 ha; inflow from Halimun, Menteng Atas, Pancoran, Kuningan"
+      c7: "R4 (Oct 2018, older than 3 years): 3 x 1.74 + 3 x 1.1 m3/s"
+    score: 30.0
+    potential_max: 55.0
+    known_weight: 75
+    confidence: medium
+  - id: kelapa_gading
+    name: "Kelapa Gading (polder unit unclear - Polder Kelapa Gading on Kali Betik/Kali Gendong, Artha Gading, or both)"
+    in_plan: true
+    admin: "Kelapa Gading Barat / Kelapa Gading Timur / Pegangsaan Dua, Kelapa Gading, Jakarta Utara"
+    ref_point: {lat: -6.15994, lon: 106.90248, source: osm_nominatim, label: "Kecamatan Kelapa Gading (centroid)"}
+    nearest_posts_km:
+      - {post: "Pompa Yos Sudarso 1", river: "Sunter Timur", km: 1.9}
+      - {post: "PA. Pulo Gadung", river: "Sunter", km: 3.5}
+    scores: {c1: 2, c2: null, c3: 1, c4: null, c5: null, c6: 1, c7: 1, c8: null, c9: null}
+    evidence:
+      c1: "R7 (May 2025): DSDA 2020-2025 inundation map shows yearly recurring 15-40 cm at Pegangsaan Dua"
+      c3: "Repo S2: Yos Sudarso 1 at 1.9 km, Pulo Gadung 3.5 km (links unconfirmed)"
+      c6: "R6 (Nov 2021): two pump houses on Kali Betik and Kali Gendong, five gates from north Kelapa Gading to south Pegangsaan"
+      c7: "R5 (Sep 2022): Kali Betik 7 m3/s and Artha Gading 7 m3/s planned; completion not confirmed"
+    score: 25.0
+    potential_max: 70.0
+    known_weight: 55
+    confidence: low
+  - id: bojong_indah
+    name: Waduk Bojong Indah
+    in_plan: true
+    reason_added: "Named in plan 04 S6 as a SCADA example; added so every S6 example is scored"
+    admin: "Rawa Buaya, Cengkareng, Jakarta Barat"
+    ref_point: {lat: -6.16041, lon: 106.73843, source: osm_nominatim, label: "Waduk Bojong"}
+    nearest_posts_km:
+      - {post: "Pompa Kali Duri (Kalijodo)", river: "Kali Duri", km: 6.1}
+    scores: {c1: null, c2: 1, c3: 0, c4: null, c5: null, c6: null, c7: 1, c8: null, c9: null}
+    evidence:
+      c2: "Plan 04 S6 lists Waduk Bojong Indah; no public confirmation found"
+      c3: "Repo S2: nearest post 6.1 km. Current S1 lists 'P.A. Cengkareng Drain' (R10) whose coordinates are not in the repo; could raise c3 to 2"
+      c7: "R12 (Sep 2016): four damaged pumps repaired; capacities not stated"
+    score: 10.0
+    potential_max: 65.0
+    known_weight: 45
+    confidence: low
+
+watchlist:
+  - id: tipala
+    name: Rumah Pompa Tipala (Cipinang)
+    reason: "Is an S1 post (R10) and is named as a SCADA implementation site (R9). Location and polder unknown; ask DSDA whether it serves a flood-prone polder"
+  - id: pluit
+    name: Polder Pluit
+    reason: "S1/S2 post at the pump house (score c3 = 3), but very large, tidal and coastal; negative S2 values unexplained (G-043). Not recommended as a first lighthouse; ask DSDA"
+
+sources:
+  R1: {title: "SCADA at Pulomas 2 Pump House Assists Water Debit Management", publisher: Berita Jakarta, published: "2024-02-19", url: "https://m.beritajakarta.id/en/read/54129/scada-at-pulomas-2-pump-house-assists-water-debit-management", accessed: "2026-11-02"}
+  R2: {title: "Mengenal Sistem SCADA yang Mampu Kendalikan Rumah Pompa dari Jarak Jauh", publisher: Dinas SDA DKI, published: "2025-05-05", url: "https://dsda.jakarta.go.id/detail-artikel/mengenal-sistem-scada-yang-mampu-kendalikan-rumah-pompa-dari-jarak-jauh/53", accessed: "2026-11-02"}
+  R3: {title: "Diresmikan Gubernur Pramono Anung, Pompa Sunter C ...", publisher: Dinas SDA DKI, published: "2025-05-26", url: "https://dsda.jakarta.go.id/detail-artikel/diresmikan-gubernur-pramono-anung-pompa-sunter-c-diharapkan-efektif-kendalikan-banjir-di-sunter-agung-dan-sungai-bambu/62", accessed: "2026-11-02"}
+  R4: {title: "Berharap pada Pompa Sang Penjaga Banjir Ibu Kota", publisher: CNN Indonesia, published: "2018-10-31", url: "https://www.cnnindonesia.com/nasional/20181029065504-20-342171/berharap-pada-pompa-sang-penjaga-banjir-ibu-kota", accessed: "2026-11-02"}
+  R5: {title: "Cegah Banjir, DPRD DKI Minta Proyek Empat Rumah Pompa Rampung Desember 2022", publisher: IDX Channel, published: "2022-09-07", url: "https://www.idxchannel.com/economics/cegah-banjir-dprd-dki-minta-proyek-empat-rumah-pompa-rampung-desember-2022/all", accessed: "2026-11-02"}
+  R6: {title: "Kelapa Gading Polder Construction is Important to Overcome Flooding", publisher: Berita Jakarta, published: "2021-11-26", url: "https://m.beritajakarta.id/en/read/41995/kelapa-gading-polder-construction-is-important-to-overcome-flooding", accessed: "2026-11-02"}
+  R7: {title: "Kali Cakung Lama Dikeruk, Gubernur Pramono Anung Pastikan Komitmen Pemprov Jakarta Atasi Banjir di Kelapa Gading", publisher: Dinas SDA DKI, published: "2025-05-20", url: "https://dsda.jakarta.go.id/detail-artikel/kali-cakung-lama-dikeruk-gubernur-pramono-anung-pastikan-komitmen-pemprov-jakarta-atasi-banjir-di-kelapa-gading/58", accessed: "2026-11-02"}
+  R8: {title: "Jalan HR Rasuna Said Kuningan Banjir, Lalu Lintas Macet", publisher: "RCTI+ / Okezone", published: "2025-07-07", url: "https://www.rctiplus.com/news/detail/terkini/4803387/jalan-hr-rasuna-said-kuningan-banjir-lalu-lintas-macet", accessed: "2026-11-02"}
+  R9: {title: "Implementation of SCADA with Improvement of DKI Jakarta Flood Control Monitoring System", publisher: "TIME in Physics 2(2):96-110 (Adianto et al.)", published: "2024-09-30", url: "https://ejournal.universitasmandiri.ac.id/index.php/timeinphys/article/view/159", accessed: "2026-11-02"}
+  R10: {title: "Posko Banjir DSDA public water-level table (37 posts listed)", publisher: DSDA, published: "live", url: "https://poskobanjir.dsdadki.web.id/", accessed: "2026-11-02"}
+  R11: {title: "OpenStreetMap Nominatim geocoding (reference points only; ODbL)", publisher: OpenStreetMap Foundation, published: "live", url: "https://nominatim.openstreetmap.org/", accessed: "2026-11-02"}
+  R12: {title: "Damaged Pumps Repair at Bojong Reservoir Takes A Month", publisher: Berita Jakarta, published: "2016-09-20", url: "https://m.beritajakarta.id/en/read/17546/damaged-pumps-repair-at-bojong-reservoir-takes-a-month", accessed: "2026-11-02"}
+  repo_s2: {title: "ml-service/data/tma_2020.xlsx.csv (S2, 21 posts, 2019-12-31 to 2020-01-31, mm)", note: "provenance/licence/time zone still open (GAP_REPORT Ari Q5, DSDA Q3)"}

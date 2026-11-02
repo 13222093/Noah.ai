@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { formatWibDateTime, formatWibTime } from './time';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -22,23 +23,14 @@ export function formatPopulation(num: number): string {
   return new Intl.NumberFormat('id-ID').format(num);
 }
 
+/** Date and time in WIB, e.g. "2 Nov 2026 13:05 WIB". */
 export function formatDate(date: string | Date): string {
-  const d = new Date(date);
-  return d.toLocaleDateString('id-ID', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return formatWibDateTime(date);
 }
 
+/** Time in WIB, e.g. "13:05 WIB". */
 export function formatTime(date: string | Date): string {
-  const d = new Date(date);
-  return d.toLocaleTimeString('id-ID', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return formatWibTime(date);
 }
 
 export function getTimeAgo(date: string | Date, lang: string = 'id'): string {
@@ -101,7 +93,7 @@ export function throttle<T extends (...args: any[]) => void>(
 }
 
 export function generateId(): string {
-  return Math.random().toString(36).substr(2, 9);
+  return crypto.randomUUID();
 }
 
 export function clamp(value: number, min: number, max: number): number {
@@ -125,24 +117,6 @@ export function hexToRgba(hex: string, alpha: number): string {
   const g = parseInt(hex.slice(3, 5), 16);
   const b = parseInt(hex.slice(5, 7), 16);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
-export function getRandomColor(): string {
-  const colors = [
-    '#06B6D4',
-    '#3B82F6',
-    '#8B5CF6',
-    '#10B981',
-    '#F59E0B',
-    '#EF4444',
-    '#EC4899',
-    '#14B8A6',
-    '#F97316',
-    '#84CC16',
-    '#6366F1',
-    '#F43F5E',
-  ];
-  return colors[Math.floor(Math.random() * colors.length)];
 }
 
 export function isValidEmail(email: string): boolean {

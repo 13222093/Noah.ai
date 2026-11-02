@@ -1,0 +1,6 @@
+-r requirements.txt
+pytest==9.2.0
+httpx==0.28.1
+# SQL syntax check of db/migrations in tests (GPL-3.0+; test-only, never
+# imported by application code, so guardrail 13 is not affected).
+pglast==8.7

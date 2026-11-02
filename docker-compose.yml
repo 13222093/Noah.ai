@@ -1,29 +1,228 @@
-version: '3.8'
+# Noah AI on one VPS (4 vCPU / 8 GB): two app stacks plus one shared edge proxy.
+# B-030, G-103; runbook and network layout: docs/ops/vps-layout.md.
+#
+#   docker network create noah-edge                                    # once per host
+#   docker compose -p noah-edge    --env-file deploy/edge.env    --profile edge up -d caddy
+#   docker compose -p noah-staging --env-file deploy/staging.env build
+#   docker compose -p noah-staging --env-file deploy/staging.env run --rm migrate   # schema + stations
+#   docker compose -p noah-staging --env-file deploy/staging.env up -d
+#   (same three commands with -p noah-prod --env-file deploy/prod.env)
+#
+# Services per stack: web (Next.js), ml-api (FastAPI), worker (connectors) and
+# the one-shot migrate job. ml-api, worker and migrate share one image
+# (ml-service/Dockerfile, built from the repo root) with different commands.
+#
+# Only Caddy publishes ports (80/443). Networks:
+#   internal  per stack, no egress:        web <-> ml-api only
+#   egress    per stack, outbound only:    ml-api, worker, migrate -> managed
+#                                          Postgres, object storage, public sources
+#   noah-edge shared with Caddy:           web (alias <stack>-web), caddy
+# Nothing on `egress` publishes a port, so it is not reachable from outside.
+# Postgres is managed and external (Supabase or another provider), not a service here.
+# Each deploy/<stack>.env sets NOAH_STACK=prod|staging and the stack's secrets.
+# Env files under deploy/ are git-ignored and hold secrets; never commit them.
+
+x-hardening: &hardening
+  read_only: true
+  tmpfs:
+    - /tmp
+  security_opt:
+    - no-new-privileges:true
+  cap_drop: [ALL]
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+# One image for ml-api, worker and migrate. The build is listed on each so any
+# of them can be built or run alone; BuildKit's cache makes repeats free.
+x-ml-image: &ml-image
+  build:
+    context: .
+    dockerfile: ml-service/Dockerfile
+  image: noah-ml-api:${NOAH_STACK:-staging}-${NOAH_IMAGE_TAG:-local}
 
 services:
-  nextjs:
+  web:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}
+        NEXT_PUBLIC_SENTRY_DSN: ${NEXT_PUBLIC_SENTRY_DSN:-}
+        NEXT_PUBLIC_SENTRY_ENVIRONMENT: ${NOAH_STACK:-staging}
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-}
+    image: noah-web:${NOAH_STACK:-staging}-${NOAH_IMAGE_TAG:-local}
+    # Runtime secrets for this stack (git-ignored). Missing file = refuse to start.
+    env_file: deploy/${NOAH_STACK:-staging}.env
     environment:
-      - ML_API_URL=http://ml-service:8000
-      - NODE_ENV=production
+      NODE_ENV: production
+      NOAH_STACK: ${NOAH_STACK:-staging}
+      SENTRY_ENVIRONMENT: ${NOAH_STACK:-staging}
+      ML_API_URL: http://ml-api:8000
+    # HEALTHCHECK (liveness, /robots.txt) is defined in the root Dockerfile.
     depends_on:
-      - ml-service
+      ml-api:
+        condition: service_healthy
+    networks:
+      internal: {}
+      edge:
+        aliases:
+          - ${NOAH_STACK:-staging}-web
+    <<: *hardening
+    tmpfs:
+      - /tmp
+      - /app/.next/cache
+    deploy:
+      resources:
+        limits:
+          memory: ${NOAH_WEB_MEM:-1g}
+          cpus: "${NOAH_WEB_CPUS:-1.5}"
     restart: unless-stopped
+    logging: *logging
 
-  ml-service:
-    build:
-      context: ./ml-service
-      dockerfile: Dockerfile
-    ports:
-      - "8000:8000"
+  ml-api:
+    <<: [*ml-image, *hardening]
+    # Runtime secrets for this stack (git-ignored). Missing file = refuse to start.
+    # NOAH_DATABASE_URL wires /api/v1/health to connector_runs; without it the
+    # API still starts and health answers 503 {"status": "unconfigured"}.
+    env_file: deploy/${NOAH_STACK:-staging}.env
     environment:
-      - MODEL_PATH=/app/models
-      - ROBOFLOW_API_KEY=${ROBOFLOW_API_KEY:-}
-    volumes:
-      - ./ml-service/models:/app/models:ro
-      - ./ml-service/data:/app/data:ro
+      NOAH_STACK: ${NOAH_STACK:-staging}
+      SENTRY_ENVIRONMENT: ${NOAH_STACK:-staging}
+    # HEALTHCHECK (liveness, /api/v1/openapi.json) is defined in ml-service/Dockerfile.
+    networks:
+      internal: {}
+      egress: {}
+    deploy:
+      resources:
+        limits:
+          memory: ${NOAH_ML_MEM:-1g}
+          cpus: "${NOAH_ML_CPUS:-1.0}"
     restart: unless-stopped
+    logging: *logging
+
+  # Connector loop (S1, S4, S5, S15): polls the public sources and appends to
+  # Postgres and object storage. Refuses to start (exit 2, clear message) when
+  # NOAH_DATABASE_URL is missing or the object store is unusable.
+  worker:
+    <<: [*ml-image, *hardening]
+    command: ["python", "-m", "noah.connectors", "run", "--sink", "noah.store.factory:make_sink"]
+    env_file: deploy/${NOAH_STACK:-staging}.env
+    environment:
+      NOAH_STACK: ${NOAH_STACK:-staging}
+      SENTRY_ENVIRONMENT: ${NOAH_STACK:-staging}
+      # Used when NOAH_OBJECT_STORE=local (the default); ignored for s3.
+      NOAH_OBJECT_STORE_DIR: /var/lib/noah/objects
+    volumes:
+      - objects:/var/lib/noah/objects
+    # No HTTP server here; freshness is watched through /api/v1/health.
+    healthcheck:
+      disable: true
+    networks:
+      egress: {}
+    deploy:
+      resources:
+        limits:
+          memory: ${NOAH_WORKER_MEM:-512m}
+          cpus: "${NOAH_WORKER_CPUS:-0.5}"
+    restart: unless-stopped
+    logging: *logging
+
+  # One-shot: apply db/migrations and load config/stations.yaml, then exit.
+  # Not started by `up`; run it explicitly before each deploy:
+  #   docker compose -p noah-<stack> --env-file deploy/<stack>.env run --rm migrate
+  migrate:
+    <<: [*ml-image, *hardening]
+    profiles: [migrate]
+    command: ["sh", "-c", "python -m noah.store.migrate && python -m noah.store.stations --apply"]
+    env_file: deploy/${NOAH_STACK:-staging}.env
+    environment:
+      NOAH_STACK: ${NOAH_STACK:-staging}
+    healthcheck:
+      disable: true
+    networks:
+      egress: {}
+    restart: "no"
+    logging: *logging
+
+  # Shared reverse proxy and TLS. Run once per host as project `noah-edge` with
+  # `--profile edge`; the app stacks never start it.
+  caddy:
+    profiles: [edge]
+    image: caddy:2.8-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      NOAH_PROD_DOMAIN: ${NOAH_PROD_DOMAIN:-prod.noah.invalid}
+      NOAH_STAGING_DOMAIN: ${NOAH_STAGING_DOMAIN:-staging.noah.invalid}
+    configs:
+      - source: caddyfile
+        target: /etc/caddy/Caddyfile
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    networks:
+      edge: {}
+    security_opt:
+      - no-new-privileges:true
+    deploy:
+      resources:
+        limits:
+          memory: 128m
+    restart: unless-stopped
+    logging: *logging
+
+configs:
+  caddyfile:
+    # $$ escapes compose interpolation; Caddy expands {$VAR} itself at load time.
+    content: |
+      (common) {
+        encode zstd gzip
+        header {
+          Strict-Transport-Security "max-age=31536000; includeSubDomains"
+          X-Content-Type-Options "nosniff"
+          X-Frame-Options "DENY"
+          Referrer-Policy "strict-origin-when-cross-origin"
+          X-Robots-Tag "noindex, nofollow"
+          -Server
+        }
+      }
+
+      {$$NOAH_PROD_DOMAIN} {
+        import common
+        reverse_proxy prod-web:3000
+      }
+
+      {$$NOAH_STAGING_DOMAIN} {
+        import common
+        reverse_proxy staging-web:3000
+      }
+
+networks:
+  # Per stack, no egress: the web -> ml-api path never leaves the host.
+  internal:
+    internal: true
+  # Per stack, outbound only (no published ports): ml-api reaches the managed
+  # Postgres; the worker also reaches object storage and the public sources.
+  # Destination filtering, if wanted, is a host firewall rule (DOCKER-USER chain);
+  # see docs/ops/vps-layout.md.
+  egress:
+    driver: bridge
+  # Shared with the edge proxy. Create once: `docker network create noah-edge`.
+  # Also gives the web container outbound access to Supabase.
+  edge:
+    name: noah-edge
+    external: true
+
+volumes:
+  # Per stack (compose prefixes the project name: noah-prod_objects, noah-staging_objects).
+  # Raw payloads when NOAH_OBJECT_STORE=local. Back it up, or switch to s3.
+  objects:
+  caddy_data:
+  caddy_config:

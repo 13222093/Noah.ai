@@ -18,6 +18,8 @@ export function useLocalStorage<T>(
     try {
       const stored = localStorage.getItem(key);
       if (stored !== null) {
+        // Deliberate post-mount sync from localStorage (hydration-safe).
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setValue(JSON.parse(stored));
       }
     } catch {

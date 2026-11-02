@@ -1,0 +1,66 @@
+{
+ "statusCode": 200,
+ "result": {
+  "type": "FeatureCollection",
+  "features": [
+   {
+    "type": "Feature",
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      106.8277,
+      -6.1752
+     ]
+    },
+    "properties": {
+     "pkey": "399957",
+     "created_at": "2026-10-29T07:23:14.089Z",
+     "source": "grasp",
+     "status": "confirmed",
+     "disaster_type": "earthquake",
+     "report_data": {
+      "report_type": "road",
+      "accessabilityFailure": 3,
+      "condition": 1
+     },
+     "tags": {
+      "city": "JAKARTA PUSAT",
+      "district_id": null,
+      "region_code": "3171",
+      "local_area_id": "11017",
+      "instance_region_code": "ID-JK"
+     }
+    }
+   },
+   {
+    "type": "Feature",
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      106.8426,
+      -6.15
+     ]
+    },
+    "properties": {
+     "pkey": "399954",
+     "created_at": "2026-10-29T07:20:23.078Z",
+     "source": "grasp",
+     "status": "confirmed",
+     "disaster_type": "haze",
+     "report_data": {
+      "report_type": "haze",
+      "visibility": 1,
+      "airQuality": 4
+     },
+     "tags": {
+      "city": "JAKARTA PUSAT",
+      "district_id": null,
+      "region_code": "3171",
+      "local_area_id": "13898",
+      "instance_region_code": "ID-JK"
+     }
+    }
+   }
+  ]
+ }
+}

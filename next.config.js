@@ -1,25 +1,21 @@
 // next.config.js
 const { withSentryConfig } = require('@sentry/nextjs');
-const withPWA = require('@ducanh2912/next-pwa').default({
-  dest: 'public',
-  register: true,
-  disable: process.env.NODE_ENV === 'development', // Disable PWA in development
-  workboxOptions: {
-    maximumFileSizeToCacheInBytes: 2500000, // 2.5 MB
-  },
-});
+// PWA / service worker disabled in W1 (G-123, guardrail 7): an offline cache can
+// show old numbers as if they were current. public/sw.js is now a kill-switch
+// that unregisters any worker installed by the old public app.
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Standalone only for Docker; skip on Windows to avoid copyfile EINVAL with node:inspector paths
   ...(process.env.NEXT_STANDALONE === '1' && { output: 'standalone' }),
   experimental: {},
-  async rewrites() {
+  // The '/' -> /landing.html rewrite (public marketing site) was removed in W1 (B-009).
+  async headers() {
     return [
-      {
-        source: '/',
-        destination: '/landing.html',
-      },
+      // The trial is not public: tell crawlers not to index anything.
+      { source: '/:path*', headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }] },
+      // Make browsers re-check the kill-switch worker instead of caching it.
+      { source: '/sw.js', headers: [{ key: 'Cache-Control', value: 'no-store' }] },
     ];
   },
   // Konfigurasi Webpack yang sudah ada
@@ -34,8 +30,6 @@ const nextConfig = {
 
   images: {
     remotePatterns: [
-      { protocol: 'https', hostname: 'yqybhgqeejpdgffxzsno.supabase.co', pathname: '/storage/v1/object/public/**' },
-      { protocol: 'https', hostname: 'placehold.co' },
     ],
     formats: ['image/avif', 'image/webp'],
   },
@@ -48,5 +42,4 @@ const sentryWebpackPluginOptions = {
   authToken: process.env.SENTRY_AUTH_TOKEN,
 };
 
-// Combine PWA and Sentry configurations
-module.exports = withSentryConfig(withPWA(nextConfig), sentryWebpackPluginOptions);
+module.exports = withSentryConfig(nextConfig, sentryWebpackPluginOptions);

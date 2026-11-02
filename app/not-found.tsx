@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'Halaman Tidak Ditemukan | noah.ai',
+    title: 'Halaman Tidak Ditemukan | Noah AI',
     description: 'Maaf, halaman yang Anda cari tidak dapat ditemukan.',
 };
 
@@ -16,10 +16,9 @@ export default function NotFound() {
                     <span className="text-4xl">🌊</span>
                 </div>
 
-                <h2 className="text-3xl font-bold text-white font-display">Arus Salah Arah</h2>
+                <h2 className="text-3xl font-bold text-white font-display">Halaman tidak ditemukan</h2>
                 <p className="text-slate-400">
-                    Seperti air yang tersesat, halaman yang Anda cari tidak ditemukan di server kami.
-                    Mungkin sudah surut atau berpindah aliran.
+                    Halaman yang Anda cari tidak ada atau sudah dipindahkan.
                 </p>
 
                 <div className="pt-6">
@@ -27,13 +26,10 @@ export default function NotFound() {
                         href="/"
                         className="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold py-3 px-8 rounded-full transition duration-300 inline-block"
                     >
-                        Kembali ke Dashboard Utama
+                        Kembali ke Ringkasan
                     </Link>
                 </div>
 
-                <div className="text-xs font-mono text-slate-600 mt-12">
-                    ERROR_CODE: PAGE_NOT_FOUND_EXCEPTION
-                </div>
             </div>
         </div>
     );

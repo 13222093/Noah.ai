@@ -1,36 +1,16 @@
 import { create } from 'zustand';
+import type { BasemapId } from '@/lib/constants';
 
+// Map layer state. All old overlays (flood-zone mock, weather stations,
+// AQI, evacuation pins, RainViewer radar) were removed in W1.
+// Real layers (polders, nowcast, BPBD reports, stations, pumps) are added
+// here in W2 as their data sources come online.
 interface MapLayerState {
-  showFloodZones: boolean;
-  showWeatherStations: boolean;
-  showRadar: boolean;
-  showAqi: boolean;
-  showEvacPins: boolean;
-  toggleFloodZones: () => void;
-  toggleWeatherStations: () => void;
-  toggleRadar: () => void;
-  toggleAqi: () => void;
-  toggleEvacPins: () => void;
-  setShowRadar: (v: boolean) => void;
-  setShowAqi: (v: boolean) => void;
+  basemap: BasemapId;
+  setBasemap: (id: BasemapId) => void;
 }
 
 export const useMapLayerStore = create<MapLayerState>((set) => ({
-  showFloodZones: true,
-  showWeatherStations: true,
-  showRadar: false,
-  showAqi: false,
-  showEvacPins: true,
-  toggleFloodZones: () =>
-    set((s) => ({ showFloodZones: !s.showFloodZones })),
-  toggleWeatherStations: () =>
-    set((s) => ({ showWeatherStations: !s.showWeatherStations })),
-  toggleRadar: () =>
-    set((s) => ({ showRadar: !s.showRadar, showAqi: s.showRadar ? s.showAqi : false })),
-  toggleAqi: () =>
-    set((s) => ({ showAqi: !s.showAqi, showRadar: s.showAqi ? s.showRadar : false })),
-  toggleEvacPins: () =>
-    set((s) => ({ showEvacPins: !s.showEvacPins })),
-  setShowRadar: (v) => set(v ? { showRadar: true, showAqi: false } : { showRadar: false }),
-  setShowAqi: (v) => set(v ? { showAqi: true, showRadar: false } : { showAqi: false }),
+  basemap: 'dark',
+  setBasemap: (basemap) => set({ basemap }),
 }));

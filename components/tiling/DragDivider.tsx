@@ -18,6 +18,8 @@ export function DragDivider({
 }: DragDividerProps) {
   const isDragging = useRef(false);
   const dividerRef = useRef<HTMLDivElement>(null);
+  // Removes the document listeners of the drag in progress, if any.
+  const stopDragRef = useRef<(() => void) | null>(null);
 
   const handleMove = useCallback(
     (clientY: number) => {
@@ -30,49 +32,36 @@ export function DragDivider({
     [containerRef, minHeight, maxHeight, onResize],
   );
 
-  const handleMouseMove = useCallback(
-    (e: MouseEvent) => handleMove(e.clientY),
-    [handleMove],
-  );
-
-  const handleTouchMove = useCallback(
-    (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        handleMove(e.touches[0].clientY);
-      }
-    },
-    [handleMove],
-  );
-
-  const handleEnd = useCallback(() => {
-    isDragging.current = false;
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-    document.removeEventListener('mousemove', handleMouseMove);
-    document.removeEventListener('mouseup', handleEnd);
-    document.removeEventListener('touchmove', handleTouchMove);
-    document.removeEventListener('touchend', handleEnd);
-  }, [handleMouseMove, handleTouchMove]);
-
   const handleStart = useCallback(() => {
+    stopDragRef.current?.();
     isDragging.current = true;
     document.body.style.cursor = 'row-resize';
     document.body.style.userSelect = 'none';
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleEnd);
-    document.addEventListener('touchmove', handleTouchMove);
-    document.addEventListener('touchend', handleEnd);
-  }, [handleMouseMove, handleTouchMove, handleEnd]);
+
+    const onMouseMove = (e: MouseEvent) => handleMove(e.clientY);
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) handleMove(e.touches[0].clientY);
+    };
+    const stop = () => {
+      isDragging.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', stop);
+      document.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('touchend', stop);
+      stopDragRef.current = null;
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', stop);
+    document.addEventListener('touchmove', onTouchMove);
+    document.addEventListener('touchend', stop);
+    stopDragRef.current = stop;
+  }, [handleMove]);
 
   // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleEnd);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleEnd);
-    };
-  }, [handleMouseMove, handleTouchMove, handleEnd]);
+  useEffect(() => () => stopDragRef.current?.(), []);
 
   return (
     <div

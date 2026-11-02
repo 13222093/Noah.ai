@@ -1,0 +1,13 @@
+# Build context filter for ml-service/Dockerfile, whose context is the repo root.
+# BuildKit uses this file instead of the root .dockerignore (which is for the
+# web image). Allowlist: only what the Dockerfile copies is sent to the daemon.
+# No env files, secrets, data, tests or docs (G-104).
+*
+!ml-service/requirements.txt
+!ml-service/src/
+!db/migrations/
+!config/
+**/__pycache__
+**/*.pyc
+**/.env
+**/.env.*

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+    <?xml-stylesheet type="text/xsl" href="/cap/nowcast-rss-style.xsl"?>
+    <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+        <channel>
+            <title>Peringatan Dini Cuaca BMKG</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/rss.xml</link>
+            <description>Peringatan Dini Cuaca dari BMKG (Badan Meteorologi, Klimatologi, dan Geofisika)</description>
+            <atom:link href="https://www.bmkg.go.id/alerts/nowcast/id/rss.xml" rel="self" type="application/rss+xml"/>
+            <language>id</language>
+            <copyright>public domain</copyright>
+            <pubDate>Mon, 02 Nov 2026 13:45:38 +0000</pubDate>
+            <lastBuildDate>Mon, 02 Nov 2026 13:45:38 +0000</lastBuildDate>
+            <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+            
+        <item>
+            <title>Hujan Lebat disertai Petir di Sumatera Utara</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CSU20261102005_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 02 November 2026, 20:00 WIB di sebagian wilayah Sumatera Utara, khususnya di BADIRI, BAWOLATO, IDANOGAWO, MANDUAMAS, PINANGSORI, ULUGAWO.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 02 November 2026, 23:00 WIB.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.11.02.13.12.005</guid>
+            <pubDate>Mon, 02 Nov 2026 19:50:00 +0700</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Bengkulu</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CBK20261102002_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 02 November 2026, 19:45 WIB di sebagian wilayah Bengkulu, khususnya di AIR MAJUNTO, KOTA MUKOMUKO, XIV KOTO.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 02 November 2026, 21:00 WIB.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.11.02.13.17.002</guid>
+            <pubDate>Mon, 02 Nov 2026 19:35:00 +0700</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Sumatera Selatan</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CSS20261102005_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 02 November 2026, 20:00 WIB di sebagian wilayah Sumatera Selatan, khususnya di BTS. ULU, GUNUNG MEGANG, JARAI, JAYALOKA, KIKIM SELATAN, KIKIM TIMUR, LAWANG KIDUL, LUBAI ULU, LUBUK BATANG, LUBUK LINGGAU SELATAN I, MUARA BELITI, MUARA LAKITAN, PAJAR BULAN, PSEKSU, RAMBANG DANGKU, SEMIDANG AJI, SUKA KARYA, SUKAMERINDU, TANJUNG AGUNG, TEBING TINGGI, TIANG PUMPUNG KEPUNGUT, TUAH NEGERI.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 02 November 2026, 21:30 WIB.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.11.02.13.16.005</guid>
+            <pubDate>Mon, 02 Nov 2026 19:30:00 +0700</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Sulawesi Selatan</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CSL20261102004_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 02 November 2026, 21:00 WITA di sebagian wilayah Sulawesi Selatan, khususnya di MAPPEDECENG, MASAMBA, SUKAMAJU.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 02 November 2026, 23:00 WITA.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.11.02.13.73.004</guid>
+            <pubDate>Mon, 02 Nov 2026 20:30:00 +0800</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Maluku Utara</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CMU20261102006_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 02 November 2026, 22:00 WIT di sebagian wilayah Maluku Utara, khususnya di KAO TELUK, KOTA MABA.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 03 November 2026, 00:00 WIT.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.11.02.13.82.006</guid>
+            <pubDate>Mon, 02 Nov 2026 21:30:00 +0900</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Kalimantan Tengah</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CKG20261102007_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 02 November 2026, 19:40 WIB di sebagian wilayah Kalimantan Tengah, khususnya di BUKIT BATU, KAMIPANG, KATINGAN HULU, SERUYAN HULU, SULING TAMBUN.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 02 November 2026, 21:30 WIB.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.11.02.13.62.007</guid>
+            <pubDate>Mon, 02 Nov 2026 19:30:00 +0700</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Aceh</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CAH20261102004_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 02 November 2026, 19:25 WIB di sebagian wilayah Aceh, khususnya di BABUL RAHMAH, BAKONGAN, BAKONGAN TIMUR, BUBON, DANAU PARIS, GUNUNG MERIAH, JOHAN PAHWALAN, KAWAY XVI, KLUET SELATAN, KLUET TENGAH, KLUET TIMUR, KLUET UTARA, KOTA BAHAGIA, KOTA BAHARU, KUALA, KUALA BARU, KUALA PESISIR, LONGKIB, MEUREUBO, PASI RAJA, PENANGGALAN, RUNDENG, SAMATIGA, SEUNAGAN, SIMPANG KANAN, SIMPANG KIRI, SINGKIL, SINGKIL UTARA, SINGKOHOR, SUKA MAKMUE, SULTAN DAULAT, SURO MAKMUR, TADU RAYA, TAMIANG HULU, TANOH ALAS, TRUMON, TRUMON TENGAH, TRUMON TIMUR.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 02 November 2026, 21:14 WIB.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.11.02.13.11.004</guid>
+            <pubDate>Mon, 02 Nov 2026 19:15:00 +0700</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Sumatera Barat</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CSB20261102004_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 02 November 2026, 19:00 WIB di sebagian wilayah Sumatera Barat, khususnya di AMPEK ANGKEK, AMPEK NAGARI, ASAM JUJUHAN, BASO, BUKIT SUNDI, GUNUNG TALANG, KAMANG MAGEK, KINALI, KOTO BESAR, LAREH SAGO HALABAN, LEMBANG JAYA, PAYUNG SEKAKI, SANGIR BALAI JANGGO, SANGIR JUJUAN, SILAUT, SULIKI, SUMPUR KUDUS, TANJUNG MUTIARA, TILATANG KAMANG.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 02 November 2026, 21:00 WIB.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.11.02.13.13.004</guid>
+            <pubDate>Mon, 02 Nov 2026 18:56:00 +0700</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Jakarta</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CJK20261102003_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 02 November 2026, 19:00 WIB di sebagian wilayah Jakarta, khususnya di CIBUNGBULANG, PAMIJAHAN, TENJOLAYA.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 02 November 2026, 21:00 WIB.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.11.02.13.31.003</guid>
+            <pubDate>Mon, 02 Nov 2026 18:50:00 +0700</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Kalimantan Utara</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CKU20261102004_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 02 November 2026, 19:41 WITA di sebagian wilayah Kalimantan Utara, khususnya di KRAYAN TIMUR, LUMBIS, MENTARANG HULU.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 02 November 2026, 22:30 WITA.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.11.02.13.65.004</guid>
+            <pubDate>Mon, 02 Nov 2026 19:29:00 +0800</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Papua Pegunungan</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CPP20261102001_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 02 November 2026, 20:00 WIT di sebagian wilayah Papua Pegunungan, khususnya di DURAM, GESELMA, KENYAM, KORUPUN, KOSAREK, LOLAT, MAPENDUMA, MEBAROK, MUSAIK, NALCA, NINIA, OBIO, SOLOIKMA, SUMO, SURU SURU, UBAHAK, WALMA, YENGGELO.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 02 November 2026, 23:00 WIT.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.11.02.13.95.001</guid>
+            <pubDate>Mon, 02 Nov 2026 19:46:00 +0900</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Papua Barat Daya</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CPD20261102005_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 02 November 2026, 19:50 WIT di sebagian wilayah Papua Barat Daya, khususnya di AIFAT, AIFAT TIMUR, AIFAT TIMUR JAUH, AIFAT TIMUR SELATAN, AIFAT TIMUR TENGAH, AIFAT UTARA, AITINYO, AITINYO TENGAH, KAIS DARAT, KLAMONO, KLASAFET, KLASO, KLAYILI, KONDA, MAKBON, MALABOTOM, MALADUM MES, MALAIMSIMSA, MOSWAREN, SALAWATI, SELEMKAI, SORONG BARAT, SORONG KOTA, SORONG UTARA, TINGGOUW, WAYER, WILHEM ROUMBOUTS.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 02 November 2026, 22:50 WIT.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.11.02.13.96.005</guid>
+            <pubDate>Mon, 02 Nov 2026 19:20:00 +0900</pubDate>
+        </item>
+
+        <item>
+            <title>Hujan Lebat disertai Petir di Sumatera Utara</title>
+            <link>https://www.bmkg.go.id/alerts/nowcast/id/CSU20261102004_alert.xml</link>
+            <description>Hujan lebat disertai petir akan terjadi pada 02 November 2026, 17:15 WIB di sebagian wilayah Sumatera Utara, khususnya di ADIAN KOTING, ANGKOLA SANGKUNUR, BADIRI, BATANG ANGKOLA, BATANG TORU, DOLOK SILAU, GUNUNG MERIAH, HARIAN, KERAJAAN, KOLANG, LINGGA BAYU, MUARA BATANG GADIS, ONAN GANJANG, PAGINDAR, PAKKAT, PANDAN, PARLILITAN, PARMONANGAN, PERGETTENG GETTENG SENGKUT, POLLUNG, PURBA, PURBA TUA, SALAK, SARUDIK, SEI BINGEI, SIBOLGA KOTA, SIBOLGA SAMBAS, SIBOLGA SELATAN, SIBOLGA UTARA, SIPOHOLON, SITAHUIS, SITELU TALI URANG JEHE, TAPIAN NAULI, TINADA, TUKKA.
+ Kondisi ini berpotensi menimbulkan dampak berupa jarak pandang berkurang, angin kencang, dan banjir lokal.
+ Masyarakat dihimbau untuk tetap waspada, mengurangi aktivitas di luar ruangan, serta mengambil langkah-langkah pencegahan yang diperlukan guna menjaga keselamatan.
+ Kondisi diperkirakan dapat berlangsung hingga 02 November 2026, 20:15 WIB.</description>
+            <author>cuaca.ekstrem@bmkg.go.id (BMKG)</author>
+            <category>Met</category>
+            <guid isPermaLink="false">2.49.0.1.360.0.2026.11.02.13.12.004</guid>
+            <pubDate>Mon, 02 Nov 2026 17:05:00 +0700</pubDate>
+        </item>
+        </channel>
+    </rss>

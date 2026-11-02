@@ -2,30 +2,14 @@
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import {
-  AlertTriangle,
-  Activity,
-  Cloud,
-  Brain,
-  ChevronUp,
-  X,
-  Droplets,
-} from 'lucide-react';
+import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface MobileSheetTab {
+export interface MobileSheetTab {
   id: string;
   label: string;
   icon: React.ReactNode;
 }
-
-const MOBILE_TABS: MobileSheetTab[] = [
-  { id: 'alerts', label: 'Alerts', icon: <AlertTriangle size={16} /> },
-  { id: 'sensor', label: 'Sensor', icon: <Activity size={16} /> },
-  { id: 'weather', label: 'Weather', icon: <Cloud size={16} /> },
-  { id: 'ai', label: 'AI', icon: <Brain size={16} /> },
-  { id: 'water', label: 'Water', icon: <Droplets size={16} /> },
-];
 
 // Snap heights as vh percentages
 const PEEK_HEIGHT = 48; // px - just the tab bar
@@ -33,11 +17,12 @@ const HALF_HEIGHT = 45; // vh
 const FULL_HEIGHT = 85; // vh
 
 interface MobileSheetProps {
+  tabs: MobileSheetTab[];
   children: (activeTab: string) => React.ReactNode;
 }
 
-export function MobileSheet({ children }: MobileSheetProps) {
-  const [activeTab, setActiveTab] = useState('alerts');
+export function MobileSheet({ tabs, children }: MobileSheetProps) {
+  const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? '');
   const [isOpen, setIsOpen] = useState(false);
   const [isFullExpanded, setIsFullExpanded] = useState(false);
   const sheetRef = useRef<HTMLDivElement>(null);
@@ -105,7 +90,7 @@ export function MobileSheet({ children }: MobileSheetProps) {
 
       {/* Tab bar */}
       <div className="mobile-sheet-tabs">
-        {MOBILE_TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => handleTabClick(tab.id)}
@@ -119,7 +104,7 @@ export function MobileSheet({ children }: MobileSheetProps) {
           </button>
         ))}
         {isOpen && (
-          <button onClick={handleClose} className="mobile-sheet-close">
+          <button onClick={handleClose} className="mobile-sheet-close" aria-label="Tutup">
             <X size={16} />
           </button>
         )}

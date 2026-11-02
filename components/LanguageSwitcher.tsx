@@ -19,7 +19,7 @@ export default function LanguageSwitcher() {
             <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-9 w-9">
                     <Globe className="h-[1.2rem] w-[1.2rem]" />
-                    <span className="sr-only">Toggle language</span>
+                    <span className="sr-only">Ganti bahasa</span>
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

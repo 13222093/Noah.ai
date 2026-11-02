@@ -1,0 +1,62 @@
+# gitleaks configuration for Noah AI (guardrail 10).
+# Used by the pre-commit hook (.pre-commit-config.yaml) and the CI job
+# (.github/workflows/ci.yml, full-history scan). Extends the upstream default
+# rule set and adds project-specific rules for the secrets found in the audit
+# (G-001 Supabase JWT, G-002 Roboflow key, G-003/G-004 OpenWeatherMap keys).
+#
+# Never add a real secret value or its fingerprint to this file's allowlist.
+# A detected secret is rotated first (docs/ops/history-rewrite.md), then purged.
+
+title = "Noah AI gitleaks config"
+
+[extend]
+useDefault = true
+
+# Supabase legacy API keys are JWTs (anon and service_role). The anon key is
+# public by design but must still come from env, never from a literal in code.
+[[rules]]
+id = "supabase-jwt"
+description = "Supabase JWT literal (anon or service_role key)"
+regex = '''eyJ[A-Za-z0-9_-]{10,}\.eyJ[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}'''
+keywords = ["eyj"]
+tags = ["supabase", "jwt"]
+
+# Supabase new-style secret keys.
+[[rules]]
+id = "supabase-secret-key"
+description = "Supabase secret API key"
+regex = '''\bsb_secret_[A-Za-z0-9_-]{20,}'''
+keywords = ["sb_secret_"]
+tags = ["supabase"]
+
+# Roboflow private API keys are 20 alphanumeric characters, usually next to a
+# ROBOFLOW_* name, e.g. os.getenv("ROBOFLOW_API_KEY", "<key>").
+[[rules]]
+id = "roboflow-api-key"
+description = "Roboflow API key"
+regex = '''(?i)roboflow[\w.\-]{0,40}["'\s:=,(|]{1,8}["']?([A-Za-z0-9]{20})\b'''
+secretGroup = 1
+keywords = ["roboflow"]
+tags = ["roboflow"]
+
+# OpenWeatherMap keys are 32 lowercase hex characters, next to an
+# OPENWEATHER* name or an appid= query parameter.
+[[rules]]
+id = "openweathermap-api-key"
+description = "OpenWeatherMap API key"
+regex = '''(?i)(?:openweather(?:map)?[\w\-]{0,30}|appid)["'\s:=,(|]{1,8}["']?([a-f0-9]{32})\b'''
+secretGroup = 1
+keywords = ["openweather", "appid"]
+tags = ["openweathermap"]
+
+[allowlist]
+description = "Generated files whose hashes look like secrets"
+paths = [
+  # Workbox precache manifest: revision hashes, not secrets (B-004).
+  '''(^|/)public/sw\.js$''',
+  '''(^|/)public/workbox-[A-Za-z0-9]+\.js$''',
+  '''(^|/)public/fallback-[A-Za-z0-9]+\.js$''',
+  '''\.js\.map$''',
+  # Lockfile integrity hashes.
+  '''(^|/)package-lock\.json$''',
+]

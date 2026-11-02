@@ -29,6 +29,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (typeof window !== 'undefined') {
       const savedTheme = localStorage.getItem('theme') as Theme | null;
       if (savedTheme) {
+        // Deliberate post-mount sync from localStorage (hydration-safe).
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setThemeState(savedTheme);
         setIsDark(savedTheme === 'dark');
       } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -55,6 +57,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     if (theme === 'system') {
       const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       root.classList.add(systemIsDark ? 'dark' : 'light');
+      // Mirrors the class just applied to <html> (external system).
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsDark(systemIsDark);
     } else {
       root.classList.add(theme);

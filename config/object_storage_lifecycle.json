@@ -1,0 +1,29 @@
+{
+  "_comment": "B-033 lifecycle for the Noah bucket (S3 PutBucketLifecycleConfiguration format; R2/MinIO accept the same rules). raw/ is provenance for append-only rows (guardrail 7) and is never expired. research/ is scratch for backtests. Apply with: aws s3api put-bucket-lifecycle-configuration --bucket $NOAH_S3_BUCKET --lifecycle-configuration file://config/object_storage_lifecycle.json (strip _comment first if your tool rejects unknown keys). Review retention with Ari before applying (budget, guardrail 14).",
+  "Rules": [
+    {
+      "ID": "abort-incomplete-uploads",
+      "Status": "Enabled",
+      "Filter": { "Prefix": "" },
+      "AbortIncompleteMultipartUpload": { "DaysAfterInitiation": 7 }
+    },
+    {
+      "ID": "raw-to-infrequent-access",
+      "Status": "Enabled",
+      "Filter": { "Prefix": "raw/" },
+      "Transitions": [{ "Days": 90, "StorageClass": "STANDARD_IA" }]
+    },
+    {
+      "ID": "rasters-to-infrequent-access",
+      "Status": "Enabled",
+      "Filter": { "Prefix": "rasters/" },
+      "Transitions": [{ "Days": 30, "StorageClass": "STANDARD_IA" }]
+    },
+    {
+      "ID": "research-scratch-expiry",
+      "Status": "Enabled",
+      "Filter": { "Prefix": "research/" },
+      "Expiration": { "Days": 365 }
+    }
+  ]
+}

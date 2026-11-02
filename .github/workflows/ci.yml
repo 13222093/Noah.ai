@@ -1,32 +1,318 @@
 name: CI
 
+# B-025: every job below is meant to be a required status check on `main`
+# (branch protection is a human step for Ari).
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+  workflow_dispatch:
+  schedule:
+    - cron: "17 2 * * 1" # weekly full-history secret scan and licence report
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "22"
+  PYTHON_VERSION: "3.12"
+  GITLEAKS_VERSION: "8.21.2"
+  NEXT_TELEMETRY_DISABLED: "1"
 
 jobs:
-  build:
+  guardrails:
+    name: guardrails (Math.random, np.random, deny-list)
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: ${{ env.NODE_VERSION }}
+      # Dependency-free; see docs/plan/10_GUARDRAILS.md rules 1, 2, 5, 10, 13, 14.
+      - run: node scripts/check-guardrails.mjs
 
-      - name: Install dependencies
-        run: npm ci
+  secrets:
+    name: gitleaks (full history)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # Diff scan with annotations on PRs / pushes.
+      - name: gitleaks-action
+        # TODO(Ari): replace the tag with its commit SHA (Dependabot keeps it current).
+        uses: gitleaks/gitleaks-action@v2.3.9
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+          GITLEAKS_ENABLE_COMMENTS: "false"
+          GITLEAKS_VERSION: ${{ env.GITLEAKS_VERSION }}
+      # Full-history scan on every run (B-004). Expected to fail until the
+      # history rewrite (docs/ops/history-rewrite.md) is done.
+      - name: full-history scan
+        run: |
+          docker run --rm -v "$PWD:/repo" "ghcr.io/gitleaks/gitleaks:v${GITLEAKS_VERSION}" \
+            git /repo --config /repo/.gitleaks.toml --redact --verbose --exit-code 1
 
-      - name: TypeScript type check
-        run: npx tsc --noEmit
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx tsc --noEmit
 
-      - name: Build
-        run: npm run build
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      # `next lint` was removed in Next 16. ESLint 9 flat config (eslint.config.mjs):
+      # next/core-web-vitals plus the Math.random ban (guardrail 5, B-015).
+      # Any lint error fails the job.
+      - name: eslint
+        run: npm run lint
+
+  test-web:
+    name: vitest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npx vitest run
+
+  test-ml:
+    name: pytest (ml-service)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ml-service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            ml-service/requirements.txt
+            ml-service/requirements-dev.txt
+      - name: install
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements-dev.txt ]; then
+            pip install -r requirements.txt -r requirements-dev.txt
+          else
+            pip install -r requirements.txt pytest
+          fi
+      - name: pytest
+        # Exit code 5 = no tests collected; tolerated only while the suite is being built.
+        run: |
+          set +e
+          python -m pytest
+          code=$?
+          if [ "$code" -eq 5 ]; then echo "::warning::no Python tests collected"; exit 0; fi
+          exit $code
+
+  db-migrations:
+    # B-031: the schema applies to an empty PostGIS database with the runner,
+    # re-running is a no-op, and UPDATE/DELETE/TRUNCATE on every fact table fail.
+    name: migrations (PostGIS) and append-only
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: noah_ci
+          # Throwaway CI container reachable only from this job; no password.
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d noah_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      NOAH_DATABASE_URL: postgresql://postgres@localhost:5432/noah_ci
+      NOAH_TEST_DATABASE_URL: postgresql://postgres@localhost:5432/noah_ci
+      NOAH_REQUIRE_DB: "1"
+      NOAH_OBJECT_STORE_DIR: ${{ runner.temp }}/noah-objects
+      PYTHONPATH: src
+    defaults:
+      run:
+        working-directory: ml-service
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            ml-service/requirements.txt
+            ml-service/requirements-dev.txt
+      - name: install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt -r requirements-dev.txt
+      - name: apply migrations
+        run: python -m noah.store.migrate
+      - name: re-apply is a no-op
+        run: python -m noah.store.migrate | tee /tmp/second.txt && grep -q "none pending" /tmp/second.txt
+      - name: load station config
+        run: python -m noah.store.stations --apply
+      - name: append-only and store integration tests
+        run: python -m pytest tests/store/test_postgres_integration.py -v -rs
+      - name: S2 archive import (twice; second run writes 0 rows)
+        # The integration tests above already imported the 19-row fixture, so
+        # the first full run writes slightly fewer rows than it builds.
+        run: |
+          python -m noah.importers.s2_tma_2020 | tee /tmp/s2_first.json
+          python -m noah.importers.s2_tma_2020 | tee /tmp/s2_second.json
+          python -c "import json; a=json.load(open('/tmp/s2_first.json')); b=json.load(open('/tmp/s2_second.json')); assert a['written'] > 0 and b['written'] == 0, (a['written'], b['written'])"
+
+  build:
+    name: next build
+    runs-on: ubuntu-latest
+    needs: [typecheck]
+    env:
+      # Placeholders: the build must not need real secrets.
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - name: no OpenWeatherMap key in the client bundle (B-003)
+        run: |
+          if grep -rIl --include='*.js' -e 'NEXT_PUBLIC_OPENWEATHER' -e 'tile.openweathermap.org' .next/static; then
+            echo "::error::OpenWeatherMap reference found in the client bundle"; exit 1
+          fi
+
+  docker:
+    name: docker images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: compose file is valid (both stacks and edge)
+        run: |
+          mkdir -p deploy && touch deploy/prod.env deploy/staging.env
+          NOAH_STACK=prod docker compose -p noah-prod config --quiet
+          NOAH_STACK=staging docker compose -p noah-staging config --quiet
+          NOAH_STACK=prod docker compose -p noah-prod --profile migrate config --quiet
+          NOAH_STACK=staging docker compose -p noah-staging --profile migrate config --quiet
+          docker compose -p noah-edge --profile edge config --quiet
+          # Every app stack runs the four services, and only Caddy publishes ports.
+          services=$(NOAH_STACK=prod docker compose -p noah-prod --profile migrate config --services | sort | tr '\n' ' ')
+          [ "$services" = "migrate ml-api web worker " ] || { echo "::error::unexpected services: $services"; exit 1; }
+          if NOAH_STACK=prod docker compose -p noah-prod --profile migrate config --format json | grep -q '"published"'; then
+            echo "::error::an app-stack service publishes a port"; exit 1
+          fi
+      - name: build web image
+        run: docker build --pull -t noah-web:ci .
+      - name: build ml-service image (repo-root context, as compose builds it)
+        # ml-api, worker and migrate share this image. Building through compose
+        # proves the context and ml-service/Dockerfile.dockerignore it uses.
+        run: |
+          NOAH_STACK=staging NOAH_IMAGE_TAG=ci docker compose -p noah-ci build --pull ml-api
+          docker tag noah-ml-api:staging-ci noah-ml-api:ci
+      - name: ml-service image carries migrations and station config
+        run: |
+          docker run --rm --network none --read-only --tmpfs /tmp noah-ml-api:ci \
+            python -c "from noah.store.migrate import discover_migrations as d; m = d(); assert m, 'no migrations'; print(len(m), 'migrations in', m[0].path.parent)"
+          docker run --rm --network none --read-only --tmpfs /tmp noah-ml-api:ci python -m noah.store.stations
+          # No tests, data, env files or dev tools in the image.
+          docker run --rm --network none noah-ml-api:ci sh -c \
+            'test ! -e /app/tests && test ! -e /app/data && ! ls -a /app | grep -q "^\.env" && ! python -c "import pglast" 2>/dev/null'
+      - name: worker fails closed without a database
+        run: |
+          set +e
+          out=$(docker run --rm --network none --read-only --tmpfs /tmp noah-ml-api:ci \
+            python -m noah.connectors run --once --sink noah.store.factory:make_sink 2>&1)
+          code=$?
+          set -e
+          echo "$out"
+          [ "$code" -eq 2 ] && echo "$out" | grep -q "NOAH_DATABASE_URL is not set"
+      - name: api starts unconfigured and health says so
+        run: |
+          docker run -d --name noah-api-ci --network none --read-only --tmpfs /tmp noah-ml-api:ci
+          for i in $(seq 1 45); do
+            status=$(docker inspect -f '{{.State.Health.Status}}' noah-api-ci)
+            [ "$status" = healthy ] && break
+            sleep 2
+          done
+          docker inspect -f '{{.State.Health.Status}}' noah-api-ci | grep -qx healthy
+          docker exec noah-api-ci python -c "
+          import json, urllib.request, urllib.error
+          try:
+              urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=4)
+              raise SystemExit('health returned 200 without a database')
+          except urllib.error.HTTPError as e:
+              assert e.code == 503, e.code
+              assert json.load(e) == {'status': 'unconfigured'}
+          print('health: 503 unconfigured')
+          "
+          docker rm -f noah-api-ci
+      - name: images run as non-root
+        run: |
+          for img in noah-web:ci noah-ml-api:ci; do
+            user=$(docker image inspect -f '{{.Config.User}}' "$img")
+            if [ -z "$user" ] || [ "$user" = "root" ] || [ "$user" = "0" ]; then
+              echo "::error::$img runs as root"; exit 1
+            fi
+          done
+
+  licenses:
+    name: licences and SBOM
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      # Fails on GPL/AGPL/SSPL in runtime npm packages (guardrail 13).
+      - run: node scripts/check-licenses.mjs
+      - run: npm ci --no-audit --no-fund --ignore-scripts
+      - name: npm SBOM (CycloneDX)
+        run: npx --yes @cyclonedx/cyclonedx-npm@1 --omit dev --output-file sbom-web.cdx.json
+      - name: python licences and SBOM
+        run: |
+          python -m venv .venv-lic
+          . .venv-lic/bin/activate
+          # Tool versions pinned (F16); the scan covers runtime requirements only,
+          # so dev-only pglast (GPL-3.0+, never shipped) is recorded by hand in docs/LICENSES.md.
+          pip install -r ml-service/requirements.txt "pip-licenses==5.5.5" "cyclonedx-bom==4.6.1"
+          pip-licenses --from=mixed --format=markdown --output-file licenses-python.md
+          pip-licenses --from=mixed --partial-match \
+            --fail-on="GNU General Public License;GNU Affero General Public License;AGPL;SSPL" \
+            --ignore-packages pip-licenses prettytable wcwidth cyclonedx-bom
+          cyclonedx-py environment --of JSON -o sbom-ml.cdx.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbom-and-licences
+          path: |
+            sbom-web.cdx.json
+            sbom-ml.cdx.json
+            licenses-python.md

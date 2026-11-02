@@ -27,11 +27,11 @@ export function PageShell({ title, subtitle, icon, children, fullHeight }: PageS
       {/* Compact page header */}
       <div className="px-4 sm:px-6 py-3 flex items-center gap-3">
         <Link
-          href="/dashboard?layout=tiling"
+          href="/"
           className="flex items-center gap-1 text-[11px] text-cc-text-muted hover:text-cc-cyan transition-colors shrink-0"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span className="font-heading">Kembali</span>
+          <span className="font-heading">Ringkasan</span>
         </Link>
         <span className="text-cc-border text-xs">|</span>
         <div className="flex items-center gap-2 min-w-0">

@@ -14,7 +14,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html lang="en">
+    <html lang="id">
       <body>
         {/* This is the default Next.js error page. You can customize it if needed. */}
         <Error statusCode={undefined as any} />

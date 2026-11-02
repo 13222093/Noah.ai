@@ -5,8 +5,15 @@
  * Usage: node scripts/seed-regions.mjs
  */
 
-const SUPABASE_URL = 'https://mqebuzgvhtpupvuohvgg.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1xZWJ1emd2aHRwdXB2dW9odmdnIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3MzMxNjU5MCwiZXhwIjoyMDg4ODkyNTkwfQ.cBLXlQX9UCEV5D8kKBtM1E5Pivh8XyyESZ1P7MxD4b4';
+// Legacy script (region tables are out of scope, see B-032). Credentials come
+// from the environment only; there is no fallback. Never hardcode keys here.
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('seed-regions: SUPABASE_URL (or NEXT_PUBLIC_SUPABASE_URL) and SUPABASE_SERVICE_ROLE_KEY must be set in the environment. Refusing to run.');
+  process.exit(1);
+}
 
 const API_BASE = 'https://www.emsifa.com/api-wilayah-indonesia/api';
 

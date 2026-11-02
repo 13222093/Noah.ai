@@ -1,42 +1,62 @@
-# Dockerfile for Next.js App (noah.ai)
+# syntax=docker/dockerfile:1.7
+# Noah AI web (Next.js standalone). Reproducible (npm ci + lockfile), non-root,
+# no env files, data or models baked in (B-030, G-104).
+#
+# NEXT_PUBLIC_* values are inlined into the client bundle at build time, so each
+# stack (noah-prod, noah-staging) builds its own image with its own build args.
+# Server secrets (SUPABASE_SERVICE_ROLE_KEY, SENTRY_DSN, ...) are runtime env only.
 
-# Stage 1: Builder
-# In this stage, we install dependencies and build the Next.js application.
-FROM node:20-alpine AS builder
+ARG NODE_IMAGE=node:22-alpine
+
+# ---- deps -------------------------------------------------------------------
+FROM ${NODE_IMAGE} AS deps
 WORKDIR /app
+RUN apk add --no-cache libc6-compat
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 
-# Copy package.json and lock file
-COPY package*.json ./
-
-# Force clean install for cross-platform compatibility
-RUN rm -rf node_modules package-lock.json && npm install
-
-# Copy the rest of the application source code
+# ---- build ------------------------------------------------------------------
+FROM ${NODE_IMAGE} AS builder
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ARG NEXT_PUBLIC_SENTRY_DSN
+ARG NEXT_PUBLIC_SENTRY_ENVIRONMENT
+ARG NEXT_PUBLIC_APP_URL
+ENV NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL} \
+    NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY} \
+    NEXT_PUBLIC_SENTRY_DSN=${NEXT_PUBLIC_SENTRY_DSN} \
+    NEXT_PUBLIC_SENTRY_ENVIRONMENT=${NEXT_PUBLIC_SENTRY_ENVIRONMENT} \
+    NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-
-# Build the Next.js application (NEXT_STANDALONE=1 enables standalone output for Docker)
+# NEXT_STANDALONE=1 switches next.config.js to output: 'standalone'.
 RUN NEXT_STANDALONE=1 npm run build
 
-# Stage 2: Runner
-# This is the final, lightweight image that will run in production.
-FROM node:20-alpine AS runner
+# ---- runtime ----------------------------------------------------------------
+FROM ${NODE_IMAGE} AS runner
 WORKDIR /app
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    PORT=3000 \
+    HOSTNAME=0.0.0.0
 
-# Set the environment to production
-ENV NODE_ENV=production
-# Disable telemetry
-ENV NEXT_TELEMETRY_DISABLED 1
+RUN addgroup -S -g 10001 noah && adduser -S -u 10001 -G noah -h /app noah
 
-# Copy the standalone output from the builder stage.
-# This includes only the necessary files to run the app.
-COPY --from=builder /app/.next/standalone ./
+COPY --from=builder --chown=noah:noah /app/.next/standalone ./
+COPY --from=builder --chown=noah:noah /app/.next/static ./.next/static
+COPY --from=builder --chown=noah:noah /app/public ./public
 
-# Copy the public assets
-COPY --from=builder /app/public ./public
-
-# Expose the port the app runs on
+USER noah
 EXPOSE 3000
 
-# The command to start the application
-# The standalone output creates a server.js file to run the app.
+# Liveness only: the Next.js server answers HTTP. /robots.txt is static and
+# allowlisted by middleware.ts, so it needs no credential and no upstream; any
+# status below 500 means the process is serving. /api/v1/health is the data
+# freshness report (503 while a connector is stale or the DB is unconfigured)
+# for the uptime monitor; it must not mark this container unhealthy.
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD ["node", "-e", "fetch('http://127.0.0.1:3000/robots.txt',{redirect:'manual'}).then(r=>process.exit(r.status<500?0:1)).catch(()=>process.exit(1))"]
+
 CMD ["node", "server.js"]
