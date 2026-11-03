@@ -39,13 +39,13 @@ export function OperatorTabSummary() {
         <div className="ml-auto flex items-center gap-2">
           <Link
             href={`/operator/rekomendasi${query}`}
-            className="inline-flex items-center gap-1.5 rounded border border-op-border-strong px-2.5 py-1 text-[11px] text-op-fg-2 hover:text-op-fg"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1 text-[11px] text-op-fg-2 transition-colors hover:bg-white/5 hover:text-op-fg"
           >
             <ClipboardCheck className="h-3.5 w-3.5" aria-hidden /> {snapshot.openRecommendations.length} rekomendasi terbuka
           </Link>
           <Link
             href={`/operator${query}`}
-            className="inline-flex items-center gap-1.5 rounded border border-op-accent/60 bg-op-accent/10 px-2.5 py-1 text-[11px] font-semibold text-op-accent hover:bg-op-accent/20"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-op-accent-fill px-2.5 py-1 text-[11px] font-semibold text-op-on-accent shadow-sm transition-colors hover:bg-op-accent-fill/90"
           >
             Buka Mode Operator <ArrowRight className="h-3.5 w-3.5" aria-hidden />
           </Link>
@@ -58,11 +58,11 @@ export function OperatorTabSummary() {
             key={p.unit.id}
             href={`/operator/polder/${p.unit.id}${query}`}
             title={cell?.reasons[0]}
-            className="flex flex-col gap-1 rounded border border-op-border bg-op-surface-1 px-2.5 py-1.5 hover:border-op-border-strong"
+            className="flex flex-col gap-1 rounded-lg border border-white/5 bg-op-surface-2 px-2.5 py-1.5 transition-colors hover:bg-op-surface-3"
           >
             <span className="truncate text-[11px] font-semibold text-op-fg-2">{p.unit.name}</span>
             <div className="flex items-center justify-between gap-2">
-              <span className="font-mono text-base tabular-nums">{formatPct(cell?.probability)}</span>
+              <span className="text-sm font-bold tabular-nums">{formatPct(cell?.probability)}</span>
               <RiskChip category={cell?.category} />
             </div>
           </Link>

@@ -6,13 +6,13 @@ import { Slot } from '@radix-ui/react-slot';
 import { cn } from '@/lib/utils';
 
 /* --------------------------------- Variants -------------------------------- */
-// Flat panels: surface-1 with a 1px border, 4px radius. No glass, gradient,
+// Flat panels: surface-1 with a white/5 hairline and the dashboard's rounded-lg. No glass, gradient,
 // glow, lift or mount animation (docs/design/palette.md). The old variant
 // names are kept so callers keep compiling; they all render flat.
 const cardVariants = cva(
   [
     'group relative isolate',
-    'bg-op-surface-1 text-op-fg border border-op-border',
+    'bg-op-surface-1 text-op-fg border border-white/5',
     'rounded-lg',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-op-accent',
   ].join(' '),
@@ -26,8 +26,8 @@ const cardVariants = cva(
         gradient: '',
       },
       size: {
-        sm: 'p-3',
-        default: 'p-4',
+        sm: 'p-2.5',
+        default: 'p-3',
         lg: 'p-6',
         xl: 'p-8',
       },
@@ -69,8 +69,8 @@ const CardSizeContext = React.createContext<CardSize>('default');
 const useCardSize = () => React.useContext(CardSizeContext);
 
 const sectionPaddingBySize: Record<CardSize, string> = {
-  sm: 'px-3 py-2',
-  default: 'px-4 py-3',
+  sm: 'px-2.5 py-2',
+  default: 'px-3 py-2.5',
   lg: 'px-6 py-4',
   xl: 'px-8 py-6',
 };
@@ -163,7 +163,7 @@ export const CardHeader = React.forwardRef<HTMLDivElement, CardSectionProps>(
         className={cn(
           bleed ? 'p-0' : sectionPaddingBySize[size],
           'flex flex-col gap-1.5',
-          'border-b border-op-border',
+          'border-b border-white/5',
           className,
         )}
         {...props}
@@ -180,17 +180,17 @@ export const CardTitle = React.forwardRef<
   const size = useCardSize();
   const titleSize =
     size === 'xl'
-      ? 'text-2xl'
+      ? 'text-xl'
       : size === 'lg'
-        ? 'text-xl'
+        ? 'text-base'
         : size === 'sm'
-          ? 'text-base'
-          : 'text-lg';
+          ? 'text-[13px]'
+          : 'text-sm';
   return (
     <h3
       ref={ref}
       className={cn(
-        'font-semibold tracking-tight',
+        'font-bold tracking-tight',
         titleSize,
         'text-op-fg',
         className,
@@ -209,7 +209,7 @@ export const CardDescription = React.forwardRef<
     ref={ref}
     className={cn(
       'text-op-fg-2 leading-relaxed',
-      'text-sm',
+      'text-xs',
       className,
     )}
     {...props}
@@ -239,7 +239,7 @@ export const CardFooter = React.forwardRef<HTMLDivElement, CardSectionProps>(
         ref={ref}
         className={cn(
           bleed ? 'p-0' : sectionPaddingBySize[size],
-          'flex items-center gap-3 border-t border-op-border',
+          'flex items-center gap-3 border-t border-white/5',
           className,
         )}
         {...props}

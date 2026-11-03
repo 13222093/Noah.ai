@@ -152,10 +152,10 @@ export function WhatsAppPreview({
   return (
     <div className={cn('flex h-full min-h-0 flex-col', className)}>
       {/* Honesty label: app tokens (violet), not WhatsApp colours. */}
-      <div role="note" className="mb-2 flex items-center gap-2 rounded border border-op-sim bg-op-sim/10 px-2.5 py-1.5 text-xs text-op-fg">
-        <EyeOff className="h-4 w-4 shrink-0 text-op-sim" aria-hidden />
+      <div role="note" className="mb-2 flex items-center gap-2 rounded-lg border border-white/5 bg-op-sim/10 px-2.5 py-1.5 text-[11px] text-op-fg">
+        <EyeOff className="h-3.5 w-3.5 shrink-0 text-op-sim" aria-hidden />
         <span>
-          <strong className="font-bold uppercase tracking-[0.06em] text-op-sim">Pratinjau – tidak dikirim.</strong> Begini
+          <strong className="font-bold uppercase tracking-wider text-op-sim">Pratinjau – tidak dikirim.</strong> Begini
           pesan akan tampil di grup operator. Demo ini tidak mengirim pesan apa pun.
         </span>
       </div>

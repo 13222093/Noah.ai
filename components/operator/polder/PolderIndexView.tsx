@@ -13,19 +13,19 @@ export function PolderIndexView() {
   const lead = useMapLayerStore((s) => s.leadMin);
 
   return (
-    <div className="min-h-full bg-op-page px-3 pb-6 pt-4 text-op-fg sm:px-6">
+    <div className="min-h-full bg-op-page px-3 pb-4 pt-3 text-op-fg sm:px-4">
       <div className="mx-auto max-w-3xl">
         <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
-              <Waves className="h-4 w-4 text-op-fg-3" aria-hidden />
-              <h1 className="font-heading text-lg font-bold">Polder</h1>
+              <Waves className="h-3.5 w-3.5 text-op-accent" aria-hidden />
+              <h1 className="text-sm font-bold">Polder</h1>
             </div>
-            <p className="mt-1 text-xs text-op-fg-2">Pilih polder untuk melihat tinggi muka air, pompa dan rekomendasinya.</p>
+            <p className="mt-0.5 text-[11px] text-op-fg-2">Pilih polder untuk melihat tinggi muka air, pompa dan rekomendasinya.</p>
           </div>
           <LeadTimeToggle />
         </div>
-        <div className="rounded-lg border border-op-border bg-op-surface-1">
+        <div className="rounded-lg border border-white/5 bg-op-surface-1">
           <PolderRankList polders={snapshot?.polders ?? []} lead={lead} />
         </div>
       </div>

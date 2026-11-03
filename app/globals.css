@@ -530,67 +530,70 @@
  * --cc-* tokens are untouched.
  *
  * Values are RGB channels so Tailwind opacity modifiers work
- * (`bg-op-risk-tinggi/20`). They map to the original Noah dark design:
- * page/surfaces/borders/text from the dark --cc-* values, the cyan accent,
- * and the old status colours for risk and Siaga. Violet stays for SIMULASI
- * (the old app has no equivalent and the label must stay obvious).
+ * (`bg-op-risk-tinggi/20`). They match what the tiling dashboard (/dashboard)
+ * actually renders: its tiles are transparent over a black/60 void on the
+ * #0a0e1a body, so tiles and gaps composite to #04060a; hairlines and hovers
+ * are white at 3-12% over that; the top bar is hsl(210 30% 6%). Accent is the
+ * dashboard blue (blue-500 text, blue-600 fill). Risk and Siaga use the
+ * dashboard's Tailwind status family (emerald / yellow / orange / red 500).
+ * SIMULASI keeps one muted violet (the dashboard has no equivalent).
  * Light mode mirrors dark for now: the operator screens always render dark.
  * Text-on-colour (`--op-on-*`) is chosen per colour for >= 4.5:1.
  * ===================================================================== */
 :root {
-  /* Neutrals (old --cc-* dark values) */
-  --op-page: 10 14 26; /* #0a0e1a  --cc-bg */
-  --op-surface-1: 17 24 39; /* #111827  --cc-surface */
-  --op-surface-2: 26 34 54; /* #1a2236  --cc-elevated */
-  --op-surface-3: 37 48 70; /* #253046  hover, tracks (one step above elevated) */
-  --op-border: 30 41 59; /* #1e293b  --cc-border */
-  --op-border-strong: 51 65 85; /* #334155 */
-  --op-fg: 241 245 249; /* #f1f5f9  --cc-text */
-  --op-fg-2: 148 163 184; /* #94a3b8  --cc-text-secondary */
-  --op-fg-3: 139 154 176; /* #8b9ab0  muted, >= 4.5:1 on page and all surfaces */
-  --op-fg-disabled: 100 116 139; /* #64748b  also: stale data */
+  /* Neutrals (as rendered by the tiling dashboard) */
+  --op-page: 4 6 10; /* #04060a  tile + gap void (black/60 over #0a0e1a) */
+  --op-surface-1: 4 6 10; /* #04060a  tiles: same as the void, set apart by hairlines */
+  --op-surface-2: 12 13 17; /* #0c0d11  cards: white/3 over the tile */
+  --op-surface-3: 19 21 25; /* #131519  hover, tracks: white/6 over the tile */
+  --op-border: 22 23 27; /* #16171b  hairline: white/7 */
+  --op-border-strong: 34 36 39; /* #222427  white/12 */
+  --op-fg: 241 245 249; /* #f1f5f9  slate-100 */
+  --op-fg-2: 148 163 184; /* #94a3b8  slate-400; 7.1:1 on surface-3 */
+  --op-fg-3: 116 130 153; /* #748299  muted; >= 4.6:1 on page, surfaces and map cards */
+  --op-fg-disabled: 100 116 139; /* #64748b  slate-500; also: stale data */
 
-  /* Interaction accent: the old cyan */
-  --op-accent: 0 229 255; /* #00e5ff  --cc-cyan */
-  --op-accent-fill: 0 229 255;
-  --op-on-accent: 10 14 26; /* dark text on cyan, 12.5:1 */
+  /* Interaction accent: the dashboard blue */
+  --op-accent: 59 130 246; /* #3b82f6  blue-500 (text, rings); 5.0:1 on surface-3 */
+  --op-accent-fill: 37 99 235; /* #2563eb  blue-600 (active tab, primary button) */
+  --op-on-accent: 255 255 255; /* white on blue-600, 5.2:1 */
 
-  /* Risk scale (polders): old status colours */
-  --op-risk-rendah: 0 230 118; /* #00e676  --cc-safe */
-  --op-risk-sedang: 255 145 0; /* #ff9100  --cc-caution */
-  --op-risk-tinggi: 255 61 0; /* #ff3d00  --cc-warning */
-  --op-risk-sangat-tinggi: 255 23 68; /* #ff1744  --cc-critical */
-  --op-on-risk-rendah: 10 14 26; /* 11.5:1 */
-  --op-on-risk-sedang: 10 14 26; /* 8.5:1 */
-  --op-on-risk-tinggi: 10 14 26; /* 5.4:1 (white would be 3.6:1) */
-  --op-on-risk-sangat-tinggi: 10 14 26; /* 5.0:1 (white would be 3.9:1) */
+  /* Risk scale (polders): dashboard status family */
+  --op-risk-rendah: 16 185 129; /* #10b981  emerald-500 */
+  --op-risk-sedang: 234 179 8; /* #eab308  yellow-500 */
+  --op-risk-tinggi: 249 115 22; /* #f97316  orange-500 */
+  --op-risk-sangat-tinggi: 239 68 68; /* #ef4444  red-500 */
+  --op-on-risk-rendah: 4 6 10; /* 8.0:1 */
+  --op-on-risk-sedang: 4 6 10; /* 10.6:1 */
+  --op-on-risk-tinggi: 4 6 10; /* 7.2:1 */
+  --op-on-risk-sangat-tinggi: 4 6 10; /* 5.4:1 */
 
-  /* Siaga scale (posts): old status colours */
-  --op-siaga-normal: 0 230 118; /* #00e676 */
-  --op-siaga-3: 255 145 0; /* #ff9100 */
-  --op-siaga-2: 255 61 0; /* #ff3d00 */
-  --op-siaga-1: 255 23 68; /* #ff1744 */
+  /* Siaga scale (posts): Normal green, Siaga 3 yellow, 2 orange, 1 red */
+  --op-siaga-normal: 16 185 129; /* #10b981 */
+  --op-siaga-3: 234 179 8; /* #eab308 */
+  --op-siaga-2: 249 115 22; /* #f97316 */
+  --op-siaga-1: 239 68 68; /* #ef4444 */
   --op-siaga-unknown: 100 116 139; /* #64748b */
-  --op-on-siaga-normal: 10 14 26;
-  --op-on-siaga-3: 10 14 26;
-  --op-on-siaga-2: 10 14 26;
-  --op-on-siaga-1: 10 14 26;
+  --op-on-siaga-normal: 4 6 10;
+  --op-on-siaga-3: 4 6 10;
+  --op-on-siaga-2: 4 6 10;
+  --op-on-siaga-1: 4 6 10;
   --op-on-siaga-unknown: 255 255 255; /* 4.8:1 */
 
-  /* Provenance: SIMULASI violet, a hue no risk or Siaga level uses */
-  --op-sim: 157 140 245; /* #9d8cf5 */
+  /* Provenance: SIMULASI, one muted violet (violet-400) */
+  --op-sim: 167 139 250; /* #a78bfa  6.7:1 on surface-3 */
 
   /* Destructive actions only */
-  --op-danger: 255 23 68;
-  --op-on-danger: 10 14 26;
+  --op-danger: 239 68 68;
+  --op-on-danger: 4 6 10;
 
   /* Hatch for an unchanging (suspect) sensor: neutral, never a Siaga colour */
-  --op-hatch-a: 139 154 176;
-  --op-hatch-b: 37 48 70;
+  --op-hatch-a: 116 130 153;
+  --op-hatch-b: 34 36 39;
 
   --op-shadow-popover: 0 8px 24px rgb(0 0 0 / 0.5);
-  --op-radius: 4px; /* controls, chips */
-  --op-radius-panel: 6px; /* cards, panels (as .cc-panel) */
+  --op-radius: 0.25rem; /* controls, chips: as the dashboard's rounded / rounded-md */
+  --op-radius-panel: 0.375rem; /* cards, panels: as the dashboard's rounded-lg */
 }
 
 /* Operator map layers (Leaflet divIcons and tooltips) */

@@ -54,7 +54,7 @@ function SumpGauge({ pct }: { pct: number | null }) {
   return (
     <div className="flex items-end gap-3">
       <div
-        className="relative h-24 w-14 overflow-hidden rounded-sm border border-op-border-strong bg-op-surface-2"
+        className="relative h-20 w-12 overflow-hidden rounded-md border border-white/10 bg-white/5"
         role="meter"
         aria-label="Isi kolam"
         aria-valuemin={0}
@@ -69,7 +69,7 @@ function SumpGauge({ pct }: { pct: number | null }) {
         </span>
       </div>
       <div>
-        <p className="font-mono text-2xl font-bold leading-none tabular-nums text-op-fg">{pct === null ? '–' : `${Math.round(v)}%`}</p>
+        <p className="text-xl font-bold leading-none tabular-nums text-op-fg">{pct === null ? '–' : `${Math.round(v)}%`}</p>
         <p className="mt-1 text-xs text-op-fg-2">isi kolam</p>
       </div>
     </div>
@@ -90,14 +90,14 @@ export function PolderStatusPanel({
   const simulated = status?.provenance.kind === 'simulated' || history.some((s) => s.provenance.kind === 'simulated');
 
   return (
-    <section className="rounded-lg border border-op-border bg-op-surface-1 p-3" aria-labelledby="m3-title">
-      <div className="mb-2.5 flex items-start justify-between gap-2">
+    <section className="rounded-lg border border-white/5 bg-op-surface-1 p-3" aria-labelledby="m3-title">
+      <div className="mb-2 flex items-start justify-between gap-2">
         <div>
-          <h2 id="m3-title" className="font-heading text-[11px] font-semibold uppercase tracking-[0.08em] text-op-fg-2">
+          <h2 id="m3-title" className="text-[11px] font-semibold uppercase tracking-wider text-op-fg">
             Operasi polder: kolam dan pompa
           </h2>
           {simulated && (
-            <p className="mt-0.5 text-[11px] text-op-fg-2">Belum ada data SCADA; nilai di panel ini dihitung aturan demo, bukan pengukuran.</p>
+            <p className="mt-0.5 text-[10px] text-op-fg-3">Belum ada data SCADA; nilai di panel ini dihitung aturan demo, bukan pengukuran.</p>
           )}
         </div>
         {(simulated || !status) && <SimulasiBadge />}
@@ -111,7 +111,7 @@ export function PolderStatusPanel({
             <SumpGauge pct={status.sumpFillPct} />
             <div className="space-y-3 text-right">
               <div>
-                <p className="font-mono text-xl font-bold leading-none tabular-nums text-op-fg">
+                <p className="text-lg font-bold leading-none tabular-nums text-op-fg">
                   {status.timeToFullMin === null ? '–' : formatDuration(status.timeToFullMin)}
                 </p>
                 <p className="mt-1 text-xs text-op-fg-2">
@@ -119,14 +119,14 @@ export function PolderStatusPanel({
                 </p>
               </div>
               <div>
-                <p className="font-mono text-xl font-bold leading-none tabular-nums text-op-fg">
+                <p className="text-lg font-bold leading-none tabular-nums text-op-fg">
                   {status.pumpsOn}
-                  <span className="text-sm text-op-fg-3">/{status.pumpsTotal}</span>
+                  <span className="text-xs text-op-fg-3">/{status.pumpsTotal}</span>
                 </p>
                 <p className="mt-1 text-xs text-op-fg-2">pompa menyala</p>
                 <div className="mt-1 flex justify-end gap-1" aria-hidden>
                   {Array.from({ length: status.pumpsTotal }, (_, i) => (
-                    <span key={i} className={cn('h-2.5 w-2.5 rounded-sm border', i < status.pumpsOn ? 'border-op-fg bg-op-fg' : 'border-op-border-strong bg-transparent')} />
+                    <span key={i} className={cn('h-2.5 w-2.5 rounded-[2px] border', i < status.pumpsOn ? 'border-op-fg bg-op-fg' : 'border-op-border-strong bg-transparent')} />
                   ))}
                 </div>
               </div>
@@ -136,11 +136,11 @@ export function PolderStatusPanel({
           <div className="grid grid-cols-2 gap-2">
             <div
               className={cn(
-                'rounded border px-2.5 py-2',
-                status.drawdownState === 'wet' ? 'border-op-fg-3 bg-op-surface-3' : 'border-op-border bg-op-surface-2',
+                'rounded-lg border px-2.5 py-2',
+                status.drawdownState === 'wet' ? 'border-op-accent/30 bg-op-accent/10' : 'border-white/5 bg-op-surface-2',
               )}
             >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-op-fg-3">Status drawdown</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-op-fg-3">Status drawdown</p>
               {status.drawdownState ? (
                 <>
                   <p className={cn('mt-0.5 text-xs', status.drawdownState === 'wet' ? 'font-bold text-op-fg' : 'font-semibold text-op-fg-2')}>
@@ -156,8 +156,8 @@ export function PolderStatusPanel({
                 <p className="mt-0.5 text-xs text-op-fg-3">Belum tersedia</p>
               )}
             </div>
-            <div className="rounded border border-op-border bg-op-surface-2 px-2.5 py-2">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-op-fg-3">Aliran (m³/s)</p>
+            <div className="rounded-lg border border-white/5 bg-op-surface-2 px-2.5 py-2">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-op-fg-3">Aliran (m³/s)</p>
               <p className="mt-0.5 font-mono text-xs tabular-nums text-op-fg">
                 masuk {status.inflowM3s === undefined ? '–' : status.inflowM3s.toFixed(2)}
               </p>
@@ -168,14 +168,14 @@ export function PolderStatusPanel({
           </div>
 
           {trend && (
-            <div className="flex items-start gap-2 rounded border border-op-border bg-op-surface-2 px-2.5 py-2">
+            <div className="flex items-start gap-2 rounded-lg border border-white/5 bg-op-surface-2 px-2.5 py-2">
               {(() => {
                 const Icon = TREND_META[trend].icon;
                 return <Icon className={cn('mt-0.5 h-4 w-4 shrink-0', TREND_META[trend].cls)} aria-hidden />;
               })()}
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold text-op-fg">{TREND_META[trend].label}</p>
-                <p className="text-[11px] text-op-fg-2">{TREND_META[trend].hint}</p>
+                <p className="text-[10px] text-op-fg-2">{TREND_META[trend].hint}</p>
               </div>
               {spark.length > 1 && (
                 <div className="h-9 w-24 shrink-0" aria-hidden>
@@ -193,7 +193,7 @@ export function PolderStatusPanel({
           {status.anomalies.length > 0 && (
             <ul className="space-y-1.5">
               {status.anomalies.map((a) => (
-                <li key={a} className="flex items-start gap-2 rounded border border-op-risk-tinggi/50 bg-op-risk-tinggi/10 px-2.5 py-2 text-xs text-op-fg">
+                <li key={a} className="flex items-start gap-2 rounded-lg border border-white/5 border-l-2 border-l-op-risk-tinggi bg-op-risk-tinggi/5 px-3 py-2 text-xs text-op-fg">
                   <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-op-risk-tinggi" aria-hidden />
                   {a}
                 </li>

@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { useMapLayerStore } from '@/lib/operator/mapLayerStore';
 import { SimulasiBadge } from '@/components/operator/demo/SimulasiBadge';
 import { RISK_META, RISK_ORDER, SIAGA_META, tokenColor } from '@/components/operator/ops/meta';
+import { MAP_OVERLAY_CARD } from './MapControls';
 
 const SIAGA_KEYS = ['normal', 'siaga3', 'siaga2', 'siaga1'] as const;
 
@@ -19,13 +20,13 @@ export function OpsLegend({ className, defaultOpen = true }: { className?: strin
   return (
     <div className={cn('pointer-events-auto absolute z-[1000]', className)}>
       {open ? (
-        <div className="w-60 rounded-lg border border-op-border-strong bg-op-surface-1 p-2.5 text-op-fg">
+        <div className={cn(MAP_OVERLAY_CARD, 'w-60 p-3 text-op-fg')}>
           <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-[10px] font-semibold uppercase tracking-[0.08em] text-op-fg-2">Legenda</h3>
+            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-op-fg">Legenda</h3>
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="rounded-sm p-0.5 text-op-fg-3 hover:bg-op-surface-3 hover:text-op-fg"
+              className="rounded-md p-0.5 text-op-fg-2 transition-colors hover:bg-white/5 hover:text-op-fg"
               aria-label="Tutup legenda"
             >
               <ChevronDown className="h-4 w-4" />
@@ -84,7 +85,7 @@ export function OpsLegend({ className, defaultOpen = true }: { className?: strin
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="flex items-center gap-1.5 rounded border border-op-border-strong bg-op-surface-1 px-2.5 py-1.5 text-xs font-medium text-op-fg hover:bg-op-surface-3"
+          className={cn(MAP_OVERLAY_CARD, 'flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-op-fg transition-colors hover:bg-slate-800/80')}
           aria-label="Buka legenda"
         >
           <List className="h-4 w-4" aria-hidden /> Legenda

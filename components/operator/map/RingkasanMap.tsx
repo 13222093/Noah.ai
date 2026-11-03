@@ -15,6 +15,8 @@ import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { LeadTimeToggle } from '@/components/operator/ops/LeadTimeToggle';
 import OperatorMap from './OperatorMap';
 import { OpsLegend } from './OpsLegend';
+import { MAP_OVERLAY_CARD } from './MapControls';
+import { cn } from '@/lib/utils';
 import { PolderLayer, StationLayer } from './OpsLayers';
 
 /** Pans to the station or polder a replay moment points at. */
@@ -70,11 +72,11 @@ export default function RingkasanMap({ snapshot }: { snapshot: OpsSnapshot | nul
       zoom={isMobile ? 11 : 12}
       overlay={
         <>
-          <div className="pointer-events-auto absolute right-3 top-3 z-[1000] rounded-lg border border-op-border-strong bg-op-surface-1 px-2 py-1">
+          <div className={cn(MAP_OVERLAY_CARD, 'pointer-events-auto absolute right-4 top-4 z-[1000] px-2.5 py-1.5')}>
             <LeadTimeToggle label={isMobile ? null : 'Peluang banjir dalam'} />
           </div>
           {empty && (
-            <div className="pointer-events-none absolute left-1/2 top-16 z-[1000] w-[min(90%,320px)] -translate-x-1/2 rounded-lg border border-op-border-strong bg-op-surface-1 px-3 py-2 text-xs text-op-fg-2">
+            <div className={`pointer-events-none absolute left-1/2 top-16 z-[1000] w-[min(90%,320px)] -translate-x-1/2 px-3 py-2 text-xs text-op-fg-2 ${MAP_OVERLAY_CARD}`}>
               <p className="flex items-center gap-1.5 font-medium text-op-fg">
                 <MapPinned size={14} aria-hidden /> Belum ada data untuk ditampilkan
               </p>

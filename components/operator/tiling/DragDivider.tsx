@@ -79,15 +79,15 @@ export function DragDivider({
       <div
         className={cn(
           'absolute inset-x-0 top-1/2 -translate-y-1/2',
-          'h-px bg-op-border transition-colors duration-150',
-          'group-hover:bg-op-accent',
+          'h-[2px] bg-white/10 transition-colors duration-150',
+          'group-hover:bg-op-accent/60',
         )}
       />
       {/* Grab indicator dots */}
       <div className="flex gap-1 z-10">
-        <div className="h-1 w-1 rounded-full bg-op-fg-disabled transition-colors group-hover:bg-op-accent" />
-        <div className="h-1 w-1 rounded-full bg-op-fg-disabled transition-colors group-hover:bg-op-accent" />
-        <div className="h-1 w-1 rounded-full bg-op-fg-disabled transition-colors group-hover:bg-op-accent" />
+        <div className="h-1 w-1 rounded-full bg-white/20 transition-colors group-hover:bg-op-accent/60" />
+        <div className="h-1 w-1 rounded-full bg-white/20 transition-colors group-hover:bg-op-accent/60" />
+        <div className="h-1 w-1 rounded-full bg-white/20 transition-colors group-hover:bg-op-accent/60" />
       </div>
     </div>
   );

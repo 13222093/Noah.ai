@@ -31,7 +31,7 @@ const STATUS_FILTERS: Array<{ id: StatusFilter; label: string }> = [
 ];
 
 const selectCls =
-  'h-8 rounded border border-op-border-strong bg-op-surface-2 px-2 text-xs text-op-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-op-accent';
+  'h-7 rounded-lg border border-white/10 bg-op-surface-2 px-2 text-xs text-op-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-op-accent';
 
 function ResetDemoButton() {
   const { acks, reset } = useAcknowledgements();
@@ -43,7 +43,7 @@ function ResetDemoButton() {
         type="button"
         onClick={() => setOpen(true)}
         disabled={count === 0}
-        className="inline-flex items-center gap-1.5 rounded border border-op-border-strong bg-op-surface-2 px-2.5 py-1 text-xs text-op-fg-2 hover:bg-op-surface-3 hover:text-op-fg disabled:text-op-fg-disabled disabled:hover:bg-op-surface-2"
+        className="inline-flex h-7 items-center gap-1.5 rounded-lg border border-white/10 bg-transparent px-2.5 text-xs text-op-fg-2 transition-colors hover:bg-white/5 hover:text-op-fg disabled:text-op-fg-disabled disabled:hover:bg-transparent"
       >
         <RotateCcw className="h-3.5 w-3.5" aria-hidden />
         Reset demo
@@ -57,7 +57,7 @@ function ResetDemoButton() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
-            <button type="button" onClick={() => setOpen(false)} className="rounded border border-op-border-strong bg-op-surface-3 px-3 py-1.5 text-sm text-op-fg hover:border-op-fg-3">
+            <button type="button" onClick={() => setOpen(false)} className="h-8 rounded-lg border border-white/10 bg-white/5 px-3 text-xs font-medium text-op-fg transition-colors hover:bg-white/10">
               Batal
             </button>
             <button
@@ -66,7 +66,7 @@ function ResetDemoButton() {
                 reset();
                 setOpen(false);
               }}
-              className="rounded border border-op-danger bg-op-danger px-3 py-1.5 text-sm font-semibold text-op-on-danger hover:bg-op-danger/90"
+              className="h-8 rounded-lg bg-op-danger px-3 text-xs font-semibold text-op-on-danger transition-colors hover:bg-op-danger/90"
             >
               Hapus tanggapan
             </button>
@@ -124,15 +124,15 @@ export function RekomendasiView() {
     <div className="flex min-h-full flex-col bg-op-page text-op-fg lg:h-full lg:min-h-0 lg:flex-row">
       {/* Queue */}
       <div className="flex min-w-0 flex-1 flex-col lg:min-h-0">
-        <header className="space-y-2.5 border-b border-op-border bg-op-surface-1 px-4 pb-3 pt-3 sm:px-6">
+        <header className="space-y-2 border-b border-white/5 bg-op-surface-1 px-3 pb-2.5 pt-2.5 sm:px-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
-                <ClipboardCheck className="h-4 w-4 text-op-fg-3" aria-hidden />
-                <h1 className="font-heading text-lg font-bold">Rekomendasi</h1>
+                <ClipboardCheck className="h-3.5 w-3.5 text-op-accent" aria-hidden />
+                <h1 className="text-sm font-bold">Rekomendasi</h1>
                 {anySimulated && <SimulasiBadge />}
               </div>
-              <p className="mt-1 text-xs text-op-fg-2">
+              <p className="mt-0.5 text-[11px] text-op-fg-2">
                 Saran untuk operator, terbaru di atas. Keputusan di tangan operator; catat tanggapan Anda pada tiap saran.
               </p>
             </div>
@@ -140,7 +140,7 @@ export function RekomendasiView() {
           </div>
 
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <div role="radiogroup" aria-label="Status" className="inline-flex flex-wrap rounded border border-op-border bg-op-surface-2 p-0.5">
+            <div role="radiogroup" aria-label="Status" className="inline-flex flex-wrap items-center gap-0.5 rounded-lg bg-black/30 p-0.5">
               {STATUS_FILTERS.map((f) => (
                 <button
                   key={f.id}
@@ -149,8 +149,8 @@ export function RekomendasiView() {
                   aria-checked={status === f.id}
                   onClick={() => setStatus(f.id)}
                   className={cn(
-                    'rounded-sm px-2.5 py-1 text-xs font-medium transition-colors',
-                    status === f.id ? 'bg-op-accent-fill text-op-on-accent' : 'text-op-fg-2 hover:bg-op-surface-3 hover:text-op-fg',
+                    'flex h-7 items-center rounded-md px-2.5 text-xs font-medium transition-all duration-150',
+                    status === f.id ? 'bg-op-accent-fill text-op-on-accent shadow-sm' : 'text-op-fg-2 hover:bg-white/5 hover:text-op-fg',
                   )}
                 >
                   {f.label}
@@ -183,7 +183,7 @@ export function RekomendasiView() {
           </div>
         </header>
 
-        <div className="px-4 py-4 sm:px-6 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
+        <div className="px-3 py-3 sm:px-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto">
           {recs.length === 0 ? (
             <EmptyState
               icon={ClipboardCheck}
@@ -214,7 +214,7 @@ export function RekomendasiView() {
 
       {/* WhatsApp preview: side pane on desktop, dialog on smaller screens */}
       {isDesktop ? (
-        <aside className="flex min-h-0 w-[440px] shrink-0 flex-col border-l border-op-border bg-op-surface-1 p-3" aria-label="Pratinjau pesan WhatsApp">
+        <aside className="flex min-h-0 w-[440px] shrink-0 flex-col border-l border-white/5 bg-op-surface-1 p-3" aria-label="Pratinjau pesan WhatsApp">
           <WhatsAppPreview recipient={selected?.recipient ?? null} messages={groupMessages} selectedId={selected?.id ?? null} />
         </aside>
       ) : (
@@ -225,7 +225,7 @@ export function RekomendasiView() {
               <button
                 type="button"
                 onClick={() => setMobilePreview(false)}
-                className="rounded-sm p-1 text-op-fg-3 hover:bg-op-surface-3 hover:text-op-fg"
+                className="rounded-md p-1 text-op-fg-3 transition-colors hover:bg-white/5 hover:text-op-fg"
                 aria-label="Tutup pratinjau"
               >
                 <X className="h-4 w-4" />

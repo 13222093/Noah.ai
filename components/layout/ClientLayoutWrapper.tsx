@@ -49,8 +49,11 @@ function LayoutInner({ children }: { children: React.ReactNode }) {
   ];
   const isTilingSubPage = tilingSubPages.includes(pathname);
 
-  // Tiling mode and its sub-pages: no NavRail/StatusBar
-  if (isTilingMode || isTilingSubPage) {
+  // Operator section: draws its own tiling-style top bar (app/operator/layout.tsx)
+  const isOperator = pathname === '/operator' || pathname.startsWith('/operator/');
+
+  // Tiling mode, its sub-pages and the operator section: no NavRail/StatusBar
+  if (isTilingMode || isTilingSubPage || isOperator) {
     return (
       <SidebarContext.Provider value={{ isCollapsed: true, isDesktop }}>
         {children}

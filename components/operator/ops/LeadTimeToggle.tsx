@@ -1,6 +1,7 @@
 'use client';
 
 // 60 / 120 / 180 minute lead-time switch, shared by the map and the ranking.
+// Styled as the dashboard's SegmentedControl (components/tiling/SegmentedControl.tsx).
 
 import { cn } from '@/lib/utils';
 import { LEAD_TIMES, type LeadMin } from '@/lib/ops/types';
@@ -25,8 +26,8 @@ export function LeadTimeToggle({
 
   return (
     <div className={cn('flex items-center gap-2', className)}>
-      {label && <span className="text-[11px] text-op-fg-2">{label}</span>}
-      <div role="radiogroup" aria-label="Waktu ke depan" className="inline-flex rounded border border-op-border bg-op-surface-2 p-0.5">
+      {label && <span className="text-[10px] text-op-fg-2">{label}</span>}
+      <div role="radiogroup" aria-label="Waktu ke depan" className="inline-flex items-center gap-0.5 rounded-lg bg-black/30 p-0.5">
         {LEAD_TIMES.map((l) => {
           const active = l === lead;
           return (
@@ -37,8 +38,8 @@ export function LeadTimeToggle({
               aria-checked={active}
               onClick={() => set(l)}
               className={cn(
-                'rounded-sm px-2.5 py-1 text-xs font-semibold tabular-nums transition-colors',
-                active ? 'bg-op-accent-fill text-op-on-accent' : 'text-op-fg-2 hover:bg-op-surface-3 hover:text-op-fg',
+                'flex h-7 items-center rounded-md px-2.5 text-xs font-medium tabular-nums transition-all duration-150',
+                active ? 'bg-op-accent-fill text-op-on-accent shadow-sm' : 'text-op-fg-2 hover:bg-white/5 hover:text-op-fg',
               )}
             >
               {l} mnt

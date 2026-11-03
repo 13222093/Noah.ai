@@ -3,7 +3,7 @@ import { OperatorChrome } from '@/components/operator/layout/OperatorChrome';
 
 // Operator section: a labelled replay of the 1 January 2020 flood for
 // flood-control operators, added next to the original app (which is unchanged).
-// Rendered inside the original app shell's content area.
+// Chrome-less in the app shell (like /dashboard); OperatorChrome draws its own top bar.
 export const metadata: Metadata = {
   title: 'Operator | Noah AI',
   description:

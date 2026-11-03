@@ -49,14 +49,14 @@ export function SourceStamp({
     <span
       title={full}
       className={cn(
-        'inline-flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] leading-tight text-op-fg-2',
+        'inline-flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] leading-tight text-op-fg-2',
         isStale && 'text-op-fg-disabled',
         className,
       )}
     >
       <span
         className={cn(
-          'inline-flex shrink-0 items-center gap-1 rounded-sm border px-1 py-px text-[10px] font-semibold uppercase tracking-[0.06em]',
+          'inline-flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase leading-none tracking-wider',
           PROVENANCE_CHIP[provenance.kind],
         )}
       >
@@ -70,7 +70,7 @@ export function SourceStamp({
         </span>
       )}
       <span className="inline-flex shrink-0 items-center gap-1 tabular-nums">
-        <Clock className="h-3 w-3" aria-hidden />
+        <Clock className="h-2.5 w-2.5" aria-hidden />
         {timeLabel} {time}
         {age && !compact && <span className={isStale ? undefined : 'text-op-fg-3'}>({age})</span>}
       </span>

@@ -43,8 +43,8 @@ export interface ScaleMeta {
   /** Text colour that reads on top of `color`. */
   onColor: string;
   /**
-   * Tailwind classes for a chip: tinted fill and border in the scale colour,
-   * text in the neutral foreground so it passes AA in both themes.
+   * Tailwind classes for a chip: tinted fill in the scale colour (the
+   * dashboard's bg-*-500/20 badges), text in the neutral foreground for AA.
    */
   chip: string;
 }
@@ -61,22 +61,22 @@ export const RISK_ORDER: RiskCategory[] = ['rendah', 'sedang', 'tinggi', 'sangat
  */
 export const RISK_META: Record<RiskCategory, ScaleMeta & { weight: number; fillOpacity: number }> = {
   rendah: {
-    ...scale('Rendah', 'R', 'risk-rendah', 'border-op-risk-rendah/60 bg-op-risk-rendah/10 text-op-fg'),
+    ...scale('Rendah', 'R', 'risk-rendah', 'bg-op-risk-rendah/20 text-op-fg'),
     weight: 1.5,
     fillOpacity: 0.16,
   },
   sedang: {
-    ...scale('Sedang', 'S', 'risk-sedang', 'border-op-risk-sedang/70 bg-op-risk-sedang/[0.15] text-op-fg'),
+    ...scale('Sedang', 'S', 'risk-sedang', 'bg-op-risk-sedang/20 text-op-fg'),
     weight: 1.5,
     fillOpacity: 0.2,
   },
   tinggi: {
-    ...scale('Tinggi', 'T', 'risk-tinggi', 'border-op-risk-tinggi/70 bg-op-risk-tinggi/[0.15] text-op-fg'),
+    ...scale('Tinggi', 'T', 'risk-tinggi', 'bg-op-risk-tinggi/20 text-op-fg'),
     weight: 1.5,
     fillOpacity: 0.24,
   },
   sangat_tinggi: {
-    ...scale('Sangat tinggi', 'ST', 'risk-sangat-tinggi', 'border-op-risk-sangat-tinggi/80 bg-op-risk-sangat-tinggi/20 text-op-fg'),
+    ...scale('Sangat tinggi', 'ST', 'risk-sangat-tinggi', 'bg-op-risk-sangat-tinggi/25 text-op-fg'),
     weight: 1.5,
     fillOpacity: 0.28,
   },
@@ -87,13 +87,13 @@ export const NO_DATA_COLOR = tokenColor('fg-disabled');
 
 export const SIAGA_ORDER: SiagaLevel[] = ['normal', 'siaga3', 'siaga2', 'siaga1', 'unknown'];
 
-/** Status colours of the original Noah app: Normal green, then orange to red as levels rise. */
+/** Dashboard status colours: Normal green, Siaga 3 yellow, Siaga 2 orange, Siaga 1 red. */
 export const SIAGA_META: Record<SiagaLevel, ScaleMeta> = {
-  normal: scale('Normal', 'N', 'siaga-normal', 'border-op-siaga-normal/60 bg-op-siaga-normal/10 text-op-fg'),
-  siaga3: scale('Siaga 3', '3', 'siaga-3', 'border-op-siaga-3/70 bg-op-siaga-3/[0.15] text-op-fg'),
-  siaga2: scale('Siaga 2', '2', 'siaga-2', 'border-op-siaga-2/70 bg-op-siaga-2/[0.15] text-op-fg'),
-  siaga1: scale('Siaga 1', '1', 'siaga-1', 'border-op-siaga-1/80 bg-op-siaga-1/20 text-op-fg'),
-  unknown: scale('Tidak diketahui', '?', 'siaga-unknown', 'border-op-border-strong bg-transparent text-op-fg-3'),
+  normal: scale('Normal', 'N', 'siaga-normal', 'bg-op-siaga-normal/20 text-op-fg'),
+  siaga3: scale('Siaga 3', '3', 'siaga-3', 'bg-op-siaga-3/20 text-op-fg'),
+  siaga2: scale('Siaga 2', '2', 'siaga-2', 'bg-op-siaga-2/20 text-op-fg'),
+  siaga1: scale('Siaga 1', '1', 'siaga-1', 'bg-op-siaga-1/25 text-op-fg'),
+  unknown: scale('Tidak diketahui', '?', 'siaga-unknown', 'bg-white/5 text-op-fg-3'),
 };
 
 /** Threshold line colours for charts (Siaga 3/2/1). */
@@ -122,7 +122,7 @@ export const CHART = {
   tooltip: {
     backgroundColor: tokenColor('surface-2'),
     border: `1px solid ${tokenColor('border-strong')}`,
-    borderRadius: 4,
+    borderRadius: 6,
     boxShadow: 'var(--op-shadow-popover)',
     color: tokenColor('fg'),
     fontSize: 12,
@@ -156,15 +156,16 @@ export const STALE_AFTER_MIN: Record<ProvenanceKind, number> = {
 };
 
 /**
- * Provenance chips. SIMULASI is the only coloured one (violet, outlined, no
- * fill flood); archive, reanalysis and live data are neutral outlines and
- * differ by icon (PROVENANCE_ICON) and label.
+ * Provenance chips, tinted pills like the dashboard's tags. SIMULASI is the
+ * only coloured one (muted violet tint); archive, reanalysis and live data are
+ * neutral (white/5, as the dashboard's area tags) and differ by icon
+ * (PROVENANCE_ICON) and label.
  */
 export const PROVENANCE_CHIP: Record<ProvenanceKind, string> = {
-  historical: 'border-op-border-strong bg-transparent text-op-fg-2',
-  reanalysis: 'border-op-border-strong bg-transparent text-op-fg-2',
-  simulated: 'border-op-sim bg-op-sim/10 text-op-sim',
-  observed: 'border-op-border-strong bg-transparent text-op-fg-2',
+  historical: 'bg-white/5 text-op-fg-2',
+  reanalysis: 'bg-white/5 text-op-fg-2',
+  simulated: 'bg-op-sim/15 text-op-sim',
+  observed: 'bg-white/5 text-op-fg-2',
 };
 
 export const PROVENANCE_ICON: Record<ProvenanceKind, LucideIcon> = {
@@ -203,17 +204,17 @@ export const OPERATOR_ACTION_META: Record<OperatorAction, { label: string; descr
   followed: {
     label: 'Ditindaklanjuti',
     description: 'Saran dijalankan atau sedang dijalankan.',
-    chip: 'border-op-fg-2 bg-op-surface-3 text-op-fg',
+    chip: 'bg-op-accent/20 text-op-fg',
   },
   deferred: {
     label: 'Ditunda',
     description: 'Dipantau dulu, keputusan diambil nanti.',
-    chip: 'border-op-border-strong bg-op-surface-2 text-op-fg',
+    chip: 'bg-white/10 text-op-fg',
   },
   ignored: {
     label: 'Diabaikan',
     description: 'Tidak dijalankan, misalnya karena kondisi lapangan berbeda.',
-    chip: 'border-op-border-strong bg-transparent text-op-fg-3',
+    chip: 'bg-white/5 text-op-fg-3',
   },
 };
 

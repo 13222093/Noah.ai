@@ -84,13 +84,13 @@ export function PolderLayer({
               <Tooltip direction="auto" sticky className="ops-tooltip" opacity={1}>
                 <div className="w-64 space-y-1.5">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="font-heading text-sm font-semibold leading-tight text-op-fg">{p.unit.name}</p>
+                    <p className="text-[13px] font-semibold leading-tight text-op-fg">{p.unit.name}</p>
                     <RiskChip category={cell?.category} />
                   </div>
                   {cell ? (
                     <>
                       <p className="flex items-baseline gap-1.5 text-op-fg-2">
-                        <span className="font-mono text-xl font-bold tabular-nums text-op-fg">{pct}</span>
+                        <span className="text-lg font-bold tabular-nums text-op-fg">{pct}</span>
                         <span className="text-xs">
                           peluang banjir dalam {lead} mnt (s.d. {formatWibTime(cell.validTo)})
                         </span>
@@ -101,7 +101,7 @@ export function PolderLayer({
                   ) : (
                     <p className="text-xs text-op-fg-3">Belum ada prakiraan untuk {lead} mnt.</p>
                   )}
-                  <p className="text-[11px] text-op-accent">Klik untuk membuka detail polder</p>
+                  <p className="text-[11px] text-blue-400">Klik untuk membuka detail polder</p>
                 </div>
               </Tooltip>
             </Circle>
@@ -146,7 +146,7 @@ function StationTooltipBody({ r }: { r: StationReading }) {
     <div className="w-64 space-y-1.5">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="font-heading text-sm font-semibold leading-tight text-op-fg">{station.name}</p>
+          <p className="text-[13px] font-semibold leading-tight text-op-fg">{station.name}</p>
           <p className="text-[11px] text-op-fg-3">{station.river}</p>
         </div>
         {latest && <SiagaChip level={latest.siaga} />}
@@ -154,7 +154,7 @@ function StationTooltipBody({ r }: { r: StationReading }) {
       {latest ? (
         <>
           <p className="flex items-baseline gap-1.5">
-            <span className="font-mono text-xl font-bold tabular-nums text-op-fg">
+            <span className="text-lg font-bold tabular-nums text-op-fg">
               {latest.cm === null ? '–' : Math.round(latest.cm)}
             </span>
             <span className="text-xs tabular-nums text-op-fg-2">cm · pukul {formatWibTime(latest.ts)}</span>
@@ -164,7 +164,7 @@ function StationTooltipBody({ r }: { r: StationReading }) {
             <p
               className={
                 latest.quality === 'suspect'
-                  ? 'rounded-sm border border-dashed border-op-fg-3 bg-op-surface-3 px-1.5 py-0.5 text-[11px] font-medium text-op-fg'
+                  ? 'rounded border border-dashed border-op-fg-3 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-op-fg'
                   : 'text-[11px] font-medium text-op-fg-disabled'
               }
             >
@@ -177,7 +177,7 @@ function StationTooltipBody({ r }: { r: StationReading }) {
       )}
       <div className="grid grid-cols-3 gap-1 text-center text-[11px]">
         {rows.map(([label, v]) => (
-          <div key={label} className="rounded-sm border border-op-border bg-op-surface-1 px-1 py-0.5">
+          <div key={label} className="rounded-md border border-white/5 bg-white/[0.03] px-1 py-0.5">
             <p className="text-op-fg-3">{label}</p>
             <p className="font-mono tabular-nums text-op-fg">{v === null ? '–' : `${v} cm`}</p>
           </div>

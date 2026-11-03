@@ -11,7 +11,9 @@ import { isDemoMode } from '@/lib/demo';
  * synthetic value can never appear unlabelled.
  *
  * Provenance violet (`sim` token): a hue no risk or Siaga level uses, so the
- * label never reads as a warning level. Outlined, light tint, small caps.
+ * label never reads as a warning level. Drawn like the dashboard's KRITIKAL /
+ * BAHAYA badges: small tinted pill, bold uppercase. Use one per panel header,
+ * not one per row.
  */
 export function SimulasiBadge({
   label = 'SIMULASI',
@@ -28,22 +30,21 @@ export function SimulasiBadge({
       title={title}
       aria-label={`${label}: ${title}`}
       className={cn(
-        'inline-flex shrink-0 items-center gap-1 rounded-sm border border-op-sim bg-op-sim/10 px-1.5 py-px',
-        'text-[10px] font-bold uppercase leading-4 tracking-[0.08em] text-op-sim',
+        'inline-flex shrink-0 items-center rounded bg-op-sim/15 px-1.5 py-0.5',
+        'text-[9px] font-extrabold uppercase leading-none tracking-wider text-op-sim',
         className,
       )}
     >
-      <FlaskConical className="h-3 w-3" aria-hidden />
       {label}
     </span>
   );
 }
 
 /**
- * Thin violet strip: violet tint, violet rule, violet label. The operator
- * layout (app/operator/layout.tsx) always passes `active`, because the
- * /operator section is a labelled historical scenario; elsewhere it follows
- * NOAH_DEMO_MODE and renders nothing when demo mode is off.
+ * Thin strip for demo mode outside the operator section: follows
+ * NOAH_DEMO_MODE and renders nothing when demo mode is off. The /operator
+ * section does not use it; its top bar carries the REPLAY chip and the
+ * scenario disclosure instead (components/operator/ops/ScenarioBanner.tsx).
  */
 export function SimulasiBanner({ active = isDemoMode(), className }: { active?: boolean; className?: string }) {
   if (!active) return null;
@@ -51,13 +52,13 @@ export function SimulasiBanner({ active = isDemoMode(), className }: { active?: 
     <div
       role="status"
       className={cn(
-        'flex h-6 items-center justify-center gap-2 overflow-hidden whitespace-nowrap border-b border-op-sim bg-op-sim/[0.15] px-3 text-center text-xs text-op-fg',
+        'flex h-6 items-center justify-center gap-2 overflow-hidden whitespace-nowrap border-b border-op-border bg-op-sim/10 px-3 text-center text-[11px] text-op-fg-2',
         className,
       )}
     >
       <FlaskConical className="h-3.5 w-3.5 shrink-0 text-op-sim" aria-hidden />
       <span className="truncate">
-        <span className="font-bold tracking-[0.08em] text-op-sim">MODE SIMULASI AKTIF</span>
+        <span className="font-bold tracking-wider text-op-sim">MODE SIMULASI AKTIF</span>
         <span className="hidden sm:inline">: sebagian data di layar ini adalah data simulasi dan bukan pengamatan nyata.</span>
       </span>
     </div>

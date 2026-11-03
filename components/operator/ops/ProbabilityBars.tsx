@@ -34,8 +34,8 @@ export function ProbabilityBars({
                 {cell ? formatPct(cell.probability) : '–'}
               </span>
             </div>
-            <div className={cn('mt-1 h-1.5 overflow-hidden rounded-sm bg-op-surface-3', active && 'ring-1 ring-op-accent')}>
-              <div className="h-full rounded-sm" style={{ width: `${pct}%`, backgroundColor: color }} />
+            <div className={cn('mt-1 h-1.5 overflow-hidden rounded-full bg-white/5', active && 'ring-1 ring-op-accent/70')}>
+              <div className="h-full rounded-full" style={{ width: `${pct}%`, backgroundColor: color }} />
             </div>
           </div>
         );

@@ -36,8 +36,8 @@ export function ConnectorHealthStrip({
   return (
     <section className={cn('flex flex-col', className)} aria-label="Kesehatan sumber data">
       <div className="px-3 pb-1.5 pt-3">
-        <h2 className="font-heading text-[11px] font-semibold uppercase tracking-[0.08em] text-op-fg-2">Sumber data</h2>
-        <p className="mt-0.5 text-[11px] text-op-fg-3">Waktu data terakhir menurut jam replay.</p>
+        <h2 className="text-[11px] font-semibold uppercase tracking-wider text-op-fg">Sumber data</h2>
+        <p className="mt-0.5 text-[10px] text-op-fg-3">Waktu data terakhir menurut jam replay.</p>
       </div>
       {health.length === 0 ? (
         <EmptyState icon={Gauge} title="Belum ada status sumber data" className="py-3" />
@@ -47,8 +47,8 @@ export function ConnectorHealthStrip({
             <li
               key={h.id}
               className={cn(
-                'flex items-center gap-2 rounded border px-2 py-1.5',
-                h.stale ? 'border-op-border bg-transparent text-op-fg-disabled' : 'border-op-border bg-op-surface-2',
+                'flex items-center gap-2 rounded-lg border border-white/5 px-2.5 py-1.5',
+                h.stale ? 'bg-transparent text-op-fg-disabled' : 'bg-op-surface-2',
               )}
               title={`${h.provenance.source}${h.newestTs ? ` · data terakhir ${formatWibTime(h.newestTs)}` : ''}`}
             >
@@ -57,11 +57,11 @@ export function ConnectorHealthStrip({
                 aria-hidden
               />
               <span className={cn('min-w-0 flex-1 truncate text-xs', h.stale ? 'text-op-fg-disabled' : 'text-op-fg')}>{h.label}</span>
-              <span className={cn('inline-flex shrink-0 items-center gap-0.5 rounded-sm border px-1 text-[9px] font-semibold uppercase tracking-[0.06em]', PROVENANCE_CHIP[h.provenance.kind])}>
+              <span className={cn('inline-flex shrink-0 items-center gap-0.5 rounded px-1.5 py-0.5 text-[9px] font-bold uppercase leading-none tracking-wider', PROVENANCE_CHIP[h.provenance.kind])}>
                 <ProvIcon kind={h.provenance.kind} />
                 {PROVENANCE_LABEL[h.provenance.kind]}
               </span>
-              <span className={cn('shrink-0 text-right text-[11px] tabular-nums', h.stale ? 'text-op-fg-disabled' : 'text-op-fg-2')}>
+              <span className={cn('shrink-0 text-right text-[10px] tabular-nums', h.stale ? 'text-op-fg-disabled' : 'text-op-fg-2')}>
                 {h.newestTs ? formatWibTime(h.newestTs) : '–'}
                 <span className={cn('block text-[10px]', h.stale ? 'font-semibold text-op-fg-3' : 'text-op-fg-3')}>
                   {h.stale ? `lama · ${ageText(h.ageMin)}` : ageText(h.ageMin)}

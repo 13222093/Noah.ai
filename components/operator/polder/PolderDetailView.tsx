@@ -49,10 +49,10 @@ function Panel({
   className?: string;
 }) {
   return (
-    <section className={cn('rounded-lg border border-op-border bg-op-surface-1 p-3', className)}>
-      <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="flex items-center gap-2 font-heading text-[11px] font-semibold uppercase tracking-[0.08em] text-op-fg-2">
-          {Icon && <Icon className="h-3.5 w-3.5 text-op-fg-3" aria-hidden />}
+    <section className={cn('rounded-lg border border-white/5 bg-op-surface-1 p-3', className)}>
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-op-fg">
+          {Icon && <Icon className="h-3 w-3 text-op-accent" aria-hidden />}
           {title}
           {badge}
         </h2>
@@ -71,20 +71,20 @@ function LeadTile({ lead, cell, selected, onSelect }: { lead: LeadMin; cell: Now
       onClick={onSelect}
       aria-pressed={selected}
       className={cn(
-        'relative overflow-hidden rounded-lg border bg-op-surface-1 p-3 text-left transition-colors',
-        selected ? 'border-op-accent ring-1 ring-op-accent' : 'border-op-border hover:border-op-border-strong',
+        'relative overflow-hidden rounded-lg border bg-op-surface-2 p-2.5 text-left transition-colors',
+        selected ? 'border-op-accent ring-1 ring-op-accent' : 'border-white/5 hover:bg-op-surface-3',
       )}
     >
-      <span className="absolute inset-x-0 top-0 h-1" style={{ backgroundColor: color }} aria-hidden />
-      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-op-fg-2">dalam {lead} mnt</p>
-      <p className="mt-1 font-mono text-3xl font-bold leading-none tabular-nums text-op-fg sm:text-4xl">
+      <span className="absolute inset-x-0 top-0 h-0.5" style={{ backgroundColor: color }} aria-hidden />
+      <p className="text-[10px] font-semibold uppercase tracking-wider text-op-fg-2">dalam {lead} mnt</p>
+      <p className="mt-1 text-2xl font-bold leading-none tabular-nums text-op-fg">
         {cell ? formatPct(cell.probability) : '–'}
       </p>
       <div className="mt-2">
         <RiskChip category={cell?.category} />
       </div>
       {cell && (
-        <p className="mt-1.5 hidden text-[11px] tabular-nums text-op-fg-3 sm:block">
+        <p className="mt-1.5 hidden text-[10px] tabular-nums text-op-fg-3 sm:block">
           {formatWibTime(cell.validFrom).replace(' WIB', '')}–{formatWibTime(cell.validTo)}
         </p>
       )}
@@ -123,7 +123,7 @@ function LevelPanel({
       icon={Waves}
       right={
         stations.length > 1 ? (
-          <div role="tablist" aria-label="Pos duga air" className="inline-flex flex-wrap rounded border border-op-border bg-op-surface-2 p-0.5">
+          <div role="tablist" aria-label="Pos duga air" className="inline-flex flex-wrap items-center gap-0.5 rounded-lg bg-black/30 p-0.5">
             {stations.map((s) => (
               <button
                 key={s.id}
@@ -132,8 +132,8 @@ function LevelPanel({
                 aria-selected={station?.id === s.id}
                 onClick={() => setStationId(s.id)}
                 className={cn(
-                  'rounded-sm px-2.5 py-1 text-xs font-medium',
-                  station?.id === s.id ? 'bg-op-accent-fill text-op-on-accent' : 'text-op-fg-2 hover:bg-op-surface-3 hover:text-op-fg',
+                  'flex h-7 items-center rounded-md px-2.5 text-xs font-medium transition-all duration-150',
+                  station?.id === s.id ? 'bg-op-accent-fill text-op-on-accent shadow-sm' : 'text-op-fg-2 hover:bg-white/5 hover:text-op-fg',
                 )}
               >
                 {s.name}
@@ -148,17 +148,17 @@ function LevelPanel({
       ) : (
         <>
           <div className="mb-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <p className="text-sm font-medium text-op-fg">
+            <p className="text-[13px] font-semibold text-op-fg">
               {station.name} <span className="text-xs text-op-fg-3">· {station.river}</span>
             </p>
             {reading?.latest && (
               <>
-                <span className="font-mono text-xl font-bold tabular-nums text-op-fg">
+                <span className="text-lg font-bold tabular-nums text-op-fg">
                   {reading.latest.cm === null ? '–' : `${Math.round(reading.latest.cm)} cm`}
                 </span>
                 <SiagaChip level={reading.latest.siaga} />
                 {reading.latest.quality === 'suspect' && (
-                  <span className="rounded-sm border border-dashed border-op-fg-3 bg-op-surface-3 px-1.5 text-[11px] text-op-fg">
+                  <span className="rounded border border-dashed border-op-fg-3 bg-white/5 px-1.5 py-0.5 text-[10px] font-semibold text-op-fg">
                     Sensor tidak berubah: diragukan
                   </span>
                 )}
@@ -170,7 +170,7 @@ function LevelPanel({
           ) : (
             <PostLevelChart station={station} levels={levels} rain={rain} startMs={startMs} endMs={endMs} nowMs={nowMs} />
           )}
-          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-op-fg-2">
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-[10px] text-op-fg-2">
             <span className="flex items-center gap-1.5">
               <span className="h-0.5 w-5" style={{ backgroundColor: CHART.level }} aria-hidden /> Tinggi muka air (cm)
             </span>
@@ -182,7 +182,7 @@ function LevelPanel({
           <div className="mt-2 flex flex-col gap-1">
             <SourceStamp provenance={reading?.provenance} stale={reading?.latest?.quality === 'stale' ? true : undefined} />
             {rain.length > 0 && (
-              <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-op-fg-3">
+              <div className="flex flex-wrap items-center gap-1.5 text-[10px] text-op-fg-3">
                 <span>Hujan:</span>
                 {rainProvenance ? <SourceStamp provenance={rainProvenance} /> : <span>sumber belum tersedia</span>}
                 {rainProvenance?.kind === 'reanalysis' && <span>(perkiraan kasar per jam di titik polder, bukan alat ukur di lokasi)</span>}
@@ -237,16 +237,16 @@ export function PolderDetailView({ polderId }: { polderId: string }) {
   const past = recs.filter((r) => !open.includes(r));
 
   return (
-    <div className="min-h-full bg-op-page px-3 pb-6 pt-3 text-op-fg sm:px-6">
+    <div className="min-h-full bg-op-page px-3 pb-4 pt-2.5 text-op-fg sm:px-4">
       {/* Header */}
-      <div className="mb-4">
-        <Link href="/operator" className="inline-flex items-center gap-1 text-[11px] text-op-fg-2 hover:text-op-accent">
+      <div className="mb-3">
+        <Link href="/operator" className="inline-flex items-center gap-1 text-[11px] text-op-fg-2 transition-colors hover:text-white">
           <ArrowLeft className="h-3.5 w-3.5" aria-hidden /> Ringkasan
         </Link>
         <div className="mt-1 flex flex-wrap items-end justify-between gap-2">
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-op-fg-3">Polder</p>
-            <h1 className="font-heading text-xl font-bold leading-tight sm:text-2xl">{unit?.name ?? polderId}</h1>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-op-fg-3">Polder</p>
+            <h1 className="text-base font-bold leading-tight">{unit?.name ?? polderId}</h1>
             {unit?.note && (
               <p className="mt-1 flex max-w-3xl items-start gap-1.5 text-xs text-op-fg-2">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
@@ -258,14 +258,14 @@ export function PolderDetailView({ polderId }: { polderId: string }) {
       </div>
 
       {/* Probability per lead */}
-      <section aria-label="Peluang banjir per waktu ke depan" className="mb-4">
+      <section aria-label="Peluang banjir per waktu ke depan" className="mb-3">
         <div className="mb-2 flex flex-wrap items-center gap-2">
-          <h2 className="font-heading text-[11px] font-semibold uppercase tracking-[0.08em] text-op-fg-2">Peluang banjir</h2>
+          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-op-fg">Peluang banjir</h2>
           {nowcastSimulated && <SimulasiBadge />}
-          <span className="text-[11px] text-op-fg-3">Ketuk salah satu untuk melihat alasannya.</span>
+          <span className="text-[10px] text-op-fg-3">Ketuk salah satu untuk melihat alasannya.</span>
         </div>
         {cells.length === 0 ? (
-          <EmptyState title="Belum ada prakiraan untuk polder ini" className="rounded-lg border border-op-border bg-op-surface-1 py-6" />
+          <EmptyState title="Belum ada prakiraan untuk polder ini" className="rounded-lg border border-white/5 bg-op-surface-1 py-6" />
         ) : (
           <div className="grid gap-2 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
             <div className="grid grid-cols-3 gap-2">
@@ -273,13 +273,13 @@ export function PolderDetailView({ polderId }: { polderId: string }) {
                 <LeadTile key={l} lead={l} cell={cellAt(l)} selected={lead === l} onSelect={() => setLead(l)} />
               ))}
             </div>
-            <div className="rounded-lg border border-op-border bg-op-surface-1 p-3">
-              <p className="text-xs font-semibold text-op-fg">Mengapa {selectedCell ? formatPct(selectedCell.probability) : '–'} dalam {lead} menit?</p>
+            <div className="rounded-lg border border-white/5 bg-op-surface-2 p-3">
+              <p className="text-[13px] font-semibold text-op-fg">Mengapa {selectedCell ? formatPct(selectedCell.probability) : '–'} dalam {lead} menit?</p>
               {selectedCell && selectedCell.reasons.length > 0 ? (
                 <ol className="mt-2 space-y-1.5">
                   {selectedCell.reasons.map((r, i) => (
-                    <li key={r} className="flex gap-2 text-[13px] leading-snug text-op-fg">
-                      <span className="mt-px font-mono text-[11px] tabular-nums text-op-fg-3">{i + 1}.</span>
+                    <li key={r} className="flex gap-2 text-xs leading-snug text-op-fg">
+                      <span className="mt-px font-mono text-[10px] tabular-nums text-op-fg-3">{i + 1}.</span>
                       {r}
                     </li>
                   ))}
@@ -315,25 +315,25 @@ export function PolderDetailView({ polderId }: { polderId: string }) {
                 ) : (
                   <ProbabilityHistoryChart history={history} startMs={startMs} endMs={endMs} nowMs={nowMs} />
                 )}
-                <p className="mt-2 text-[11px] text-op-fg-3">Tiap titik adalah prakiraan yang diterbitkan pada jam tersebut; tidak ada data sesudah waktu replay.</p>
+                <p className="mt-2 text-[10px] text-op-fg-3">Tiap titik adalah prakiraan yang diterbitkan pada jam tersebut; tidak ada data sesudah waktu replay.</p>
               </Panel>
             </>
           ) : (
-            <EmptyState title="Jam replay belum berjalan" className="rounded-lg border border-op-border bg-op-surface-1 py-8" />
+            <EmptyState title="Jam replay belum berjalan" className="rounded-lg border border-white/5 bg-op-surface-1 py-8" />
           )}
         </div>
 
         <div className="min-w-0 space-y-3">
           <PolderStatusPanel unit={unit} status={snap?.status ?? null} history={statusHistory} />
 
-          <Panel title="Rekomendasi untuk polder ini" icon={ClipboardCheck} right={<Link href="/operator/rekomendasi" className="text-xs text-op-accent hover:underline">Semua</Link>}>
+          <Panel title="Rekomendasi untuk polder ini" icon={ClipboardCheck} right={<Link href="/operator/rekomendasi" className="text-xs text-blue-400 transition-colors hover:text-blue-300">Semua</Link>}>
             {recs.length === 0 ? (
               <EmptyState title="Belum ada rekomendasi" description="Saran muncul di sini saat aturan pemicu terpenuhi." className="py-4" />
             ) : (
               <div className="space-y-3">
                 {open.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-op-fg-3">Terbuka</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-op-fg-3">Terbuka</p>
                     {open.map((r) => (
                       <RecommendationCard
                         key={r.id}
@@ -349,7 +349,7 @@ export function PolderDetailView({ polderId }: { polderId: string }) {
                 )}
                 {past.length > 0 && (
                   <div className="space-y-2">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-op-fg-3">Sebelumnya</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-op-fg-3">Sebelumnya</p>
                     {past.map((r) => (
                       <RecommendationCard
                         key={r.id}

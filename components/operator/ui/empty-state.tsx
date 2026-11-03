@@ -23,13 +23,13 @@ export function EmptyState({
     <div
       role="status"
       className={cn(
-        'flex flex-col items-center justify-center gap-2 px-4 py-6 text-center',
+        'flex flex-col items-center justify-center gap-1.5 px-3 py-5 text-center',
         className,
       )}
     >
-      <Icon className="h-5 w-5 text-op-fg-3" aria-hidden />
-      <p className="text-sm font-medium text-op-fg">{title}</p>
-      {description && <p className="max-w-xs text-xs text-op-fg-2">{description}</p>}
+      <Icon className="h-4 w-4 text-op-fg-3" aria-hidden />
+      <p className="text-xs font-semibold text-op-fg">{title}</p>
+      {description && <p className="max-w-xs text-[11px] text-op-fg-2">{description}</p>}
       {children}
     </div>
   );

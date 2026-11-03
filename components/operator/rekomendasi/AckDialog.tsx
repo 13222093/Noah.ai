@@ -66,8 +66,8 @@ function AckForm({
               aria-checked={active}
               onClick={() => setAction(a)}
               className={cn(
-                'flex items-start gap-3 rounded border px-3 py-2 text-left transition-colors',
-                active ? 'border-op-accent bg-op-accent/10' : 'border-op-border bg-op-surface-1 hover:border-op-border-strong',
+                'flex items-start gap-3 rounded-lg border px-3 py-2 text-left transition-colors',
+                active ? 'border-op-accent/50 bg-op-accent/10' : 'border-white/5 bg-op-surface-1 hover:bg-white/5',
               )}
             >
               <span
@@ -80,8 +80,8 @@ function AckForm({
                 {active && <Check className="h-3 w-3" />}
               </span>
               <span>
-                <span className="block text-sm font-semibold text-op-fg">{meta.label}</span>
-                <span className="block text-xs text-op-fg-2">{meta.description}</span>
+                <span className="block text-xs font-semibold text-op-fg">{meta.label}</span>
+                <span className="block text-[11px] text-op-fg-2">{meta.description}</span>
               </span>
             </button>
           );
@@ -94,14 +94,14 @@ function AckForm({
           onChange={(e) => setNote(e.target.value)}
           maxLength={500}
           placeholder="Misalnya: 2 pompa dinyalakan pukul 05.10, menunggu operator shift pagi."
-          className="mt-1 text-sm"
+          className="mt-1"
         />
       </label>
       <DialogFooter className="gap-2">
         <button
           type="button"
           onClick={onDone}
-          className="rounded border border-op-border-strong bg-op-surface-3 px-3 py-1.5 text-sm text-op-fg hover:border-op-fg-3"
+          className="h-8 rounded-lg border border-white/10 bg-white/5 px-3 text-xs font-medium text-op-fg transition-colors hover:bg-white/10"
         >
           Batal
         </button>
@@ -109,7 +109,7 @@ function AckForm({
           type="button"
           onClick={save}
           disabled={!action}
-          className="rounded bg-op-accent-fill px-3 py-1.5 text-sm font-semibold text-op-on-accent hover:bg-op-accent-fill/90 disabled:bg-op-surface-3 disabled:text-op-fg-disabled"
+          className="h-8 rounded-lg bg-op-accent-fill px-3 text-xs font-semibold text-op-on-accent shadow-sm transition-colors hover:bg-op-accent-fill/90 disabled:bg-op-surface-3 disabled:text-op-fg-disabled disabled:shadow-none"
         >
           Simpan tanggapan
         </button>
@@ -138,7 +138,7 @@ export function AckDialog({
         {rec && (
           <>
             <DialogHeader>
-              <DialogTitle className="font-heading text-base">Tanggapi rekomendasi</DialogTitle>
+              <DialogTitle className="text-sm font-bold">Tanggapi rekomendasi</DialogTitle>
               <DialogDescription>
                 {rec.title} · {polderName} · terbit {formatWibTime(rec.provenance.ts)}. Catat apa yang Anda putuskan;
                 Noah hanya menyarankan.
