@@ -1,5 +1,6 @@
 'use client';
 
+import { DARK_TILE_URL } from '@/lib/cartoTiles';
 import React from 'react';
 import { DEFAULT_MAP_CENTER } from '@/lib/constants';
 import { CombinedWeatherData, OpenWeatherMapCurrentResponse } from '@/lib/api';
@@ -43,7 +44,7 @@ export function WeatherMapIframe({
     // Tentukan URL Tile Layer berdasarkan tema
     const isDark = theme === 'dark';
     const tileUrl = isDark
-      ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
+      ? DARK_TILE_URL
       : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 
     const mapBackground = isDark ? '#334155' : '#aad3df';

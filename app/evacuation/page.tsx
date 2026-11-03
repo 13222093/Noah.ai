@@ -1,5 +1,6 @@
 'use client';
 
+import { DARK_TILE_URL } from '@/lib/cartoTiles';
 import React, { useState, useEffect } from 'react';
 import 'leaflet/dist/leaflet.css';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -211,7 +212,7 @@ export default function InfoEvakuasiPage() {
                   <ChangeView center={mapCenter} zoom={mapZoom} />
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                    url={DARK_TILE_URL}
                   />
                   {evacuationLocations.map((loc) => (
                     <Marker key={loc.id} position={[loc.latitude, loc.longitude]} icon={evacuationIcon} eventHandlers={{ click: () => handleLocationClick(loc) }}>

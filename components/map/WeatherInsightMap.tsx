@@ -1,5 +1,6 @@
 'use client';
 
+import { DARK_TILE_URL } from '@/lib/cartoTiles';
 import React, { useEffect, useState, useRef, useCallback, useId } from 'react';
 import {
   MapContainer as _MapContainer,
@@ -225,7 +226,7 @@ export default function WeatherInsightMap({
     const isDark = currentTheme === 'dark';
 
     const tileUrl = isDark
-        ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+        ? DARK_TILE_URL
         : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
 
     const showAqiData = activeMode === 'aqi' && currentZoom >= MIN_AQI_ZOOM;
