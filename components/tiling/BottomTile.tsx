@@ -10,8 +10,10 @@ import { Waves, Activity, Search, ChevronDown, ChevronUp, ChevronRight, Shield, 
 import type { SegmentedTab } from './SegmentedControl';
 import { cn } from '@/lib/utils';
 import { CCTV_CHANNELS } from '@/lib/constants';
+import { OperatorTabSummary } from '@/components/operator/dashboard/OperatorTabSummary';
 
 const BOTTOM_TABS: SegmentedTab[] = [
+  { id: 'operator', label: 'Operator', icon: UserCheck },
   { id: 'evacuation', label: 'Evacuation', icon: Shield },
   { id: 'cctv', label: 'CCTV AI', icon: Video },
   { id: 'berita', label: 'Berita Regional', icon: Newspaper },
@@ -80,6 +82,9 @@ export function BottomTile() {
 
   const renderContent = () => {
     switch (activeTab) {
+      case 'operator':
+        return <OperatorTabSummary />;
+
       case 'infrastructure':
         return (
           <div className="flex flex-col h-full">
@@ -794,7 +799,8 @@ export function BottomTile() {
         onTabChange={(id) => { setActiveTab(id); setWaterSearch(''); setPumpSearch(''); }}
         tabVariant="text"
         seeFullRoute={
-          activeTab === 'infrastructure' ? '/sensor-data'
+          activeTab === 'operator' ? '/operator'
+          : activeTab === 'infrastructure' ? '/sensor-data'
           : activeTab === 'evacuation' ? '/evacuation'
           : activeTab === 'sensor' ? '/sensor-data'
           : activeTab === 'status' ? '/statistics'

@@ -1,0 +1,230 @@
+/* ============================================
+   TILING LAYOUT — Hyprland-Inspired Grid
+   ============================================ */
+
+/* Root tiling container. Fills the app main area (the status bar and the
+   playback bar are part of the app chrome). Areas make side tiles optional. */
+.op-tiling-wrap {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.op-tiling-root {
+  display: grid;
+  grid-template-columns: var(--op-tiling-left-w, 320px) minmax(0, 1fr) var(--op-tiling-right-w, 340px);
+  grid-template-rows: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'left master right'
+    'bottom bottom bottom';
+  gap: 1px;
+  height: 100%;
+  background: rgb(var(--op-border)); /* 1px gaps read as panel borders */
+  overflow: hidden;
+}
+
+.op-tiling-root--no-left {
+  grid-template-columns: minmax(0, 1fr) var(--op-tiling-right-w, 340px);
+  grid-template-areas:
+    'master right'
+    'bottom bottom';
+}
+
+/* ---- Tile Placement ---- */
+.op-tiling-left {
+  grid-area: left;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.op-tiling-master {
+  grid-area: master;
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
+}
+
+.op-tiling-right {
+  grid-area: right;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.op-tiling-bottom-area {
+  grid-area: bottom;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---- Tile Styling ---- */
+.op-tiling-tile {
+  background: rgb(var(--op-surface-1));
+  overflow: hidden;
+}
+
+/* ---- Responsive: 768-1279px: left tile folds into the right one ---- */
+@media (max-width: 1279px) {
+  .op-tiling-root,
+  .op-tiling-root--no-left {
+    grid-template-columns: minmax(0, 1fr) var(--op-tiling-right-w, 340px);
+    grid-template-areas:
+      'master right'
+      'bottom bottom';
+  }
+
+  .op-tiling-left {
+    display: none;
+  }
+}
+
+/* ---- Responsive: <768px (mobile): map plus bottom sheet ---- */
+@media (max-width: 767px) {
+  .op-tiling-root,
+  .op-tiling-root--no-left {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    grid-template-areas: 'master';
+    gap: 0;
+  }
+
+  .op-tiling-left,
+  .op-tiling-right,
+  .op-tiling-bottom-area {
+    display: none;
+  }
+}
+
+/* ---- Drag Divider ---- */
+.op-drag-divider {
+  background: rgb(var(--op-page));
+}
+
+/* ---- Scrollbar Styling (inside tiles) ---- */
+.op-tiling-tile ::-webkit-scrollbar {
+  width: 4px;
+}
+
+.op-tiling-tile ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.op-tiling-tile ::-webkit-scrollbar-thumb {
+  background: rgb(var(--op-border-strong));
+  border-radius: 2px;
+}
+
+.op-tiling-tile ::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--op-fg-disabled));
+}
+
+/* ---- Scrollbar Hide Utility ---- */
+.op-scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.op-scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Mobile Sheet ---- */
+.op-mobile-sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgb(var(--op-surface-1));
+  border-top: 1px solid rgb(var(--op-border-strong));
+  border-radius: var(--op-radius-panel) var(--op-radius-panel) 0 0;
+  display: flex;
+  flex-direction: column;
+  will-change: height;
+}
+
+.op-mobile-sheet-handle {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0 4px;
+  cursor: grab;
+}
+
+.op-mobile-sheet-handle-bar {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgb(var(--op-border-strong));
+}
+
+.op-mobile-sheet-tabs {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 0 8px 6px;
+  overflow-x: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.op-mobile-sheet-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.op-mobile-sheet-tab {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  border-radius: var(--op-radius);
+  font-size: 11px;
+  font-weight: 500;
+  color: rgb(var(--op-fg-2));
+  background: transparent;
+  border: none;
+  white-space: nowrap;
+  transition: color 0.1s, background-color 0.1s;
+  cursor: pointer;
+}
+
+.op-mobile-sheet-tab:hover {
+  color: rgb(var(--op-fg));
+  background: rgb(var(--op-surface-3));
+}
+
+.op-mobile-sheet-tab-active {
+  color: rgb(var(--op-on-accent));
+  background: rgb(var(--op-accent-fill));
+}
+
+.op-mobile-sheet-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: var(--op-radius);
+  color: rgb(var(--op-fg-3));
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.op-mobile-sheet-close:hover {
+  color: rgb(var(--op-fg));
+  background: rgb(var(--op-surface-3));
+}
+
+.op-mobile-sheet-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+/* Hide mobile sheet on desktop */
+@media (min-width: 768px) {
+  .op-mobile-sheet {
+    display: none;
+  }
+}

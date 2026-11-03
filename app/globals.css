@@ -519,3 +519,191 @@
 .btn-hover:hover { @apply transform scale-105 shadow-lg; }
 .card-hover { @apply transition-all duration-300 ease-in-out; }
 .card-hover:hover { @apply transform -translate-y-1 shadow-xl; }
+
+/* =====================================================================
+ * OPERATOR SECTION TOKENS (/operator/**) — additive, namespaced.
+ *
+ * Used only by components/operator/** and app/operator/** through the
+ * `op-*` Tailwind colours (tailwind.config.ts, theme.extend.colors.op) and
+ * tokenColor() in components/operator/ops/meta.ts. Nothing in the original
+ * app reads these variables, and the old shadcn (--border, --accent, ...) and
+ * --cc-* tokens are untouched.
+ *
+ * Values are RGB channels so Tailwind opacity modifiers work
+ * (`bg-op-risk-tinggi/20`). They map to the original Noah dark design:
+ * page/surfaces/borders/text from the dark --cc-* values, the cyan accent,
+ * and the old status colours for risk and Siaga. Violet stays for SIMULASI
+ * (the old app has no equivalent and the label must stay obvious).
+ * Light mode mirrors dark for now: the operator screens always render dark.
+ * Text-on-colour (`--op-on-*`) is chosen per colour for >= 4.5:1.
+ * ===================================================================== */
+:root {
+  /* Neutrals (old --cc-* dark values) */
+  --op-page: 10 14 26; /* #0a0e1a  --cc-bg */
+  --op-surface-1: 17 24 39; /* #111827  --cc-surface */
+  --op-surface-2: 26 34 54; /* #1a2236  --cc-elevated */
+  --op-surface-3: 37 48 70; /* #253046  hover, tracks (one step above elevated) */
+  --op-border: 30 41 59; /* #1e293b  --cc-border */
+  --op-border-strong: 51 65 85; /* #334155 */
+  --op-fg: 241 245 249; /* #f1f5f9  --cc-text */
+  --op-fg-2: 148 163 184; /* #94a3b8  --cc-text-secondary */
+  --op-fg-3: 139 154 176; /* #8b9ab0  muted, >= 4.5:1 on page and all surfaces */
+  --op-fg-disabled: 100 116 139; /* #64748b  also: stale data */
+
+  /* Interaction accent: the old cyan */
+  --op-accent: 0 229 255; /* #00e5ff  --cc-cyan */
+  --op-accent-fill: 0 229 255;
+  --op-on-accent: 10 14 26; /* dark text on cyan, 12.5:1 */
+
+  /* Risk scale (polders): old status colours */
+  --op-risk-rendah: 0 230 118; /* #00e676  --cc-safe */
+  --op-risk-sedang: 255 145 0; /* #ff9100  --cc-caution */
+  --op-risk-tinggi: 255 61 0; /* #ff3d00  --cc-warning */
+  --op-risk-sangat-tinggi: 255 23 68; /* #ff1744  --cc-critical */
+  --op-on-risk-rendah: 10 14 26; /* 11.5:1 */
+  --op-on-risk-sedang: 10 14 26; /* 8.5:1 */
+  --op-on-risk-tinggi: 10 14 26; /* 5.4:1 (white would be 3.6:1) */
+  --op-on-risk-sangat-tinggi: 10 14 26; /* 5.0:1 (white would be 3.9:1) */
+
+  /* Siaga scale (posts): old status colours */
+  --op-siaga-normal: 0 230 118; /* #00e676 */
+  --op-siaga-3: 255 145 0; /* #ff9100 */
+  --op-siaga-2: 255 61 0; /* #ff3d00 */
+  --op-siaga-1: 255 23 68; /* #ff1744 */
+  --op-siaga-unknown: 100 116 139; /* #64748b */
+  --op-on-siaga-normal: 10 14 26;
+  --op-on-siaga-3: 10 14 26;
+  --op-on-siaga-2: 10 14 26;
+  --op-on-siaga-1: 10 14 26;
+  --op-on-siaga-unknown: 255 255 255; /* 4.8:1 */
+
+  /* Provenance: SIMULASI violet, a hue no risk or Siaga level uses */
+  --op-sim: 157 140 245; /* #9d8cf5 */
+
+  /* Destructive actions only */
+  --op-danger: 255 23 68;
+  --op-on-danger: 10 14 26;
+
+  /* Hatch for an unchanging (suspect) sensor: neutral, never a Siaga colour */
+  --op-hatch-a: 139 154 176;
+  --op-hatch-b: 37 48 70;
+
+  --op-shadow-popover: 0 8px 24px rgb(0 0 0 / 0.5);
+  --op-radius: 4px; /* controls, chips */
+  --op-radius-panel: 6px; /* cards, panels (as .cc-panel) */
+}
+
+/* Operator map layers (Leaflet divIcons and tooltips) */
+.leaflet-tooltip.ops-tooltip {
+  background: rgb(var(--op-surface-2));
+  color: rgb(var(--op-fg));
+  border: 1px solid rgb(var(--op-border-strong));
+  border-radius: var(--op-radius-panel);
+  box-shadow: var(--op-shadow-popover);
+  padding: 8px 10px;
+  white-space: normal;
+  font-family: var(--font-space-grotesk), sans-serif;
+}
+
+.leaflet-tooltip-top.ops-tooltip::before {
+  border-top-color: rgb(var(--op-border-strong));
+}
+
+.leaflet-tooltip-bottom.ops-tooltip::before {
+  border-bottom-color: rgb(var(--op-border-strong));
+}
+
+.leaflet-tooltip-left.ops-tooltip::before {
+  border-left-color: rgb(var(--op-border-strong));
+}
+
+.leaflet-tooltip-right.ops-tooltip::before {
+  border-right-color: rgb(var(--op-border-strong));
+}
+
+.ops-polder-label {
+  pointer-events: none;
+}
+
+.ops-polder-label__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1.05;
+  text-align: center;
+  /* Legibility halo on the basemap (a text outline, not a glow) */
+  text-shadow: 0 0 2px rgb(var(--op-page)), 0 0 2px rgb(var(--op-page)), 0 1px 2px rgb(var(--op-page));
+}
+
+.ops-polder-label__inner b {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 14px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.ops-polder-label__inner span {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgb(var(--op-fg));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+/* Station marker: square chip in the Siaga colour */
+.ops-station {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--op-radius);
+  border: 1px solid rgb(var(--op-page));
+  outline: 1px solid rgb(var(--op-fg) / 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Unchanging (suspect) sensor: neutral hatch, never a Siaga colour */
+.ops-station--suspect {
+  background: repeating-linear-gradient(45deg, rgb(var(--op-hatch-a)) 0 3px, rgb(var(--op-hatch-b)) 3px 6px);
+  color: rgb(var(--op-page));
+  outline-style: dashed;
+}
+
+/* Old data: greyed out */
+.ops-station--stale {
+  opacity: 0.45;
+  filter: grayscale(1);
+}
+
+/* Small hatched swatch for legends */
+.ops-hatch {
+  background: repeating-linear-gradient(45deg, rgb(var(--op-hatch-a)) 0 2px, rgb(var(--op-hatch-b)) 2px 4px);
+}
+
+/* Zoomed out: show only the percentage on polder labels */
+.ops-zoomed-out .ops-polder-label__inner span {
+  display: none;
+}
+
+/* Horizontal chip rows (playback moments) scroll without a visible bar */
+.op-scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.op-scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Times, %, cm and mm on operator chart axes and tooltips line up. */
+.op-charts .recharts-cartesian-axis-tick-value,
+.op-charts .recharts-tooltip-wrapper,
+.op-charts .recharts-label {
+  font-variant-numeric: tabular-nums;
+}
+/* ===== END OPERATOR SECTION TOKENS ===== */

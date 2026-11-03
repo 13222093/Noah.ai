@@ -1,5 +1,9 @@
 import type { Config } from 'tailwindcss';
 
+// Operator section (/operator/**) colour token: RGB channels in the `--op-*`
+// block of app/globals.css, so opacity modifiers work (`bg-op-risk-tinggi/20`).
+const opToken = (name: string) => `rgb(var(--op-${name}) / <alpha-value>)`;
+
 const config: Config = {
   darkMode: ['class'],
   content: [
@@ -143,6 +147,61 @@ const config: Config = {
           'text-secondary': 'var(--cc-text-secondary)',
           'text-muted': 'var(--cc-text-muted)',
         },
+        // Operator section tokens (/operator/**, components/operator/**).
+        // Namespaced so they never collide with the shadcn / cc tokens above:
+        // bg-op-surface-1, text-op-fg-2, border-op-border, bg-op-risk-tinggi/20 ...
+        op: {
+          page: opToken('page'),
+          surface: {
+            1: opToken('surface-1'),
+            2: opToken('surface-2'),
+            3: opToken('surface-3'),
+          },
+          border: {
+            DEFAULT: opToken('border'),
+            strong: opToken('border-strong'),
+          },
+          fg: {
+            DEFAULT: opToken('fg'),
+            2: opToken('fg-2'),
+            3: opToken('fg-3'),
+            disabled: opToken('fg-disabled'),
+          },
+          accent: {
+            DEFAULT: opToken('accent'),
+            fill: opToken('accent-fill'),
+          },
+          'on-accent': opToken('on-accent'),
+          risk: {
+            rendah: opToken('risk-rendah'),
+            sedang: opToken('risk-sedang'),
+            tinggi: opToken('risk-tinggi'),
+            'sangat-tinggi': opToken('risk-sangat-tinggi'),
+          },
+          'on-risk': {
+            rendah: opToken('on-risk-rendah'),
+            sedang: opToken('on-risk-sedang'),
+            tinggi: opToken('on-risk-tinggi'),
+            'sangat-tinggi': opToken('on-risk-sangat-tinggi'),
+          },
+          siaga: {
+            normal: opToken('siaga-normal'),
+            3: opToken('siaga-3'),
+            2: opToken('siaga-2'),
+            1: opToken('siaga-1'),
+            unknown: opToken('siaga-unknown'),
+          },
+          'on-siaga': {
+            normal: opToken('on-siaga-normal'),
+            3: opToken('on-siaga-3'),
+            2: opToken('on-siaga-2'),
+            1: opToken('on-siaga-1'),
+            unknown: opToken('on-siaga-unknown'),
+          },
+          sim: opToken('sim'),
+          danger: opToken('danger'),
+          'on-danger': opToken('on-danger'),
+        },
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
@@ -214,6 +273,8 @@ const config: Config = {
         'glass-inset': 'inset 0 0 0 1px rgba(255, 255, 255, 0.05)',
         glow: '0 0 20px rgba(6, 182, 212, 0.3)',
         'glow-lg': '0 0 30px rgba(6, 182, 212, 0.4)',
+        // Operator section: popovers, tooltips and dialogs.
+        'op-popover': 'var(--op-shadow-popover)',
       },
     },
   },

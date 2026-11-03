@@ -17,6 +17,7 @@ import {
   Loader,
   CloudSun,
   Video,
+  Waves,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAlertCount } from '@/components/contexts/AlertCountContext';
@@ -33,6 +34,7 @@ interface NavRailItem {
 
 const navItems: NavRailItem[] = [
   { id: 'command', label: 'Command', icon: LayoutDashboard, href: '/dashboard', panelId: 'alerts' },
+  { id: 'operator', label: 'Operator', icon: Waves, href: '/operator' },
   { id: 'alerts', label: 'Alerts', icon: AlertTriangle, href: '/alerts', panelId: 'alerts' },
   { id: 'data', label: 'Data', icon: Database, href: '/sensor-data', panelId: 'data' },
   { id: 'weather', label: 'Weather', icon: CloudSun, href: '/current-weather', panelId: 'weather' },
@@ -119,6 +121,7 @@ export function NavRail() {
       return activePanel === item.panelId;
     }
     if (item.id === 'command') return pathname === '/dashboard';
+    if (item.id === 'operator') return pathname === '/operator' || pathname.startsWith('/operator/');
     if (item.id === 'alerts') return pathname === '/alerts';
     if (item.id === 'data') return pathname === '/sensor-data' || pathname === '/evacuation' || pathname === '/statistics';
     if (item.id === 'weather') return pathname === '/current-weather';
